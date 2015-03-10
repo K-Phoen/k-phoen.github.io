@@ -2,6 +2,8 @@ highlighter: pygments
 markdown: redcarpet
 timezone: Europe/Paris
 encoding: utf-8
+exclude: [ README.md, Gemfile ]
+permalink: pretty
 
 site:
     author: Kévin Gomez
