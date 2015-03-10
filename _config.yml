@@ -1,0 +1,10 @@
+highlighter: pygments
+markdown: redcarpet
+timezone: Europe/Paris
+encoding: utf-8
+
+site:
+    author: Kévin Gomez
+    title:  Kévin Gomez
+    url:    http://blog.kevingomez.fr
+    email:  contact@kevingomez.fr

@@ -1,0 +1,19 @@
+---
+layout: default
+---
+
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">{{ page.title }}</h1>
+        <div class="postDetails">
+            <time pubdate="pubdate" datetime="{{ page.date | date_to_xmlschema }}">
+                <meta itemprop="datePublished" content="{{ page.date | date_to_xmlschema }}" />
+                {{ page.date | date_to_long_string }}
+            </time>
+        </div>
+    </header>
+
+    <div class="postBody" itemprop="articleBody">
+        {{ content }}
+    </div>
+</article>

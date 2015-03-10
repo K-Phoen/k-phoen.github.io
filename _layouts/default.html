@@ -1,0 +1,39 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="author" content="{{ site.author }}" />
+
+    <title>{{ page.title }} &mdash; Kévin Gomez</title>
+    <link rel="stylesheet" href="{{ page.theme_dir }}/css/normalize.css"/>
+    <link rel="stylesheet" href="{{ page.theme_dir }}/css/foundation.css"/>
+    <link rel="stylesheet" href="{{ page.theme_dir }}/css/pygments.css" />
+    <link rel="stylesheet" href="{{ page.theme_dir }}/css/style.css"/>
+
+    <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Source+Sans+Pro%3A300%2C400%2C700%2C300italic%2C400italic%2C700italic%7CBitter%3A400%2C700&#038;subset=latin%2Clatin-ext' />
+</head>
+<body>
+<header class="row main">
+    <div class="large-9 columns">
+        <h1><a href="/">Blog &mdash; Kévin Gomez</a></h1>
+    </div>
+
+    <div class="large-3 columns">
+        <nav class="nav-bar right">
+            <ul class="inline-list">
+                <li><a href="http://www.kevingomez.fr/">About</a></li>
+                <li><a href="#todo">RSS</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<div class="row">
+    <div class="large-12 columns" role="content">
+        {{ content }}
+    </div>
+</div>
+</body>
+</html>
