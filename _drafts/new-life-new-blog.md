@@ -22,8 +22,13 @@ discover new languages, new technologies and meet other developers.
 
 Now looks like the right time to get a fresh start and my blog will be the first
 to reflect it.
-
 From now on, I'll try to write as much posts as possible in English about what I
 do at works or for [my open-source projects](https://github.com/K-Phoen).
 
-Stay tuned.
+And that's what this new blog we'll be all about: computer science,
+open-source... in fact, everything I enjoy doing.
+All that powered by [Jekyll](https://github.com/jekyll/jekyll), written in
+Markown and [hosted on GitHub](https://github.com/K-Phoen/k-phoen.github.io)
+(and yup, PRs accepted).
+
+Stay tuned guys, it's going to rock.
