@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="author" content="{{ site.author }}" />
+    <meta name="author" content="{{ site.config.author }}" />
 
     <title>{{ page.title }} &mdash; Kévin Gomez</title>
 
@@ -24,8 +24,9 @@
     <div class="large-3 columns">
         <nav class="nav-bar right">
             <ul class="inline-list">
-                <li><a href="http://www.kevingomez.fr/">About</a></li>
-                <li><a href="/atom.xml">RSS</a></li>
+                {% for link in site.config.menu %}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                {% endfor %}
             </ul>
         </nav>
     </div>

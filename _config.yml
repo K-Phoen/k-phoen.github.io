@@ -5,8 +5,14 @@ encoding: utf-8
 exclude: [ README.md, Gemfile ]
 permalink: pretty
 
-site:
+config:
     author: Kévin Gomez
     title:  Kévin Gomez
     url:    http://blog.kevingomez.fr
     email:  contact@kevingomez.fr
+
+    menu:
+        - url:    http://www.kevingomez.fr
+          title:  about
+        - url:    /atom.xml
+          title:  rss
