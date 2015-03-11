@@ -4,11 +4,11 @@ title: RulerZ, specifications and Symfony are in a boat
 ---
 
 In [my previous article](http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/), I tried to answer the following question: **how do you keep your Doctrine repositories from growing exponentially**?
-Long story short, I came up with a generic solution based on the [Specification pattern](http://en.wikipedia.org/wiki/Specification_pattern) that essentially **abstracts and simplifies** the way we write and compose **queries**. And the best part is that it works with Doctrine but also with any other datasource.
+Long story short, I came up with a generic solution based on the [Specification pattern](http://en.wikipedia.org/wiki/Specification_pattern) that essentially **abstracts and simplifies** the way we write and compose **queries**. And the best part is that it works with Doctrine but also with any other data-source.
 
 **[RulerZ](https://github.com/K-Phoen/rulerz) was born**.
 
-Of course, there was a real need behind my previous question. For one of my current projects, I wanted to be able to switch from one datasource to another. My application would use Doctrine in development and production environment but for tests I wanted my data to live in memory.
+Of course, there was a real need behind my previous question. For one of my current projects, I wanted to be able to switch from one data-source to another. My application would use Doctrine in development and production environment but for tests I wanted my data to live in memory.
 
 First thing first, I needed to be able to **manipulate** my **data**.
 
@@ -16,13 +16,13 @@ To achieve that, I defined a <code>CompanyRepository</code> interface — it's a
 
 In the beginning, I only needed to save a company and retrieve it by it's slug so both implementations were simple and it all worked as expected. The real issue came when I started to implement a search engine. For each new search criteria, I had to update two classes and implement the same criteria twice.
 
-At this point, my repositories looked like this :
+At this point, my repositories looked like this:
 
 <script src="https://gist.github.com/K-Phoen/5c1b06a864d063c1ee4e.js?file=old_repositories.php"></script>
 
 The first issue is that my <code>CompanyRepository::search(array $criteria)</code> method violates the [open/closed principle](http://en.wikipedia.org/wiki/Open/closed_principle). This is solved by replacing the <code>$criteria</code> parameter by [specifications](http://en.wikipedia.org/wiki/Specification_pattern). Each specification representing a single search criteria.
 
-The second issue is that with *"classic"* specifications, the same specification can't be used to filter data from several datasources. We saw that with RulerZ, this [problem is solved](http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/).
+The second issue is that with *"classic"* specifications, the same specification can't be used to filter data from several data-sources. We saw that with RulerZ, this [problem is solved](http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/).
 
 **Using RulerZ**, the two previous repositories can be refactored:
 
@@ -46,5 +46,5 @@ What's important is that combining the Form Component, a simple transformer and 
 
 <script src="https://gist.github.com/K-Phoen/5c1b06a864d063c1ee4e.js?file=search_controller.php"></script>
 
-Do you see the magic? A classic **form type** can automatically **build specifications** that can be used to **retrieve data** from a Doctrine repository, an in-memory repository or virtually any other datasource.
+Do you see the magic? A classic **form type** can automatically **build specifications** that can be used to **retrieve data** from a Doctrine repository, an in-memory repository or virtually any other data-source.
 Also, adding new search criteria boils down to writing its specification and adding a new field in the form type. How cool is that?
