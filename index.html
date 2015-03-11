@@ -4,16 +4,18 @@ title: Blog
 ---
 
 <section class="posts" itemscope itemtype="http://schema.org/Blog">
+    <h1>Posts</h1>
+
     {% for post in site.posts %}
     <article itemscope itemtype="http://schema.org/BlogPosting" itemprop="blogPost">
         <header>
             <h1 itemprop="headline"><a href="{{ post.url }}">{{ post.title }}</a></h1>
-            <div class="postDetails">
+            <span class="postDetails">
                 <time pubdate="pubdate" datetime="{{ post.date | date_to_xmlschema }}">
                     <meta itemprop="datePublished" content="{{ post.date | date_to_xmlschema }}" />
                     {{ post.date | date_to_long_string }}
                 </time>
-            </div>
+            </span>
         </header>
 
         <section class="postExcerpt" itemprop="description">
