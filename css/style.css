@@ -1,5 +1,4 @@
-/** header navigation */
-
+/** general */
 body, h1, h2, h3, h4, h5, h6 {
     font-family: "Source Sans Pro",sans-serif;
 }
@@ -8,6 +7,7 @@ table {
     width: 100%;
 }
 
+/** header navigation */
 header.main {
     border-bottom: 1px solid #ddd;
     margin-bottom: 30px;
@@ -16,10 +16,11 @@ header.main {
 
 header.main h1 {
     font-weight: bold;
+    font-size: 1.8rem;
 }
 
-header.main h1, header.main ul {
-    font-size: 1.8rem;
+header.main nav ul {
+    font-size: 1.5rem;
 }
 
 /** posts + post */
