@@ -1,7 +1,7 @@
 /** header navigation */
 
 body, h1, h2, h3, h4, h5, h6 {
-    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    font-family: "Source Sans Pro",sans-serif;
 }
 
 table {
@@ -22,39 +22,33 @@ header.main h1, header.main ul {
     font-size: 1.8rem;
 }
 
-/** home */
-
-ul.posts, ul.posts-by-year, ul.posts li {
-    margin: 0;
-    list-style: none;
-}
-
-ul.posts h2 {
-    font-size: 1.5rem;
-}
-
-ul.posts time {
-    width: 53px;
-}
-
-/** posts */
-
-article header {
-    margin-bottom: 20px;
+/** posts + post */
+article header h1 {
+    margin-bottom: 0;
 }
 
 article header .postDetails {
     color: #7F7F7F;
     font-weight: bold;
+    font-size: 0.9rem;
 }
 
-article header h1 {
-    font-size: 1.8rem;
-    margin-bottom: 0;
+article header {
+    margin-bottom: 10px;
 }
 
-article .postBody {
+article p {
     text-align: justify;
+}
+
+/** posts */
+.posts header h1 {
+    font-size: 1.3rem;
+}
+
+/** post */
+article.post header h1 {
+    font-size: 1.8rem;
 }
 
 /** code blocks */
