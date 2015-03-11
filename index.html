@@ -17,7 +17,11 @@ title: Blog
         </header>
 
         <section class="postExcerpt" itemprop="description">
+            {% if post.description %}
+            <p>{{ post.description }}</p>
+            {% else %}
             {{ post.excerpt }}
+            {% endif %}
         </section>
     </article>
     {% endfor %}
