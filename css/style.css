@@ -76,3 +76,7 @@ table.highlighttable, table.highlighttable .code, .gist .line-data {
     border: none;
     background-color: inherit;
 }
+
+.gist table td {
+    line-height: 1.4;
+}
