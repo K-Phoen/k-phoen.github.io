@@ -32,7 +32,55 @@ criteria, I had to update two classes and implement the same criteria twice.
 
 At this point, my repositories looked like this:
 
-<script src="https://gist.github.com/K-Phoen/5c1b06a864d063c1ee4e.js?file=old_repositories.php"></script>
+{% highlight php %}
+<?php
+interface CompanyRepository
+{
+    public function save(Company $company);
+    public function find($slug);
+    public function search(array $criteria = []);
+}
+
+class DoctrineCompanyRepository extends EntityRepository implements CompanyRepository
+{
+    // ...
+
+    public function search(array $criteria = [])
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        if (!empty($criteria['name'])) {
+            $qb
+                ->andWhere('c.name LIKE :name')
+                ->setParameter('name', sprintf('%%%s%%', $criteria['name']));
+        }
+
+        // other criteria
+
+        return $qb->getQuery()->getResult();
+    }
+}
+
+class InMemoryCompanyRepository implements CompanyRepository
+{
+    // ...
+
+    public function search(array $criteria = [])
+    {
+        $companies = $this->companies;
+
+        if (!empty($criteria['name'])) {
+            $companies = array_filter($companies, function($company) use ($criteria) {
+                return stripos(strtolower($company->getName()), strtolower($criteria['name'])) !== false;
+            });
+        }
+
+        // other criteria
+
+        return $companies;
+    }
+}
+{% endhighlight %}
 
 The first issue is that my `CompanyRepository::search(array $criteria)`
 method violates the [open/closed principle](http://en.wikipedia.org/wiki/Open/closed_principle).
@@ -45,7 +93,39 @@ this [problem is solved](http://blog.kevingomez.fr/2015/02/07/on-taming-reposito
 
 **Using RulerZ**, the two previous repositories can be refactored:
 
-<script src="https://gist.github.com/K-Phoen/5c1b06a864d063c1ee4e.js?file=new_repositories.php"></script>
+{% highlight php %}
+<?php
+interface CompanyRepository
+{
+    public function save(Company $company);
+    public function find($slug);
+    public function matchingSpec(Specification $spec);
+}
+
+class DoctrineCompanyRepository extends EntityRepository implements CompanyRepository
+{
+    // ...
+
+    public function matchingSpec(Specification $spec)
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        return $this->rulerz->filterSpec($qb, $spec);
+    }
+}
+
+class InMemoryCompanyRepository implements CompanyRepository
+{
+    private $companies = [];
+
+    // ...
+
+    public function matchingSpec(Specification $spec)
+    {
+        return $this->rulerz->filterSpec($this->companies, $spec);
+    }
+}
+{% endhighlight %}
 
 You probably noticed a <small>not so</small> subtle difference compared to the
 old repositories: I rely on RulerZ so I have to inject it somehow. Lucky me,
@@ -63,7 +143,32 @@ don't you think?
 
 With that in mind, I wrote the following form type:
 
-<script src="https://gist.github.com/K-Phoen/5c1b06a864d063c1ee4e.js?file=search_form_type.php"></script>
+{% highlight php %}
+<?php
+class CompanySearchType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $terms = $builder
+            ->create('who')
+            ->addModelTransformer(
+                new SpecToStringTransformer(Spec\CompanyName::class, 'terms')
+            );
+
+        $location = $builder
+            ->create('where')
+            ->addModelTransformer(
+                new SpecToStringTransformer(Spec\CompanyLocation::class, 'location')
+            );
+
+        $builder
+            ->add($terms)
+            ->add($location);
+    }
+
+    // ...
+}
+{% endhighlight %}
 
 The form type itself is pretty straightforward, the only thing to notice is the
 usage of `SpecToStringTransformer`. It takes two parameters: the
@@ -75,7 +180,25 @@ read it, it's available as [a gist](https://gist.github.com/K-Phoen/5c1b06a864d0
 What's important is that combining the Form Component, a simple transformer and
 RulerZ leads to really simple controllers:
 
-<script src="https://gist.github.com/K-Phoen/5c1b06a864d063c1ee4e.js?file=search_controller.php"></script>
+{% highlight php %}
+<?php
+public function searchAction(Request $request)
+{
+    $results = [];
+    $form = $this->formFactory->create('company_search');
+    $form->handleRequest($request);
+
+    if ($form->isValid()) {
+        $spec = new Spec\AndX(array_merge(        // aggregate specifications
+            array_filter($form->getData()),       // remove empty fields/specs
+            array(new AppSpec\CompanyPublished()) // only display published companies
+        ));
+        $results = $this->companyRepository->matchingSpec($spec);
+    }
+
+    return $this->render('...');
+}
+{% endhighlight %}
 
 Do you see the magic? A classic **form type** can automatically **build
 specifications** that can be used to **retrieve data** from a Doctrine repository,
