@@ -64,6 +64,8 @@ table.highlighttable, table.highlighttable .code, .gist .line-data {
 }
 
 .highlight {
+    font-size: 12px;
+    margin: 10px 0;
     padding: 5px;
     background-color: #f0f0f0;
     border-color: #ddd #ddd #ccc;
