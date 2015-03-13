@@ -1,24 +1,52 @@
 <!doctype html>
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
-<html class="no-js" lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<html class="no-js" lang="en" dir="ltr">
+<head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="{{ site.config.author }}" />
 
-    <title>{{ page.title }} &mdash; Kévin Gomez</title>
+    {% if page.title %}
+        <title>{{ page.title }} &mdash; {{ site.config.title }}</title>
+        <meta property="og:title" content="{{ page.title }}" />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="{{ site.config.url }}{{ page.url }}" />
+        <meta property="og:description" content="{% if page.description %}{{ page.description }}{% endif %}" />
+
+        {% if page.date %}
+            <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+        {% endif %}
+
+        {% if page.tags %}
+            {% for tag in page.tags %}
+            <meta content="{{ tag }}" property="article:tag" />
+            {% endfor %}
+        {% endif %}
+
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@KPhoen" />
+        <meta name="twitter:creator" content="@KPhoen" />
+        <meta name="twitter:title" content="{{ page.title }}" />
+        <meta name="twitter:description" content="{% if page.description %}{{ page.description }}{% endif %}" />
+    {% else %}
+        <title>{{ site.config.title }}</title>
+        <meta property="og:title" content="{{ site.config.title }}" />
+        <meta property="og:type" content="website" />
+    {% endif %}
 
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro" />
 
-    <link rel="stylesheet" href="{{ page.theme_dir }}/css/normalize.css"/>
-    <link rel="stylesheet" href="{{ page.theme_dir }}/css/foundation.css"/>
+    <link rel="stylesheet" href="{{ page.theme_dir }}/css/normalize.css" />
+    <link rel="stylesheet" href="{{ page.theme_dir }}/css/foundation.css" />
     <link rel="stylesheet" href="{{ page.theme_dir }}/css/pygments.css" />
-    <link rel="stylesheet" href="{{ page.theme_dir }}/css/style.css"/>
+    <link rel="stylesheet" href="{{ page.theme_dir }}/css/style.css" />
 </head>
 <body>
 <header class="row main">
     <div class="large-9 columns">
-        <h1><a href="/">Blog &mdash; Kévin Gomez</a></h1>
+        <h1><a href="/">{{ site.config.title }}</a></h1>
     </div>
 
     <div class="large-3 columns">
