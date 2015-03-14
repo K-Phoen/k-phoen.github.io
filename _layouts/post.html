@@ -6,16 +6,30 @@ layout: default
     <header>
         <h1 itemprop="headline">{{ page.title }}</h1>
         <div class="postDetails">
-            <time pubdate="pubdate" datetime="{{ page.date | date_to_xmlschema }}">
-                <meta itemprop="datePublished" content="{{ page.date | date_to_xmlschema }}" />
-                {{ page.date | date_to_long_string }}
+            <meta itemprop="inLanguage" content="{% if page.language %}{{ page.language }}{% else %}en-US{% endif %}" />
+            <time pubdate="pubdate" datetime="{{ page.date|date_to_xmlschema }}">
+                <meta itemprop="datePublished" content="{{ page.date|date_to_xmlschema }}" />
+                {{ page.date|date_to_long_string }}
             </time>
         </div>
     </header>
 
+    {% if page.tldr %}
+    <section class="shortcuts">
+        <p><span class="label secondary radius">Jump to:</span> <a href="#tl-dr">TL;DR</a></p>
+    </section>
+    {% endif %}
+
     <section class="postBody" itemprop="articleBody">
         {{ content }}
     </section>
+
+    {% if page.tldr %}
+    <section>
+        <h2 id="tl-dr">TL;DR</h2>
+        {{ page.tldr|markdownify }}
+    </section>
+    {% endif %}
 
     <section class="comments">
         <div id="disqus_thread"></div>

@@ -58,6 +58,14 @@ article.post header h1 {
     font-size: 1.8rem;
 }
 
+article.post h2 {
+    font-size: 1.6rem;
+}
+
+article.post .label {
+    font-size: 0.8rem;
+}
+
 /** code blocks */
 table.highlighttable, table.highlighttable .code, .gist .line-data {
     width: 100%;

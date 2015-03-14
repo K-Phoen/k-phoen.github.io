@@ -19,7 +19,7 @@ layout: default
 
         <section class="postExcerpt" itemprop="description">
             {% if post.description %}
-            <p>{{ post.description }}</p>
+            {{ post.description|markdownify }}
             {% else %}
             {{ post.excerpt }}
             {% endif %}
