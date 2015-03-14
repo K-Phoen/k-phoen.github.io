@@ -10,7 +10,7 @@ tldr: >
     <ul>
 ---
 
-In [my previous article](http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/),
+In [my previous post](http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/),
 I tried to answer the following question: **how do you keep your Doctrine
 repositories from growing exponentially**?
 Long story short, I came up with a generic solution based on the
