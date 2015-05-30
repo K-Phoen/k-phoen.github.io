@@ -36,32 +36,46 @@
         <meta property="og:type" content="website" />
     {% endif %}
 
-    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro" />
-
-    <link rel="stylesheet" href="{{ page.theme_dir }}/css/foundation.css" />
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
     <link rel="stylesheet" href="{{ page.theme_dir }}/css/pygments-github.css" />
-    <link rel="stylesheet" href="{{ page.theme_dir }}/css/style.css" />
+    <link rel="stylesheet" href="{{ page.theme_dir }}/css/blog.css" />
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
 </head>
 <body>
-<header class="row main">
-    <div class="large-9 columns">
-        <h1><a href="/">{{ site.config.title }}</a></h1>
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-5">
+        <div class="header">
+            <h1 class="brand-title">Kévin Gomez</h1>
+            <h2 class="brand-tagline">I can git now.</h2>
+
+            <nav class="nav">
+                <ul class="nav-list">
+                    {% for link in site.config.menu %}
+                    <li class="nav-item">
+                        <a class="pure-button" href="{{ link.url }}">{{ link.title }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
     </div>
 
-    <div class="large-3 columns">
-        <nav class="nav-bar right">
-            <ul class="inline-list">
-                {% for link in site.config.menu %}
-                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-                {% endfor %}
-            </ul>
-        </nav>
-    </div>
-</header>
+    <div class="content pure-u-1 pure-u-md-4-5">
+        <div>
+            {{ content }}
 
-<div class="row">
-    <div class="large-12 columns" role="content">
-        {{ content }}
+            <div class="footer">
+                <div class="pure-menu pure-menu-horizontal">
+                    <ul>
+                        <li class="pure-menu-item"><a href="http://www.kevingomez.fr" class="pure-menu-link">About</a></li>
+                        <li class="pure-menu-item"><a href="http://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+                        <li class="pure-menu-item"><a href="http://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

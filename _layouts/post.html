@@ -5,22 +5,22 @@ layout: default
 <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
     <header>
         <h1 itemprop="headline">{{ page.title }}</h1>
-        <div class="postDetails">
+        <span class="post-meta">
             <meta itemprop="inLanguage" content="{% if page.language %}{{ page.language }}{% else %}en-US{% endif %}" />
             <time pubdate="pubdate" datetime="{{ page.date|date_to_xmlschema }}">
                 <meta itemprop="datePublished" content="{{ page.date|date_to_xmlschema }}" />
                 {{ page.date|date_to_long_string }}
             </time>
-        </div>
+        </span>
     </header>
 
     {% if page.tldr %}
     <section class="shortcuts">
-        <p><span class="label secondary radius">Jump to:</span> <a href="#tl-dr">TL;DR</a></p>
+        <p><span class="label radius">Jump to:</span> <a href="#tl-dr">TL;DR</a></p>
     </section>
     {% endif %}
 
-    <section class="postBody" itemprop="articleBody">
+    <section class="post-body" itemprop="articleBody">
         {{ content }}
     </section>
 
