@@ -92,8 +92,9 @@ article header > h1, article header > h2, article header a {
 }
 article .post-description, article .post-body {
     text-align: justify;
-    font-size: 110%;
-    line-height: 1.4em;
+    font-size: 20px;
+    line-height: 1.44em;
+    color: #383838;
 }
 article header .post-meta {
     color: #818181;
@@ -128,7 +129,7 @@ article header .post-meta {
 }
 
 @media (min-width: 48em) {
-    * {
+    body {
         text-rendering: optimizeLegibility;
     }
 
