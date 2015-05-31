@@ -90,7 +90,7 @@ article header > h1, article header > h2 {
 article header > h1, article header > h2, article header a {
     color: #494949;
 }
-article .post-description, article .post-body {
+article .post-description, article .post-body, .books {
     text-align: justify;
     font-size: 20px;
     line-height: 1.44em;
@@ -100,6 +100,10 @@ article header .post-meta {
     color: #818181;
     font-size: 0.9rem;
     font-weight: bold;
+}
+
+ul.books {
+    padding-left: 0;
 }
 
 .label {

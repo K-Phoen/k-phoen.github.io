@@ -14,5 +14,5 @@ config:
     menu:
         - url:    http://www.kevingomez.fr
           title:  about
-        - url:    /atom.xml
-          title:  rss
+        - url:    /bookshelf/
+          title:  bookshelf
