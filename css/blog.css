@@ -33,7 +33,7 @@ h3 {
     margin: 2em auto;
 }
 
-.sidebar {
+.sidebar, .sidebar a {
     background: rgb(61, 79, 93);
     color: #fff;
 }
