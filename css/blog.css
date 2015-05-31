@@ -2,6 +2,7 @@
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    font-family: "Source Sans Pro",sans-serif;
 }
 
 a {
@@ -96,7 +97,6 @@ article header > h1, article header > h2, article header a {
 }
 article .post-description, article .post-body {
     text-align: justify;
-    font-weight: lighter;
     font-size: 110%;
     line-height: 1.4em;
     text-rendering: optimizelegibility;
