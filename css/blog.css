@@ -13,6 +13,12 @@ a:hover, a:focus {
     text-decoration: underline;
 }
 
+code, code > span, kbd, pre, samp {
+    line-height: 1.1em;
+    font-size: 17px;
+    font-family: monospace,monospace!important;
+}
+
 /* LAYOUT CSS */
 #layout {
     padding: 0;
