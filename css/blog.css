@@ -96,7 +96,7 @@ article header > h1, article header > h2 {
 article header > h1, article header > h2, article header a {
     color: #494949;
 }
-article .post-description, article .post-body, .books {
+article .post-description, article .post-body, article .post-tl-dr, .books {
     text-align: justify;
     font-size: 20px;
     line-height: 1.44em;
