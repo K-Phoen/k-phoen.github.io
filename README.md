@@ -2,10 +2,9 @@
 
 ## Installation
 
-- Install Jekyll: `gem install jekyll`
 - Fork this repository
 - Clone it: `git clone https://github.com/K-Phoen/k-phoen.github.io`
-- Run the jekyll server: `jekyll serve`
+- Run the dockerized jekyll server: `docker run --rm -it --volume=$(pwd):/srv/jekyll -p 127.0.0.1:4000:4000 jekyll/jekyll jekyll s`
 
 You should have a server up and running locally at <http://localhost:4000>.
 
