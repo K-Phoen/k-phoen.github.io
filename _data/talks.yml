@@ -1,0 +1,25 @@
+-
+    year: 2015
+    talks:
+        -   title:      "Soyez spécifiques"
+            date:       "2015-06-09"
+            at:         "Human Talks, Lyon"
+            slides_url: "http://blog.kevingomez.fr/slides-soyez-specifiques/"
+
+-
+    year: 2014
+    talks:
+        -   title:      "Hoa\\Compiler, Write your own SQL parser"
+            date:       "2014-10-15"
+            at:         "API Hour #11, Clermont-Ferrand"
+            slides_url: "http://blog.kevingomez.fr/slides-hoa-compiler/"
+            video_url:  "https://www.youtube.com/watch?v=db8P5_1lOD8"
+
+-
+    year: 2013
+    talks:
+        -   title:      "Introduction à Composer"
+            date:       "2013-07-03"
+            at:         "API Hour #3, Clermont-Ferrand"
+            slides_url: "http://blog.kevingomez.fr/slides-composer/"
+            video_url:  "https://www.youtube.com/watch?v=DjLuHbHrxto"
