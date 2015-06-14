@@ -16,3 +16,5 @@ config:
           title:  about
         - url:    /bookshelf/
           title:  bookshelf
+        - url:    /talks/
+          title:  talks

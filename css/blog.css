@@ -5,6 +5,10 @@
     font-family: "Source Sans Pro",sans-serif;
 }
 
+body {
+    text-rendering: optimizeLegibility;
+}
+
 a {
     text-decoration: none;
     color: rgb(61, 146, 201);
@@ -44,6 +48,7 @@ code, code > span, kbd, pre, samp {
 .brand-tagline {
     font-weight: 300;
     color: rgb(176, 202, 219);
+    display: none;
 }
 
 .nav-list {
@@ -96,7 +101,8 @@ article header > h1, article header > h2 {
 article header > h1, article header > h2, article header a {
     color: #494949;
 }
-article .post-description, article .post-body, article .post-tl-dr, .books {
+article .post-description, article .post-body, article .post-tl-dr,
+.books, .talks {
     text-align: justify;
     font-size: 20px;
     line-height: 1.44em;
@@ -108,7 +114,7 @@ article header .post-meta {
     font-weight: bold;
 }
 
-ul.books {
+ul.books, ul.talks {
     padding-left: 0;
 }
 
@@ -139,18 +145,7 @@ ul.books {
 }
 
 @media (min-width: 48em) {
-    body {
-        text-rendering: optimizeLegibility;
-    }
-
-    .header {
-        margin: 75% 3em 0;
-        text-align: right;
-    }
-
-    .sidebar {
-        position: fixed;
-        top: 0;
-        bottom: 0;
+    .brand-title, .brand-tagline {
+        display: block;
     }
 }
