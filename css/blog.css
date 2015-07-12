@@ -129,6 +129,11 @@ ul.books, ul.talks {
 .label.radius {
     border-radius: 3px;
 }
+.label.til {
+    background-color: #818181;
+    padding: 0.1em 0.5em;
+    border: none;
+}
 
 .footer {
     text-align: center;

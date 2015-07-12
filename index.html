@@ -9,10 +9,8 @@ layout: default
     <article>
         <header>
             <h2 itemprop="headline">
-                <a href="{{ post.url }}">
-                    {% if post.categories contains 'til' %}TIL:{% endif %}
-                    {{ post.title }}
-                </a>
+                {% if post.categories contains 'til' %}<abbr class="label radius til" title="Today I Learned">TIL</abbr>{% endif %}
+                <a href="{{ post.url }}">{{ post.title }}</a>
             </h2>
 
             <span class="post-meta">
