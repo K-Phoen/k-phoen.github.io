@@ -1,7 +1,6 @@
 ---
 layout:      post
 title:       Parallel bundle install
-description: Symfony snippet showing how to use several validation files.
 category:    til
 ---
 
