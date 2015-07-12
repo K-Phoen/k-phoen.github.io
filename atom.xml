@@ -15,10 +15,7 @@
     <entry>
         <id>{{ site.config.url }}{{ post.id }}</id>
         <link href="{{ site.config.url }}{{ post.url }}" />
-        <title>
-            {% if post.categories contains 'til' %}TIL:{% endif %}
-            {{ post.title }}
-        </title>
+        <title>{% if post.categories contains 'til' %}TIL: {% endif %}{{ post.title }}</title>
         <updated>{{ post.date | date_to_xmlschema }}</updated>
         <content type="html">{{ post.content | xml_escape }}</content>
     </entry>
