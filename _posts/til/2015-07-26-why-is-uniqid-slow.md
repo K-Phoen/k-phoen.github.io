@@ -2,6 +2,7 @@
 layout:      post
 title:       Why is unidiq() slow?
 category:    til
+description: While profiling [RulerZ](https://github.com/K-Phoen/rulerz) with [Blackfire.io](https://blackfire.io/), I noticed that a non-negligible amount of time was consumed by PHP's `uniqid()` function. I found it odd that it consumed so much time and started to investigate why.
 
 tldr: >
     If called without `$more_entropy = true`, `uniqid()` calls sleep for **at
