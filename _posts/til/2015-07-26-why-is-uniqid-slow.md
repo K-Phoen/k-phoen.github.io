@@ -7,7 +7,7 @@ description: While profiling [RulerZ](https://github.com/K-Phoen/rulerz) with [B
 tldr: >
     If called without `$more_entropy = true`, `uniqid()` calls sleep for **at
     least** 1 microsecond.
-    `unidiq($prefix, $more_entropy = true)` will prevent function from sleeping.
+    `uniqid($prefix, $more_entropy = true)` will prevent function from sleeping.
 ---
 
 While profiling [RulerZ](https://github.com/K-Phoen/rulerz) with
