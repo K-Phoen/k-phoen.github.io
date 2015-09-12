@@ -1,6 +1,12 @@
 -
     year: 2015
     books:
+        -   title: "Le cycle des robots, Tome 3 : Les cavernes d'acier"
+            authors: "Isaac Asimov"
+            url: http://amzn.com/2290319023
+        -   title: "Ubik"
+            authors: "Philip K. Dick"
+            url: ttp://amzn.com/2264028815
         -   title: "Working Effectively with Legacy Code"
             authors: "Michael Feathers"
             url: http://amzn.com/B005OYHF0A
