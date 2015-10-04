@@ -1,6 +1,9 @@
 -
     year: 2015
     books:
+        -   title: "The Power of Habit: Why We Do What We Do in Life and Business"
+            authors: "Charles Duhigg"
+            url: http://amzn.com/081298160X
         -   title: "Le cycle des robots, Tome 3 : Les cavernes d'acier"
             authors: "Isaac Asimov"
             url: http://amzn.com/2290319023
