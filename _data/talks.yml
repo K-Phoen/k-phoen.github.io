@@ -1,6 +1,10 @@
 -
     year: 2015
     talks:
+        -   title:      "Be specific"
+            date:       "2015-09-26"
+            at:         "Hoa Apex 3rd edition, Paris"
+            slides_url: "http://blog.kevingomez.fr/slides-apex-2015/"
         -   title:      "Soyez spécifiques"
             date:       "2015-06-09"
             at:         "Human Talks, Lyon"
