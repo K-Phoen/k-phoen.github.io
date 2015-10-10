@@ -1,6 +1,9 @@
 -
     year: 2015
     books:
+        -   title: "Le cycle des robots, Tome 4 : Face aux feux du soleil"
+            authors: "Isaac Asimov"
+            url: http://amzn.com/2290327948
         -   title: "The Power of Habit: Why We Do What We Do in Life and Business"
             authors: "Charles Duhigg"
             url: http://amzn.com/081298160X
