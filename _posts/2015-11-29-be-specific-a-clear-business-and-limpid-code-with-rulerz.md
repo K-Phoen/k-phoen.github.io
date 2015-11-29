@@ -5,7 +5,7 @@ tldr: >
     I gave a talk at the Forum PHP 2015:
     <ul>
         <li>it was my first talk and I enjoyed it;</li>
-        <li>and you can find [my slides](blog.kevingomez.fr/slides-forum-php-2015/) online.</li>
+        <li>and you can find [my slides](http://blog.kevingomez.fr/slides-forum-php-2015/) online.</li>
     <ul>
 ---
 
@@ -15,7 +15,7 @@ organized by the [AFUP](http://afup.org/pages/site/) in Paris.
 Despite the stress, my talk went well and the audience seem to agree with me
 (at least according to [their ratings on joind.in](https://joind.in/talk/view/15276)).
 
-For those who couldn't attend my talk, you can still find [the slides online](blog.kevingomez.fr/slides-forum-php-2015/)
+For those who couldn't attend my talk, you can still find [the slides online](http://blog.kevingomez.fr/slides-forum-php-2015/)
 and have a look at the speaker's notes (press the <kdb>S</kdb> key on your keyboard).
 Sorry for those who don't speak french: even if the slides are in english, my notes aren't.
 That being said, do not hesitate to ask me if you have questions, I'd be more
