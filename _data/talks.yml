@@ -2,6 +2,10 @@
     year: 2015
     talks:
         -   title:      "Be specific"
+            date:       "2015-11-24"
+            at:         "Forum PHP 2015, Paris"
+            slides_url: "http://blog.kevingomez.fr/slides-forum-php-2015/"
+        -   title:      "Be specific"
             date:       "2015-09-26"
             at:         "Hoa Apex 3rd edition, Paris"
             slides_url: "http://blog.kevingomez.fr/slides-apex-2015/"
