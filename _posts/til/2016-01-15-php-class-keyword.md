@@ -2,6 +2,8 @@
 layout:      post
 title:       PHP ::class keyword
 category:    til
+description: The `::class` keyword look like it can be used to assert that the
+generated FQCN will point to a valid class. Guess what: it cant.
 
 tldr: >
     The `::class` keyword also works on classes that does not exist. It will
