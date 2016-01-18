@@ -185,6 +185,9 @@ You will notice the use of the `yield from` operator (available since PHP 7.0)
 that allows to delegate the use of generators. That's perfect, for instance, to
 aggregate several data-sources that use generators.
 
+In fact, the `yield from` keyword works with any `Traversable` object, so arrays
+or iterators can also be used with this delegation operator.
+
 ## Complex, on-demand hydration for database rows
 
 ## Simulating async tasks
