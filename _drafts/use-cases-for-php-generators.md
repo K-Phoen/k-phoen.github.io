@@ -1,6 +1,9 @@
 ---
 layout: post
 title: Use cases for PHP generators
+description: >
+    Despite being available since PHP 5.5.0, generators are still largely
+    underused. Let's see what how awesome they are through *real-world* cases.
 ---
 
 Despite being available since PHP 5.5.0, generators are still largely underused.
@@ -14,19 +17,36 @@ And they're not wrong, even the examples in PHP's documentation about generators
 are pretty simplistic. They only show how to [efficiently implement `range`](http://php.net/manual/en/language.generators.overview.php)
 or [iterate over the lines of a file](http://php.net/manual/en/language.generators.comparison.php).
 
-But hey, even from these simple examples we can understand the core aspects of
+But even from these simple examples we can understand the core aspects of
 generators: they are *just* simplified `Iterator`s.
 
 > A generator allows you to write code that uses `foreach` to iterate over a set
 > of data without needing to build an array in memory
 
-As a PHP developer, I often need to iterate through large data-sets and memory
-usage definitely is one of my main concerns.
+With that in mind, I'll try to explain why generators are awesome using some
+use-cases taken from applications I work on in my company.
+
+## Some context
+
+I currently work for <a href="http://www.tea-ebook.com/">TEA</a>. Basically, we
+develop an e-book reading ecosystem (Amazon, the Kindle ? Same, but different).
+It goes all the way from getting the e-book files from the publishers to present
+them in an e-commerce website and allowing the final customer to read them online
+or on an e-reader.
+
+In order to be able to sell these e-books and display relevant information to
+our customers, we need to have a lot of metadata for our products (title,
+format, price, publisher, author(s), …).
+
+For most of the code samples that will be shown below, I'll refer to these
+metadata under the name of *e-book*.
+
+So here we go!
 
 ## Iterating through large data-sets
 
-Let's assume that I have a large collection of e-books and that I want to
-filter those which can be read in a web-reader.
+For this first use-case, let's assume that I have a large collection of e-books
+and that I want to filter those which can be read in a web-reader.
 
 Traditionally, I would write something like this:
 
@@ -50,9 +70,9 @@ The problem here is easy to see: the more free e-books I have, the more
 `$filteredEbooks` will consume memory.
 
 A solution could be to create an iterator that would iterate through the
-`$ebooks` and return on-demand the ones that are eligible. But we would have to
-create a new class just for that and iterators are a bit tedious to write… Lucky
-us, since PHP 5.5.0 we can use generators!
+`$ebooks` and return the ones that are eligible. But we would have to create a
+new class just for that and iterators are a bit tedious to write… Lucky us,
+since PHP 5.5.0 we can use generators!
 
 ```php
 private function getEbooksEligibleToWebReader($ebooks)
@@ -71,7 +91,7 @@ Yep, refactoring the `getEbooksEligibleToWebReader` method to use generators is
 as simple as replacing the assignation to `$filteredEbooks` by a `yield`
 statement.
 
-The memory consumption will now be stable, no matter the number of eligible
+The memory consumption will now be constant, no matter the number of eligible
 books and we are sure to find these books only if and when we need them.
 
 **Bonus**: [RulerZ](https://github.com/K-Phoen/rulerz) internally uses generators
@@ -89,7 +109,8 @@ private function getEbooksEligibleToWebReader($ebooks)
 ## Aggregating several data-sources
 
 Now, let's consider the `$ebook` retrieval part. I didn't tell you, but these
-e-books come in fact from different data-sources: a database and a file.
+e-books come in fact from different data-sources: a relational database and
+Elasticsearch.
 
 We can then write a simple method to aggregate these two sources:
 
@@ -107,12 +128,11 @@ private function getEbooks()
         $ebooks[] = $data;
     }
 
-    // and also from a CSV file
-    $file = new SplFileObject($this->getBooksCsvFilename());
-    $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY | SplFileObject::DROP_NEW_LINE);
+    // and also from Elasticsearch (internally, findAll uses ES scan/scroll)
+    $cursor = $this->esClient->findAll();
 
-    while (!$file->eof()) {
-        $ebooks[] = $file->fgetcsv();
+    foreach ($cursor as $data) {
+        $ebooks[] = $data;
     }
 
     return $ebooks;
@@ -120,7 +140,7 @@ private function getEbooks()
 ```
 
 But once again, the amount of memory used by this method depends too much on the
-number of e-books we have in the database and in the CSV file.
+number of e-books we have in the database and in Elasticsearch.
 
 We could start by using generators to return the results:
 
@@ -136,30 +156,28 @@ private function getEbooks()
         yield $data;
     }
 
-    // and also from a CSV file
-    $file = new SplFileObject($this->getBooksCsvFilename());
-    $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY | SplFileObject::DROP_NEW_LINE);
+    // and also from Elasticsearch (internally, findAll uses ES scan/scroll)
+    $cursor = $this->esClient->findAll();
 
-    while (!$file->eof()) {
-        yield $file->fgetcsv();
+    foreach ($cursor as $data) {
+        yield $data;
     }
 }
 ```
 
 That's better, but we still have a problem: our `getBooks` method does too much
 work! We should split the two responsibilities (reading in the database and
-reading the CSV file) in two separate methods:
+calling Elasticsearch) in two separate methods:
 
 ```php
 private function getEbooks()
 {
     yield from $this->getEbooksFromDatabase();
-    yield from $this->getEbooksFromCSV();
+    yield from $this->getEbooksFromEs();
 }
 
 private function getEbooksFromDatabase()
 {
-    // fetch from the DB
     $stmt = $this->db->prepare("SELECT * FROM ebook_catalog");
     $stmt->execute();
     $stmt->setFetchMode(\PDO::FETCH_ASSOC);
@@ -169,14 +187,13 @@ private function getEbooksFromDatabase()
     }
 }
 
-private function getEbooksFromCSV()
+private function getEbooksFromEs()
 {
-    // and also from a CSV file
-    $file = new SplFileObject($this->getBooksCsvFilename());
-    $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY | SplFileObject::DROP_NEW_LINE);
+    // and also from Elasticsearch (internally, findAll uses ES scan/scroll)
+    $cursor = $this->esClient->findAll();
 
-    while (!$file->eof()) {
-        yield $file->fgetcsv();
+    foreach ($cursor as $data) {
+        yield $data;
     }
 }
 ```
@@ -188,7 +205,7 @@ aggregate several data-sources that use generators.
 In fact, the `yield from` keyword works with any `Traversable` object, so arrays
 or iterators can also be used with this delegation operator.
 
-Using this keyword, we could agregate several data-sources with only a few lines
+Using this keyword, we could aggregate several data-sources with only a few lines
 of code:
 
 ```php
@@ -214,8 +231,8 @@ Having both the order and the order lines was a pre-requisite for what we needed
 to do, so I had to write a method that would be able to return hydrated orders
 without being too slow or eating a lot of memory.
 
-The idea is quite naive: I join the order and the matching lines, and a small
-loop tries to group order and order lines together.
+The idea is quite naive: join the order and the matching lines, and group order
+and order lines together in a loop.
 
 ```php
 public function loadOrdersWithItems()
@@ -269,8 +286,9 @@ While writing this post, I stumbled upon [@nikita_ppv](https://twitter.com/nikit
 post about the same subject, and as he is the one who originally implemented
 generators in PHP, I'll just link to [his post](https://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html).
 
-He quickly explains what are generators and explains why they can be seen as
-interruptible functions that can both *send and receive data*.
+He quickly explains what are generators and explains (in depth) how we can take
+advantage of the fact that they can both be interrupted and *send/receive data*
+to implement coroutines and even cooperative multitasking.
 
 ## Wrapping up
 
