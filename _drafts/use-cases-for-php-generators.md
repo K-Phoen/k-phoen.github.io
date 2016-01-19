@@ -188,6 +188,20 @@ aggregate several data-sources that use generators.
 In fact, the `yield from` keyword works with any `Traversable` object, so arrays
 or iterators can also be used with this delegation operator.
 
+Using this keyword, we could agregate several data-sources with only a few lines
+of code:
+
+```php
+private function getEbooks()
+{
+    yield new Ebook(…);
+    yield from [new Ebook(…), new Ebook(…)];
+    yield from new ArrayIterator([new Ebook(…), new Ebook(…)]);
+    yield from $this->getEbooksFromCSV();
+    yield from $this->getEbooksFromDatabase();
+}
+```
+
 ## Complex, on-demand hydration for database rows
 
 ## Simulating async tasks
