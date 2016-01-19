@@ -89,7 +89,7 @@ private function getEbooksEligibleToWebReader($ebooks)
 ## Aggregating several data-sources
 
 Now, let's consider the `$ebook` retrieval part. I didn't tell you, but these
-ebooks come in fact from different data-sources: a database and a file.
+e-books come in fact from different data-sources: a database and a file.
 
 We can then write a simple method to aggregate these two sources:
 
@@ -204,4 +204,78 @@ private function getEbooks()
 
 ## Complex, on-demand hydration for database rows
 
+Another use-case I found for generators was the implementation of an on-demand
+hydration that could handle relationships.
+
+I had to import hundreds of thousands of orders from a legacy database into our
+system, each order having several order lines.
+
+Having both the order and the order lines was a pre-requisite for what we needed
+to do, so I had to write a method that would be able to return hydrated orders
+without being too slow or eating a lot of memory.
+
+The idea is quite naive: I join the order and the matching lines, and a small
+loop tries to group order and order lines together.
+
+```php
+public function loadOrdersWithItems()
+{
+    $oracleQuery = <<<SQL
+SELECT o.*, item.*
+FROM order_history o
+INNER JOIN ORDER_ITEM item ON item.order_id = o.id
+ORDER BY order.id
+SQL;
+
+    if (($stmt = oci_parse($oracleDb, $oracleQuery)) === false) {
+        throw new \RuntimeException('Prepare fail in ');
+    }
+    if (oci_execute($stmt) === false) {
+        throw new \RuntimeException('Execute fail in ');
+    }
+
+    $currentOrderId = null;
+    $currentOrder = null;
+    while (($row = oci_fetch_assoc($stmt)) !== false) {
+        // did we move to the next order?
+        if ($row['ID'] !== $currentOrderId) {
+            if ($currentOrderId !== null) {
+                yield $currentOrder;
+            }
+
+            $currentOrderId = $row['ID'];
+
+            $currentOrder = $row;
+            $currentOrder['lines'] = [];
+        }
+
+        $currentOrder['lines'][] = $row;
+    }
+
+    yield $currentOrder;
+}
+```
+
+Using a generator, I managed to implement a method that could fetch orders from
+the database and join the corresponding order lines. All of this while consuming
+a stable amount of memory.
+The generator removed the need to keep track of all the orders with their order
+lines: the *current order* was all I needed to aggregate all the data.
+
 ## Simulating async tasks
+
+Last but not least, generators can also be used to simulate asynchronous tasks.
+While writing this post, I stumbled upon [@nikita_ppv](https://twitter.com/nikita_ppv)'s
+post about the same subject, and as he is the one who originally implemented
+generators in PHP, I'll just link to [his post](https://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html).
+
+He quickly explains what are generators and explains why they can be seen as
+interruptible functions that can both *send and receive data*.
+
+## Wrapping up
+
+Generators…
+* … are simplified Iterators ;
+* … can send an unlimited amount of data, without saturating the memory ;
+* … can be aggregated using generators delegation ;
+* … can be used to implement cooperative multitasking.
