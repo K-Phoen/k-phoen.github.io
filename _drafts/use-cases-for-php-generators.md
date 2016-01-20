@@ -28,10 +28,11 @@ use-cases taken from applications I work on in my company.
 
 ## Some context
 
-I currently work for <a href="http://www.tea-ebook.com/">TEA</a>. Basically, we
-develop an e-book reading ecosystem (Amazon, the Kindle ? Same, but different).
+I currently work for [TEA](https://twitter.com/TEA_tech). Basically, we develop
+an e-book reading ecosystem.
 It goes all the way from getting the e-book files from the publishers to present
 them in an e-commerce website and allowing the final customer to read them online
+(using a web-reader written by [@johanpoirier](https://twitter.com/johanpoirier))
 or on an e-reader.
 
 In order to be able to sell these e-books and display relevant information to
@@ -46,7 +47,7 @@ So here we go!
 ## Iterating through large data-sets
 
 For this first use-case, let's assume that I have a large collection of e-books
-and that I want to filter those which can be read in a web-reader.
+and I want to filter those which can be read in a web-reader.
 
 Traditionally, I would write something like this:
 
@@ -91,8 +92,10 @@ Yep, refactoring the `getEbooksEligibleToWebReader` method to use generators is
 as simple as replacing the assignation to `$filteredEbooks` by a `yield`
 statement.
 
-The memory consumption will now be constant, no matter the number of eligible
-books and we are sure to find these books only if and when we need them.
+Assuming that `$ebooks` isn't an array with all the e-books but an iterator or
+a generator (even better!), the memory consumption will now be constant, no
+matter the number of eligible books and we are sure to find these books only if
+and when we need them.
 
 **Bonus**: [RulerZ](https://github.com/K-Phoen/rulerz) internally uses generators
 so we could rewrite the method like this and be as efficient in terms of memory.
@@ -108,7 +111,7 @@ private function getEbooksEligibleToWebReader($ebooks)
 
 ## Aggregating several data-sources
 
-Now, let's consider the `$ebook` retrieval part. I didn't tell you, but these
+Now, let's consider the `$ebooks` retrieval part. I didn't tell you, but these
 e-books come in fact from different data-sources: a relational database and
 Elasticsearch.
 
@@ -296,4 +299,5 @@ Generators…
 * … are simplified Iterators ;
 * … can send an unlimited amount of data, without saturating the memory ;
 * … can be aggregated using generators delegation ;
-* … can be used to implement cooperative multitasking.
+* … can be used to implement cooperative multitasking ;
+* … are awesome!
