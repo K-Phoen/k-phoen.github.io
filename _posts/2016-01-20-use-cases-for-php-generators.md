@@ -52,6 +52,7 @@ and I want to filter those which can be read in a web-reader.
 Traditionally, I would write something like this:
 
 ```php
+<?php
 private function getEbooksEligibleToWebReader($ebooks)
 {
     $rule = 'format = "EPUB" AND protection != "Adobe DRM"';
@@ -76,6 +77,7 @@ new class just for that and iterators are a bit tedious to write… Lucky us,
 since PHP 5.5.0 we can use generators!
 
 ```php
+<?php
 private function getEbooksEligibleToWebReader($ebooks)
 {
     $rule = 'format = "EPUB" AND protection != "Adobe DRM"';
@@ -101,6 +103,7 @@ and when we need them.
 so we could rewrite the method like this and be as efficient in terms of memory.
 
 ```php
+<?php
 private function getEbooksEligibleToWebReader($ebooks)
 {
     $rule = 'format = "EPUB" AND protection != "Adobe DRM"';
@@ -118,6 +121,7 @@ Elasticsearch.
 We can then write a simple method to aggregate these two sources:
 
 ```php
+<?php
 private function getEbooks()
 {
     $ebooks = [];
@@ -148,6 +152,7 @@ number of e-books we have in the database and in Elasticsearch.
 We could start by using generators to return the results:
 
 ```php
+<?php
 private function getEbooks()
 {
     // fetch from the DB
@@ -173,6 +178,7 @@ work! We should split the two responsibilities (reading in the database and
 calling Elasticsearch) in two separate methods:
 
 ```php
+<?php
 private function getEbooks()
 {
     yield from $this->getEbooksFromDatabase();
@@ -212,6 +218,7 @@ Using this keyword, we could aggregate several data-sources with only a few line
 of code:
 
 ```php
+<?php
 private function getEbooks()
 {
     yield new Ebook(…);
@@ -238,6 +245,7 @@ The idea is quite naive: join the order and the matching lines, and group order
 and order lines together in a loop.
 
 ```php
+<?php
 public function loadOrdersWithItems()
 {
     $oracleQuery = <<<SQL
