@@ -108,7 +108,7 @@ private function getEbooksEligibleToWebReader($ebooks)
 {
     $rule = 'format = "EPUB" AND protection != "Adobe DRM"';
 
-    return $this->rulerz->filter($ebooks, $rule)) {
+    return $this->rulerz->filter($ebooks, $rule);
 }
 ```
 
