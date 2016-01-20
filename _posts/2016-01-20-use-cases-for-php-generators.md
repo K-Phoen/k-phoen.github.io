@@ -135,7 +135,7 @@ private function getEbooks()
         $ebooks[] = $data;
     }
 
-    // and also from Elasticsearch (internally, findAll uses ES scan/scroll)
+    // and from Elasticsearch (findAll uses ES scan/scroll)
     $cursor = $this->esClient->findAll();
 
     foreach ($cursor as $data) {
@@ -164,7 +164,7 @@ private function getEbooks()
         yield $data;
     }
 
-    // and also from Elasticsearch (internally, findAll uses ES scan/scroll)
+    // and from Elasticsearch (findAll uses ES scan/scroll)
     $cursor = $this->esClient->findAll();
 
     foreach ($cursor as $data) {
@@ -198,7 +198,7 @@ private function getEbooksFromDatabase()
 
 private function getEbooksFromEs()
 {
-    // and also from Elasticsearch (internally, findAll uses ES scan/scroll)
+    // and from Elasticsearch (findAll uses ES scan/scroll)
     $cursor = $this->esClient->findAll();
 
     foreach ($cursor as $data) {
@@ -304,6 +304,7 @@ to implement coroutines and even cooperative multitasking.
 ## Wrapping up
 
 Generators…
+
 * … are simplified Iterators ;
 * … can send an unlimited amount of data, without saturating the memory ;
 * … can be aggregated using generators delegation ;
