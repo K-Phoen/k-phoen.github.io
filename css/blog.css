@@ -24,6 +24,18 @@ code, code > span, kbd, pre, samp {
 }
 
 /* LAYOUT CSS */
+
+blockquote {
+    margin: 0 0 1rem;
+    padding: 0px 1.25rem 0px 1.1875rem;
+    border-left: 1px solid #cacaca;
+    color: #8a8a8a;
+}
+
+blockquote p {
+    margin: 0;
+}
+
 #layout {
     padding: 0;
 }
