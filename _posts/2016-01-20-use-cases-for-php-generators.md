@@ -132,14 +132,14 @@ private function getEbooks()
     $stmt->setFetchMode(\PDO::FETCH_ASSOC);
 
     foreach ($stmt as $data) {
-        $ebooks[] = $data;
+        $ebooks[] = $this->hydrateEbook($data);
     }
 
     // and from Elasticsearch (findAll uses ES scan/scroll)
     $cursor = $this->esClient->findAll();
 
     foreach ($cursor as $data) {
-        $ebooks[] = $data;
+        $ebooks[] = $this->hydrateEbook($data);
     }
 
     return $ebooks;
@@ -161,14 +161,14 @@ private function getEbooks()
     $stmt->setFetchMode(\PDO::FETCH_ASSOC);
 
     foreach ($stmt as $data) {
-        yield $data;
+        yield $this->hydrateEbook($data);
     }
 
     // and from Elasticsearch (findAll uses ES scan/scroll)
     $cursor = $this->esClient->findAll();
 
     foreach ($cursor as $data) {
-        yield $data;
+        yield $this->hydrateEbook($data);
     }
 }
 ```
@@ -192,7 +192,7 @@ private function getEbooksFromDatabase()
     $stmt->setFetchMode(\PDO::FETCH_ASSOC);
 
     foreach ($stmt as $data) {
-        yield $data;
+        yield $this->hydrateEbook($data);
     }
 }
 
@@ -202,7 +202,7 @@ private function getEbooksFromEs()
     $cursor = $this->esClient->findAll();
 
     foreach ($cursor as $data) {
-        yield $data;
+        yield $this->hydrateEbook($data);
     }
 }
 ```
