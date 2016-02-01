@@ -1,4 +1,12 @@
 -
+    year: 2016
+    talks:
+        -   title:      "Soyez spécifiques"
+            date:       "2016-01-30"
+            at:         "DDD Day, Lyon"
+            slides_url: "http://blog.kevingomez.fr/slides-ddd-day-2016/"
+
+-
     year: 2015
     talks:
         -   title:      "Be specific"
