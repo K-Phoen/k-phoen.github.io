@@ -1,6 +1,9 @@
 -
     year: 2016
     books:
+        -   title: "How to Make Coffee: The Science Behind the Bean"
+            authors: "Lani Kingston"
+            url: http://amzn.com/dp/1419715844/
         -   title: "Ne tirez pas sur l'oiseau moqueur"
             authors: "Harper Lee"
             url: http://amzn.com/dp/2253115843/
