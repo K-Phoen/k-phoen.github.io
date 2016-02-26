@@ -13,7 +13,7 @@ To be clearer: given a list of URL providers for a sitemap index, I wanted to
 iterate over all the data exposed by these providers in chunks of 50.000 (the
 maximum number of URL allowed in a sitemap).
 
-Each provider being an Iterator, I can *chain* them using nikic's `[iter](https://github.com/nikic/iter)`
+Each provider being an Iterator, I can *chain* them using nikic's [`iter`](https://github.com/nikic/iter)
 library:
 
 ```php
