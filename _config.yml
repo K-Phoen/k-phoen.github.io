@@ -1,4 +1,4 @@
-highlighter: pygments
+highlighter: rouge
 markdown: kramdown
 timezone: Europe/Paris
 encoding: utf-8
