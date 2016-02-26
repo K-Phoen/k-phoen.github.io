@@ -1,5 +1,5 @@
 highlighter: pygments
-markdown: redcarpet
+markdown: kramdown
 timezone: Europe/Paris
 encoding: utf-8
 exclude: [ README.md, Gemfile ]
