@@ -2,7 +2,7 @@
 layout: post
 title: Efficiently creating data chunks in PHP
 description: >
-    How efficiently create chunks from several iterators in PHP?
+    How to efficiently create chunks from several iterators in PHP?
 ---
 
 While I was working on a library to build sitemaps and sitemap indexes, I
