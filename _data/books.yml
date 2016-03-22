@@ -1,6 +1,12 @@
 -
     year: 2016
     books:
+        -   title: "Le cycle des robots, Tome 6 : Les robots et l'empire"
+            authors: "Isaac Asimov"
+            url: http://amzn.com/dp/2290311162/
+        -   title: "Le cycle des robots, Tome 5 : Les robots de l'aube"
+            authors: "Isaac Asimov"
+            url: http://amzn.com/dp/2290332755/
         -   title: "How to Make Coffee: The Science Behind the Bean"
             authors: "Lani Kingston"
             url: http://amzn.com/dp/1419715844/
