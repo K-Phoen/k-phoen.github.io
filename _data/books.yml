@@ -102,7 +102,6 @@
             url: http://amzn.com/2070360520
         -   title: "Le cycle de Fondation, II : Fondation et Empire"
             authors: Isaac Asimov
-            url: http://amzn.com/2070360555
         -   title: "Le Serment des Limbes"
             authors: Jean-Christophe Grangé
             url: http://amzn.com/2253127086
@@ -115,6 +114,9 @@
 -
     year: 2013
     books:
+        -   title: "Le cycle de Fondation, I : Fondation"
+            authors: Isaac Asimov
+            url: http://amzn.com/2070360539
         -   title: "High Performance MySQL"
             authors: "Baron Swhartz & Peter Saitzev"
             url: http://amzn.com/0596101716
