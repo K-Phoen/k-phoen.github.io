@@ -1,6 +1,9 @@
 -
     year: 2016
     books:
+        -   title: "La peau de César"
+            authors: "René Barjavel"
+            url: http://amzn.com/dp/2070408094/
         -   title: "Le cycle des robots, Tome 6 : Les robots et l'empire"
             authors: "Isaac Asimov"
             url: http://amzn.com/dp/2290311162/
