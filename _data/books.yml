@@ -1,6 +1,9 @@
 -
     year: 2016
     books:
+        -   title: "La fin de l'Éternité"
+            authors: "Isaac Asimov"
+            url: http://amzn.com/dp/2070779300/
         -   title: "La peau de César"
             authors: "René Barjavel"
             url: http://amzn.com/dp/2070408094/
