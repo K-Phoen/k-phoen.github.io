@@ -2,6 +2,10 @@
     year: 2016
     talks:
         -   title:      "Soyez spécifiques"
+            date:       "2016-05-24"
+            at:         "PHP Tour, Clermont-Ferrand"
+            slides_url: "http://blog.kevingomez.fr/slides-php-tour-2016/"
+        -   title:      "Soyez spécifiques"
             date:       "2016-01-30"
             at:         "DDD Day, Lyon"
             slides_url: "http://blog.kevingomez.fr/slides-ddd-day-2016/"
