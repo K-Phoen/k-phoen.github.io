@@ -1,6 +1,9 @@
 -
     year: 2016
     books:
+        -   title: "La Horde du Contrevent"
+            authors: "Alain Damasio"
+            url: https://amzn.com/dp/2070464237/
         -   title: "Les putes voilées n'iront jamais au paradis"
             authors: "Chahdortt Djavann"
             url: https://amzn.com/dp/2246856973/
