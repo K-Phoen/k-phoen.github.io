@@ -4,10 +4,9 @@ title: RulerZ, specifications and Symfony are in a boat
 description: I already introduced [RulerZ and the reasoning behind it](/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/). This time I'll showcase its integration with Symfony and the Form Component.
 tldr: >
     Using RulerZ and Symfony you can:
-    <ul>
-        <li>use specification objects inside Doctrine repositories to query your data;</li>
-        <li>make the Form component build specification objects for you.</li>
-    <ul>
+
+    * use specification objects inside Doctrine repositories to query your data ;
+    * make the Form component build specification objects for you.
 ---
 
 In [my previous post](http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/),
