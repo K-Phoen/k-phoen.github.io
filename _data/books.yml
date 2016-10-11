@@ -1,6 +1,9 @@
 -
     year: 2016
     books:
+        -   title: "La Zone du Dehors"
+            authors: "Alain Damasio"
+            url: https://amzn.com/dp/2070458261/
         -   title: "Silo générations"
             authors: "Hugh Howey"
             url: https://www.amazon.fr/dp/233006442X
