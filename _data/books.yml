@@ -1,6 +1,9 @@
 -
     year: 2016
     books:
+        -   title: "Phare 23"
+            authors: "Hugh Howey"
+            url: https://amzn.com/dp/B01KZM072I/
         -   title: "La Zone du Dehors"
             authors: "Alain Damasio"
             url: https://amzn.com/dp/2070458261/
