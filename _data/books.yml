@@ -1,6 +1,12 @@
 -
     year: 2016
     books:
+        -   title: "L'homme qui voulait être heureux"
+            authors: "Laurent Gounelle"
+            url: https://www.laurentgounelle.com/index.php/livres/l-homme-qui-voulait-etre-heureux
+        -   title: "Tau Zéro"
+            authors: "Poul Anderson"
+            url: https://www.belial.fr/poul-anderson/tau-zero
         -   title: "Axiomatique"
             authors: "Greg Egan"
             url: https://www.belial.fr/greg-egan/axiomatique
