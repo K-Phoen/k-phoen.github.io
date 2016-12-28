@@ -1,6 +1,9 @@
 -
     year: 2016
     books:
+        -   title: "The Gods Themselves"
+            authors: "Isaac Asimov"
+            url: https://www.amazon.com/gp/product/1857989341/
         -   title: "L'homme qui voulait être heureux"
             authors: "Laurent Gounelle"
             url: https://www.laurentgounelle.com/index.php/livres/l-homme-qui-voulait-etre-heureux
