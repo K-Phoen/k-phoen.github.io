@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: Mission Basilic - Honor Harrington, T1"
+            authors: "David Weber"
+            url: http://www.l-atalante.com/catalogue/la_dentelle_du_cygne/mission_basilic/48/725/david_weber/revue.html
         -   title: "Métro 2033"
             authors: "Dmitri Gloukhovski"
             url: http://www.l-atalante.com/catalogue/la_dentelle_du_cygne/metro_2033/48/658/dmitry_glukhovsky/detail.html
