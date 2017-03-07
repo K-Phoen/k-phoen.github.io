@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: La fille automate
+            authors: "Paolo Bacigalupi"
+            url: https://www.babelio.com/livres/Bacigalupi-La-fille-automate/343518
         -   title: Mission Basilic - Honor Harrington, T1"
             authors: "David Weber"
             url: http://www.l-atalante.com/catalogue/la_dentelle_du_cygne/mission_basilic/48/725/david_weber/revue.html
