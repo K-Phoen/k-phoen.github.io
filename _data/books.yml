@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: Les Montagnes hallucinées
+            authors: "Howard Phillips Lovecraft"
+            url: https://www.babelio.com/livres/Lovecraft-Les-montagnes-hallucinees/11859
         -   title: La fille automate
             authors: "Paolo Bacigalupi"
             url: https://www.babelio.com/livres/Bacigalupi-La-fille-automate/343518
