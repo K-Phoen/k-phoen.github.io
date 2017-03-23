@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: Propagandes silencieuses
+            authors: "Ignacio Ramonet"
+            url: http://www.gallimard.fr/Catalogue/GALLIMARD/Folio/Folio-actuel/Propagandes-silencieuses
         -   title: Les Montagnes hallucinées
             authors: "Howard Phillips Lovecraft"
             url: https://www.babelio.com/livres/Lovecraft-Les-montagnes-hallucinees/11859
