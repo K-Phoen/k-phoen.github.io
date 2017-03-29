@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: Annihilation
+            authors: "Jeff Vandermeer"
+            url: http://www.babelio.com/livres/VanderMeer-Annihilation/727543
         -   title: Propagandes silencieuses
             authors: "Ignacio Ramonet"
             url: http://www.gallimard.fr/Catalogue/GALLIMARD/Folio/Folio-actuel/Propagandes-silencieuses
