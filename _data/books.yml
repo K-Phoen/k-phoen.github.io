@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: Les pionniers du chaos
+            authors: "Norman Spinrad"
+            url: https://www.amazon.fr/pionniers-du-chaos-Norman-Spinrad/dp/2266046004
         -   title: Annihilation
             authors: "Jeff Vandermeer"
             url: http://www.babelio.com/livres/VanderMeer-Annihilation/727543
