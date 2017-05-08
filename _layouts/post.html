@@ -14,6 +14,15 @@ layout: default
                 <meta itemprop="datePublished" content="{{ page.date|date_to_xmlschema }}" />
                 {{ page.date|date_to_long_string }}
             </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                {% assign words = content|strip_html|number_of_words %}
+                {% if words < 270 %}
+                    ~1 minute
+                {% else %}
+                    ~{{ words | divided_by:135 }} minutes
+                {% endif %}
+            </span>
         </span>
     </header>
 
