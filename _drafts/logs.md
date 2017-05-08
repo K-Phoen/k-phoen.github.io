@@ -1,8 +1,27 @@
 ---
 layout: post
-title: Logging best practices for exploitable logs
+title: Best practices for exploitable logs
 description: >
-    TODO
+    « **What to log?** » — That's the question I often ask myself when I launch new
+    projects or work on existing applications.
+
+    And by « what », I mean which events should be logged? Using which format? Where
+    should they be sent?
+
+    To answer these questions, we need to ask ourselves why do we need logs in the
+    first place?
+tldr: >
+    * choose a logging strategy: are you more interested by performance, user actions or business metrics?
+
+    * make sure that all relevant events are logged, not only the errors!
+
+    * add some context to your events. Customer identifier? Order reference? Anything that might prove useful is appreciated.
+
+    * include dates in a standard format to give make the events chronology explicit.
+
+    * ensure that your logs follow a precise, textual format. It should be easily understandable by both humans and machines.
+
+    * categorize and correlate logs using log levels, subsystems identifiers and request identifiers.
 ---
 
 « **What to log?** » — That's the question I often ask myself when I launch new
