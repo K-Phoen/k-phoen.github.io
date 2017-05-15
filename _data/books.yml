@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "Le Cycle d'Ender, tome 1 : La Stratégie Ender"
+            authors: "Orson Scott Card"
+            url: https://www.babelio.com/livres/Card-Le-Cycle-dEnder-tome-1--La-Strategie-Ender/5118
         -   title: "Métro 2035"
             authors: "Dmitri Gloukhovski"
             url: http://www.l-atalante.com/catalogue/la_dentelle_du_cygne/metro_2035/48/951/dmitry_glukhovsky/detail.html
