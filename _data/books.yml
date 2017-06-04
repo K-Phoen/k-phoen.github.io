@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "Le Cycle d'Ender, tome 2 : La Voix des morts"
+            authors: "Orson Scott Card"
+            url: https://www.babelio.com/livres/Card-Le-Cycle-dEnder-tome-2--La-Voix-des-morts/14535
         -   title: "Cailloux dans le ciel"
             authors: "Isaac Asimov"
             url: https://www.babelio.com/livres/Asimov-Cailloux-dans-le-ciel/7271
