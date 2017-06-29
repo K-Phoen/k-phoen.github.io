@@ -1,6 +1,12 @@
 -
     year: 2017
     books:
+        -   title: "Weapons of Math Destruction"
+            authors: "Cathy O'Neil"
+            url: https://weaponsofmathdestructionbook.com/
+        -   title: "Le Cycle d'Ender, tome 3 : Xénocide"
+            authors: "Orson Scott Card"
+            url: https://www.babelio.com/livres/Card-Le-Cycle-dEnder-tome-3--Xenocide/14536
         -   title: "Le Cycle d'Ender, tome 2 : La Voix des morts"
             authors: "Orson Scott Card"
             url: https://www.babelio.com/livres/Card-Le-Cycle-dEnder-tome-2--La-Voix-des-morts/14535
