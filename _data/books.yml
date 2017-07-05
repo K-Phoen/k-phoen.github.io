@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "Une belle histoire du temps"
+            authors: "Stephen Hawking"
+            url: https://www.babelio.com/livres/Hawking-Une-belle-histoire-du-temps-2005/573680
         -   title: "Weapons of Math Destruction"
             authors: "Cathy O'Neil"
             url: https://weaponsofmathdestructionbook.com/
