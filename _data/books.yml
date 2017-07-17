@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "Des fleurs pour Algernon"
+            authors: "Daniel Keyes"
+            url: https://www.babelio.com/livres/Keyes-Des-fleurs-pour-Algernon/5608
         -   title: "Une belle histoire du temps"
             authors: "Stephen Hawking"
             url: https://www.babelio.com/livres/Hawking-Une-belle-histoire-du-temps-2005/573680
