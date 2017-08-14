@@ -1,6 +1,12 @@
 -
     year: 2017
     books:
+        -   title: "Carbone Modifié"
+            authors: "Richard Morgan"
+            url: http://www.bragelonne.fr/livres/view/carbone-modifie-2
+        -   title: "Yellowstone"
+            authors: "Ludovic Albar"
+            url: https://www.babelio.com/livres/Albar-Yellowstone/652284
         -   title: "Des fleurs pour Algernon"
             authors: "Daniel Keyes"
             url: https://www.babelio.com/livres/Keyes-Des-fleurs-pour-Algernon/5608
