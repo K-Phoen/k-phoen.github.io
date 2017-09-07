@@ -1,6 +1,15 @@
 -
     year: 2017
     books:
+        -   title: "Ces hommes dans la jungle"
+            authors: "Norman Spinrad"
+            url: http://www.milady.fr/livres/view/ces-hommes-de-la-jungle
+        -   title: "Biblical"
+            authors: "Christopher Galt"
+            url: http://www.bragelonne.fr/livres/view/biblical
+        -   title: "Les Îles de l'espace"
+            authors: "Arthur C. Clarke"
+            url: https://www.babelio.com/livres/Clarke-Les-les-de-lespace/375291
         -   title: "Carbone Modifié"
             authors: "Richard Morgan"
             url: http://www.bragelonne.fr/livres/view/carbone-modifie-2
