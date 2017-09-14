@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "Les Sables de Mars"
+            authors: "Arthur C. Clarke"
+            url: https://www.babelio.com/livres/Clarke-Les-Sables-de-Mars/588776
         -   title: "Ces hommes dans la jungle"
             authors: "Norman Spinrad"
             url: http://www.milady.fr/livres/view/ces-hommes-de-la-jungle
