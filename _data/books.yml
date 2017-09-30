@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "Cartographie des nuages"
+            authors: "David Mitchell"
+            url: https://www.babelio.com/livres/Mitchell-Cartographie-des-nuages/5615
         -   title: "Les Sables de Mars"
             authors: "Arthur C. Clarke"
             url: https://www.babelio.com/livres/Clarke-Les-Sables-de-Mars/588776
