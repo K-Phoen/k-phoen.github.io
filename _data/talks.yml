@@ -1,4 +1,16 @@
 -
+    year: 2017
+    talks:
+        -   title:      "Log me now"
+            date:       "2017-10-27"
+            at:         "Forum PHP 2017, Paris"
+            slides_url: "http://blog.kevingomez.fr/slides-forum-php-2017/"
+        -   title:      "Log me now"
+            date:       "2017-09-26"
+            at:         "AFUP Lyon"
+            slides_url: "http://blog.kevingomez.fr/slides-forum-php-2017/"
+        
+-
     year: 2016
     talks:
         -   title:      "Soyez spécifiques"
