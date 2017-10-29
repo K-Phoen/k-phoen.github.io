@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "The Expanse, tome 1 : L'éveil du Léviathan"
+            authors: "James S. A. Corey"
+            url: https://www.actes-sud.fr/catalogue/science-fiction-fantasy/leveil-du-leviathan
         -   title: "Cartographie des nuages"
             authors: "David Mitchell"
             url: https://www.babelio.com/livres/Mitchell-Cartographie-des-nuages/5615
