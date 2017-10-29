@@ -5,16 +5,16 @@ encoding: utf-8
 exclude: [ README.md, Gemfile ]
 permalink: pretty
 
-config:
+globals:
     author: Kévin Gomez
-    title:  Kévin Gomez
-    url:    http://blog.kevingomez.fr
-    email:  contact@kevingomez.fr
+    title: Kévin Gomez
+    url: 'http://blog.kevingomez.fr'
+    email: contact@kevingomez.fr
 
     menu:
-        - url:    http://www.kevingomez.fr
-          title:  about
-        - url:    /bookshelf/
-          title:  bookshelf
-        - url:    /talks/
-          title:  talks
+        - url: 'http://www.kevingomez.fr'
+          title: about
+        - url: /bookshelf/
+          title: bookshelf
+        - url: /talks/
+          title: talks
