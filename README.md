@@ -10,8 +10,7 @@ You should have a server up and running locally at <http://localhost:4000>.
 
 ## Deployment
 
-You should deploy with [GitHub Pages](http://pages.github.com)- it's just
-easier.
+You should deploy with [GitHub Pages](http://pages.github.com) — it's just easier.
 
-All you should have to do is create ar repository on GitHub named
+All you should have to do is create a repository on GitHub named
 `username.github.io`, push on it and voilà.
