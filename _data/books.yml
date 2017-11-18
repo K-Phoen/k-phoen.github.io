@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "The Expanse, tome 2 : La guerre de Caliban"
+            authors: "James S. A. Corey"
+            url: https://www.actes-sud.fr/catalogue/science-fiction-fantasy/la-guerre-de-caliban
         -   title: "The Expanse, tome 1 : L'éveil du Léviathan"
             authors: "James S. A. Corey"
             url: https://www.actes-sud.fr/catalogue/science-fiction-fantasy/leveil-du-leviathan
