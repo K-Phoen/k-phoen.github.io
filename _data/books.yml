@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "Toute résistance serait futile"
+            authors: "Jenny Colgan"
+            url: http://www.milady.fr/livres/view/toute-resistance-serait-futile
         -   title: "The Expanse, tome 2 : La guerre de Caliban"
             authors: "James S. A. Corey"
             url: https://www.actes-sud.fr/catalogue/science-fiction-fantasy/la-guerre-de-caliban
