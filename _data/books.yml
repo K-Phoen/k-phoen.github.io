@@ -1,6 +1,9 @@
 -
     year: 2017
     books:
+        -   title: "Les Enfants d'Icare"
+            authors: "Arthur C. Clarke"
+            url: http://www.milady.fr/livres/view/les-enfants-d-icare
         -   title: "Toute résistance serait futile"
             authors: "Jenny Colgan"
             url: http://www.milady.fr/livres/view/toute-resistance-serait-futile
