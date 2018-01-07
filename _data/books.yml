@@ -1,4 +1,10 @@
 -
+    year: 2018
+    books:
+        -   title: "Les prairies bleues"
+            authors: "Arthur C. Clarke"
+            url: https://www.babelio.com/livres/Clarke-Les-prairies-bleues/212364
+-
     year: 2017
     books:
         -   title: "L'Autre Côté du réel"
