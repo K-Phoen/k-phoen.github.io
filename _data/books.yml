@@ -1,6 +1,12 @@
 -
     year: 2018
     books:
+        -   title: "Les Gouffres de la Lune"
+            authors: "Arthur C. Clarke"
+            url: http://www.bragelonne.fr/livres/View/les-gouffres-de-la-lune
+        -   title: "Les Chants de la Terre lointaine"
+            authors: "Arthur C. Clarke"
+            url: http://www.bragelonne.fr/livres/view/les-chants-de-la-terre-lointaine-2
         -   title: "Les prairies bleues"
             authors: "Arthur C. Clarke"
             url: https://www.babelio.com/livres/Clarke-Les-prairies-bleues/212364
