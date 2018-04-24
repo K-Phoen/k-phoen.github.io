@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "Norby and Yobo's Great Adventure"
+            authors: "Isaac & Janet Asimov"
+            url: https://www.amazon.com/Norby-Yobos-Great-Adventure-Asimov/dp/0441586384
         -   title: "Do Androids Dream of Electric Sheep?"
             authors: "Philip K. Dick"
             url: https://www.amazon.fr/Androids-Dream-Electric-Sheep-inspiration/dp/0575079932
