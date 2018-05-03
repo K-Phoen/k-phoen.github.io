@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "Nos armes sont de miel"
+            authors: "Pierre Pelot"
+            url: http://www.bragelonne.fr/livres/View/nos-armes-sont-de-miel
         -   title: "Norby and Yobo's Great Adventure"
             authors: "Isaac & Janet Asimov"
             url: https://www.amazon.com/Norby-Yobos-Great-Adventure-Asimov/dp/0441586384
