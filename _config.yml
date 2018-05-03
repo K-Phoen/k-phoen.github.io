@@ -12,9 +12,9 @@ globals:
     email: contact@kevingomez.fr
 
     menu:
-        - url: 'http://www.kevingomez.fr'
-          title: about
         - url: /bookshelf/
           title: bookshelf
         - url: /talks/
           title: talks
+        - url: /Resume_Kevin-Gomez-Pinto.pdf
+          title: resume
