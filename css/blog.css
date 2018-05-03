@@ -147,6 +147,15 @@ ul.books, ul.talks {
     border: none;
 }
 
+.job-alert {
+    background-color: #cbe896;
+    padding: .75rem 1.25rem;
+    border-radius: 0.25rem;
+    color: #383838;
+    margin-bottom: 0.75rem;
+    font-size: 1.2rem;
+}
+
 .footer {
     text-align: center;
     padding: 1em 0;
