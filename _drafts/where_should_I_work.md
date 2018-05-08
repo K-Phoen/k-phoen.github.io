@@ -24,7 +24,7 @@ across Europe… in part to look for a job.
 
 ## Why did I quit?
 
-When I was hired (as an « *expert-beginner* »), one of my goals was to benefit
+When I was hired (as an « *expert-junior* »), one of my goals was to benefit
 from the knowledge and experience of my coworkers to improve myself.
 
 *TEA* was — and still is — a company where talented people are building a
