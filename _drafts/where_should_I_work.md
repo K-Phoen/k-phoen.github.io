@@ -71,10 +71,9 @@ with smaller projects and impacts.
 
 For instance, I would love working with researchers in biology or physics. I
 could make my technical expertise available and contribute with my skills to
-help them in their day to day work.
-
-I can totally see myself providing tools for other teams and developers. Working
-in an SRE team would be awesome too.
+help them in their day to day work.  
+Another thing I can totally see myself do is providing tools for other teams
+and developers. Working in an SRE team would be awesome too.
 
 And doing that abroad would be even better!
 
