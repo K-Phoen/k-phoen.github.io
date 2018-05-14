@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Where should I work?
+title: Looking for a new job!
 description: >
     After three years as a software engineer at [TEA — The Ebook Alternative](https://www.tea-ebook.com/),
     **I quit my job**, I left my flat and I took my backpack and my shoes to
@@ -10,6 +10,8 @@ tldr: >
     * **I am looking for a job, somewhere in Europe**
 
     * I love technical challenges
+
+    * I am a **backend developer** at heart, but I have always been **interested by DevOps and SRE-related topics**
 
     * A *meaningful* project would be awesome
 
@@ -24,14 +26,14 @@ across Europe… in part to look for a job.
 
 ## Why did I quit?
 
-When I was hired (as an « *expert-junior* »), one of my goals was to benefit
-from the knowledge and experience of my coworkers to improve myself.
+When I was hired, one of my personal goals was to benefit from the knowledge
+and experience of my coworkers to improve myself.
 
 *TEA* was — and still is — a company where talented people are building a
 relatively complex platform and where I learned a lot by their side: I improved my
-knowledge of PHP, I learned new languages, I developed my skills in architecture,
-project management and teamwork. I even gave [a few talks](/talks/) in some
-big conferences.
+knowledge of PHP, I learned new languages, I helped introduce a testing culture,
+I developed my skills in architecture, project management and teamwork. I even
+gave [a few talks](/talks/) in some big conferences.
 
 But after a while, I felt like I was stagnating.
 
@@ -49,13 +51,14 @@ That's a good question: what kind of job am I looking for? What does
 
 Even if the technical aspect and the continuous improvement are extremely
 important for me, they aren't the only ones that matter. I am also looking for
-some kind of *ethical* dimension in my work.
+some kind of *ethical* dimension in my work and I actively avoid unethical jobs.
 
 But what does all that even mean? Short answer: I don't really know.
 
 I am not looking for « [we're making the world a better place](https://www.youtube.com/watch?v=fRUAJVKlUZQ) »-style companies.
-I am more interested in being useful while respecting my values. I would prefer
-to have an impact while improving myself. Both technically and humanly.
+I am more interested in being useful while respecting my values. I enjoy working
+on interesting projects and ideally I would also like to have an impact while
+improving myself. Both technically and humanly.
 
 > * What's the company's goal?
 > * Who are their customers?
