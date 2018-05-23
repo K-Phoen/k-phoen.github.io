@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "Terre"
+            authors: "David Brin"
+            url: "http://www.davidbrin.com/earth.html"
         -   title: "Le Meilleur des mondes"
             authors: "Aldous Huxley"
             url: "https://www.pocket.fr/tous-nos-livres/le_meilleur_des_mondes-9782266283038/"
