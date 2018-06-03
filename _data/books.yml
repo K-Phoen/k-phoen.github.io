@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "Existence"
+            authors: "David Brin"
+            url: "http://www.davidbrin.com/existence.html"
         -   title: "Terre"
             authors: "David Brin"
             url: "http://www.davidbrin.com/earth.html"
