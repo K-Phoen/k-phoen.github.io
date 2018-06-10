@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "Le problème à trois corps"
+            authors: "Liu Cixin"
+            url: "https://www.actes-sud.fr/catalogue/science-fiction-fantasy/le-probleme-trois-corps"
         -   title: "Le Regard"
             authors: "Ken Liu"
             url: https://www.belial.fr/ken-liu/le-regard
