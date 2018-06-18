@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "La forêt sombre"
+            authors: "Liu Cixin"
+            url: "https://www.actes-sud.fr/catalogue/science-fiction-fantasy/la-foret-sombre"
         -   title: "Le problème à trois corps"
             authors: "Liu Cixin"
             url: "https://www.actes-sud.fr/catalogue/science-fiction-fantasy/le-probleme-trois-corps"
