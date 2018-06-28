@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "Spin"
+            authors: "Robert Charles Wilson"
+            url: "http://www.denoel.fr/Catalogue/DENOEL/Lunes-d-encre/Spin"
         -   title: "La forêt sombre"
             authors: "Liu Cixin"
             url: "https://www.actes-sud.fr/catalogue/science-fiction-fantasy/la-foret-sombre"
