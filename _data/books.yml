@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "La Grande Explosion"
+            authors: "Eric Frank Russell"
+            url: "http://www.bragelonne.fr/livres/View/la-grande-explosion"
         -   title: "Spin"
             authors: "Robert Charles Wilson"
             url: "http://www.denoel.fr/Catalogue/DENOEL/Lunes-d-encre/Spin"
