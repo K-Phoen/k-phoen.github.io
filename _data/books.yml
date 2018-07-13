@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "La Guerre tranquille"
+            authors: "Paul McAuley"
+            url: "http://www.bragelonne.fr/livres/View/la-guerre-tranquille"
         -   title: "La Grande Explosion"
             authors: "Eric Frank Russell"
             url: "http://www.bragelonne.fr/livres/View/la-grande-explosion"
