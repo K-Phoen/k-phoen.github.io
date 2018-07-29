@@ -1,6 +1,15 @@
 -
     year: 2018
     books:
+        -   title: "Les mangeurs d'argile"
+            authors: "Pierre Pelot"
+            url: "http://www.bragelonne.fr/livres/View/les-mangeurs-d-argile"
+        -   title: "Le dernier paradis"
+            authors: "Michel Jeury"
+            url: "http://www.milady.fr/livres/view/le-dernier-paradis"
+        -   title: "Le facteur"
+            authors: "David Brin"
+            url: "http://www.milady.fr/livres/view/le-facteur"
         -   title: "La Guerre tranquille"
             authors: "Paul McAuley"
             url: "http://www.bragelonne.fr/livres/View/la-guerre-tranquille"
