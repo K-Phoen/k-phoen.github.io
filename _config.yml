@@ -13,8 +13,8 @@ globals:
 
     menu:
         - url: /bookshelf/
-          title: bookshelf
+          title: Bookshelf
         - url: /talks/
-          title: talks
-        - url: /Resume_Kevin-Gomez-Pinto.pdf
-          title: resume
+          title: Talks
+        - url: /about-me/
+          title: About me

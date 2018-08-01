@@ -114,7 +114,7 @@ article header > h1, article header > h2, article header a {
     color: #494949;
 }
 article .post-description, article .post-body, article .post-tl-dr,
-.books, .talks {
+.books, .talks, #about-me {
     text-align: justify;
     font-size: 20px;
     line-height: 1.44em;
@@ -154,6 +154,10 @@ ul.books, ul.talks {
     color: #383838;
     margin-bottom: 0.75rem;
     font-size: 1.2rem;
+}
+
+#about-me img {
+    max-width: 100%;
 }
 
 .footer {
