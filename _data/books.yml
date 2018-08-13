@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "Kid Jesus"
+            authors: "Pierre Pelot"
+            url: "http://www.bragelonne.fr/livres/View/kid-jesus"
         -   title: "Les mangeurs d'argile"
             authors: "Pierre Pelot"
             url: "http://www.bragelonne.fr/livres/View/les-mangeurs-d-argile"
