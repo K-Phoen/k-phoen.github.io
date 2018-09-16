@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "La Grande Route du Nord — Tome 1"
+            authors: "Peter F. Hamilton"
+            url: "http://www.bragelonne.fr/livres/view/la-grande-route-du-nord"
         -   title: "Kid Jesus"
             authors: "Pierre Pelot"
             url: "http://www.bragelonne.fr/livres/View/kid-jesus"
