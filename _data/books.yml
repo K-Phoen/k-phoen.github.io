@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "Élévation — Jusqu'au coeur du soleil"
+            authors: "David Brin"
+            url: "http://www.bragelonne.fr/livres/View/jusqu-au-crur-du-soleil"
         -   title: "La Grande Route du Nord — Tome 1"
             authors: "Peter F. Hamilton"
             url: "http://www.bragelonne.fr/livres/view/la-grande-route-du-nord"
