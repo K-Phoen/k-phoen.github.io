@@ -1,6 +1,12 @@
 -
     year: 2018
     books:
+        -   title: "Axis"
+            authors: "Robert Charles Wilson"
+            url: "http://www.denoel.fr/Catalogue/DENOEL/Lunes-d-encre/Axis"
+        -   title: "Le Dieu de lumière"
+            authors: "Jean-Pierre Andrevon"
+            url: "http://www.bragelonne.fr/livres/View/le-dieu-de-lumiere"
         -   title: "Élévation — Jusqu'au coeur du soleil"
             authors: "David Brin"
             url: "http://www.bragelonne.fr/livres/View/jusqu-au-crur-du-soleil"
