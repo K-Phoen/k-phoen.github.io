@@ -7,7 +7,7 @@ title: Bookshelf
 
 <ul class="books">
 {% for data in site.data.books %}
-    <h2>{{ data.year }} ({{ data.books|size }} books)</h2>
+    <h2>{{ data.year }} — {{ data.books|size }} books</h2>
 
     <ul>
     {% for book in data.books %}
