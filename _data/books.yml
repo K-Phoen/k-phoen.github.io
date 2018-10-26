@@ -1,6 +1,15 @@
 -
     year: 2018
     books:
+        -   title: "La porte de cristal"
+            authors: "N-K Jemisin"
+            url: "https://www.jailu.com/Catalogue/nouveaux-millenaires/la-porte-de-cristal"
+        -   title: "La cinquième saison"
+            authors: "N-K Jemisin"
+            url: "https://www.jailu.com/Catalogue/nouveaux-millenaires/la-cinquieme-saison"
+        -   title: "Vortex"
+            authors: "Robert Charles Wilson"
+            url: "http://www.denoel.fr/Catalogue/DENOEL/Lunes-d-encre/Vortex"
         -   title: "Axis"
             authors: "Robert Charles Wilson"
             url: "http://www.denoel.fr/Catalogue/DENOEL/Lunes-d-encre/Axis"
