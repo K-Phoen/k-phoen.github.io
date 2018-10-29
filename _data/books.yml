@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "La Ménagerie de papier"
+            authors: "Ken Liu"
+            url: "https://www.belial.fr/ken-liu/la-menagerie-de-papier"
         -   title: "La porte de cristal"
             authors: "N-K Jemisin"
             url: "https://www.jailu.com/Catalogue/nouveaux-millenaires/la-porte-de-cristal"
