@@ -1,6 +1,12 @@
 -
     year: 2018
     books:
+        -   title: "Delirium Circus"
+            authors: "Pierre Pelot"
+            url: "https://www.babelio.com/livres/Pelot-Delirium-Circus/30704"
+        -   title: "Les cieux pétrifiés"
+            authors: "N-K Jemisin"
+            url: "https://www.jailu.com/Catalogue/nouveaux-millenaires/les-cieux-petrifies"
         -   title: "La Ménagerie de papier"
             authors: "Ken Liu"
             url: "https://www.belial.fr/ken-liu/la-menagerie-de-papier"
