@@ -1,6 +1,9 @@
 -
     year: 2018
     books:
+        -   title: "Nouveaux contes de la folie ordinaire"
+            authors: "Charles Bukowski"
+            url: "https://www.grasset.fr/nouveaux-contes-de-la-folie-ordinaire-9782246809951"
         -   title: "Delirium Circus"
             authors: "Pierre Pelot"
             url: "https://www.babelio.com/livres/Pelot-Delirium-Circus/30704"
