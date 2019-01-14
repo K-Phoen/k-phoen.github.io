@@ -1,4 +1,10 @@
 -
+    year: 2019
+    books:
+        -   title: "Vide qui songe"
+            authors: "Peter F. Hamilton"
+            url: "https://www.bragelonne.fr/livres/view/vide-qui-songe"
+-
     year: 2018
     books:
         -   title: "Nouveaux contes de la folie ordinaire"
