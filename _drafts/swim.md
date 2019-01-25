@@ -351,6 +351,23 @@ With this method, successive selections of the same target are at most
 <code>(2n - 1)</code> protocol periods apart. This bounds the worst case
 detection time of a node failure.
 
+## Summary
+
+ * *SWIM* is a membership protocol designed to answer the question « *Which are
+    the alive nodes in a cluster?* » in a scalable way
+ * the protocol is divided in two components: failure detection and information
+     dissemination
+ * the failure detector works by directly or indirectly probing nodes, at fixed
+     intervals
+ * the suspicion sub-protocol improves the failure detector's accuracy by giving
+     time to nodes for recovery
+ * information about the status of the cluster is disseminated using a
+     infection-style method: events are included in the failure detection
+     component and propagated as an infection or gossip would in real life, from
+     peer to peer
+ * selected nodes to probe using a randomized round-robin makes the failure
+     detection deterministic
+
 ## *SWIM* in Go: memberlist
 
  * https://github.com/hashicorp/memberlist
