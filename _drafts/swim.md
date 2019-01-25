@@ -269,7 +269,8 @@ information:
 Infection-style dissemination implies that members of the cluster might have a
 different memberlist status as information takes more time to propagate. But it
 has been shown that such epidemic process spreads exponentially fast and all the
-nodes in the cluster will eventually (and rapidly) receive the gossips.
+nodes in the cluster will eventually (and rapidly) receive the gossips (it takes
+<code>O(log(N))</code> time to reach every node).
 
 To improve resiliency in case of nodes failures and packet losses, each node
 has its own prioritized list of "gossips" to disseminate. And each packet sent
