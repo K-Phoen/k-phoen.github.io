@@ -271,7 +271,68 @@ different memberlist status as information takes more time to propagate. But it
 has been shown that such epidemic process spreads exponentially fast and all the
 nodes in the cluster will eventually (and rapidly) receive the gossips.
 
+To improve resiliency in case of nodes failures and packet losses, each node
+has its own prioritized list of "gossips" to disseminate. And each packet sent
+by the protocol can be used to piggyback a fixed amount of gossips.
+
 ### Suspicion mechanism
+
+The failure detector component can easily detect as dead a node due to packet
+losses or because it was asleep for some time (because of a temporary issue, an
+unusual load of work, GC pauses, …). The node would then be incorrectly
+considered dead and forced to leave the cluster.
+
+To mitigate this effect, a "*suspicion*" sub-protocol was introduced.
+
+It works as follows. Consider a node *A* that chooses another node *B* as
+<code>ping</code> target. If *A* receives no direct or indirect <code>ACK</code>
+from *B*, it does NOT declare it dead. Instead, it marks the unresponsive node
+as *suspected* in its local memberlist and it transfers this update to the
+dissemination component.
+Each node receiving the update also updates its local memberlist and keeps on
+disseminating the update.
+
+That being said, **suspected members do stay on the memberlists** and are treated
+similarly to healthy members.
+
+If any node receives an <code>ACK</code> from a suspected node, it un-suspects
+the node and disseminate the information.
+Similarly, if a node receive a gossip indicating that it is suspected, it can
+start propagating a "hey, I'm alive!" message to clarify the situation.
+
+After a predefined timeout, suspected nodes are marked as dead and the
+information is propagated.
+
+This mechanism reduces (but does not eliminate) the rate of failure detection
+false positives. Notice also that the *Strong Completeness* property of the
+original protocol continues to hold. Failures of processes suspecting a failed
+process may prolong detection time, but eventual detection is still guaranteed.
+
+From the above discussion, <code>Alive</code> messages override
+<code>Suspect</code> messages, and <code>Confirm</code> messages override both
+<code>Suspect</code> and <code>Alive</code> messages, in their effect on the
+local membership list element corresponding to the suspected member.
+
+However, a member might be suspected and unsuspected multiple times during its
+lifetime. These multiple events need to be distinguished through unique
+identifiers. Each node will maintain its own *incarnation number*.
+This number is set to 0 when the node joins the cluster and can be incremented
+only by the node itself, when it receives information about itself being
+suspected in the current incarnation. The suspected node will then emit an
+<code>Alive</code> message with an incremented incarnation number and
+disseminate it.
+
+The incarnation number must be included, along a node identifier, in every
+<code>Alive</code>, <code>Suspect</code> and <code>Confirm</code> messages. This
+number will be used to establish an "happens-before" relationship between
+events.
+For instance:
+
+ * receiving the message <code>{ Alive C, incarnation = 4 }</code> would overrides
+     the message <code>{ Suspect C, incarnation = 3 }</code> as the incarnation
+     number of the suspected *C* node is less than the alive *C* node.
+ * on the other hand, the message <code>{ Alive C, incarnation = 3 }</code>
+     would not be overridden by <code>{ Suspect C, incarnation = 2 }</code>
 
 ### Deterministic probe-target selection
 
