@@ -336,6 +336,20 @@ For instance:
 
 ### Deterministic probe-target selection
 
+In the first version of the protocol, the failure detector component chooses
+randomly the node to probe. Although each node failure is guaranteed to be
+detected eventually, a specially unlucky selection of nodes can lead to an
+important delay between the failure and its detection.
+
+This can be fixed by using a round-robin selection instead of a random one.
+Joining nodes will be inserted in the member-list at random positions and when
+the list traversal is complete, it is randomly rearranged before being traversed
+again.
+
+With this method, successive selections of the same target are at most
+<code>(2n - 1)</code> protocol periods apart. This bounds the worst case
+detection time of a node failure.
+
 ## *SWIM* in Go: memberlist
 
  * https://github.com/hashicorp/memberlist
