@@ -202,11 +202,108 @@ positives don't depend on the number of nodes in the cluster (except
 asymptotically). Which means that the protocol will scale nicely, even on large
 clusters.
 
-## Improving *SWIM*
+## A more robust and efficient *SWIM*
+
+The version of the *SWIM* protocol we described so far could be qualified as «
+*basic SWIM* ». It works and showcases the main ideas of the protocol, but it
+suffers from a few issues and limitations:
+
+ * the dissemination component still relies on network multicasts. However,
+    network multicast primitives such as IP multicast etc., are only best-effort
+    and most of the time they aren't even enabled on production systems ;
+ * the failure detector doesn't handle well nodes that are perturbed for small
+    durations of time (overloaded host, unexpectedly long GC pause, …) ;
+ * the basic SWIM failure detection protocol guarantees eventual detection of
+    the failure of an arbitrary node. However, it gives no deterministic
+    guarantees on the time between failure of an arbitrary node and its
+    detection at another arbitrary member (in terms of the number of local
+    protocol rounds).
+
+Let's dig in these limitations to better understand them and see what can be
+done to go around.
+
+### Infection-style dissemination
+
+The basic protocol propagates membership updates (joins, leaves and failures)
+through the cluster using multicast primitives. Hardware multicast and IP
+multicast are available on most networks and operating systems, but are rarely
+enabled (for administrative or security reasons). The basic SWIM protocol would
+then have to use a costly broadcast, or an inefficient point-to-point messaging
+scheme, in order to disseminate the membership updates.
+
+Furthermore, this type of multicast usually uses UDP and is a best-effort
+protocol. Reliably maintaining the memberlist would prove challenging.
+
+Instead of multicast, the authors of the *SWIM* protocol suggested a different
+approach, eliminating the need for multicast altogether: **piggybacking**.
+
+They took advantage of the fact that the protocol regularly sends messages to
+other nodes (<code>PING</code>, <code>PING-REQ()</code>, <code>ACK</code>) so
+they decided to include "*gossip information*" in these packets. This
+dissemination mechanism is called "*infection-style*", as information spreads
+in a manner analogous to the spread of gossip in society, or epidemic in the
+general population.
+
+Notice that this implementation of the dissemination component does not generate
+any extra packets (such as multicasts) - all "messages" handed to this component
+are propagated by piggybacking on the packets of the failure detection component.
+The network load remains the same as seen previously.
+
+In the following example, we see how piggybacking can be used to disseminate
+information:
+
+ 1. *A* knows that *C* is dead ;
+ 2. *C* knows that *E* joined the cluster ;
+ 3. *A* directly probes *B* and includes a gossip indicating that *C* should be
+    considered as failed. *B* acknowledges and updates its own memberlist to
+    remove *C* ;
+ 4. *A* directly probes *D* and also indicates that *C* is dead. *D*
+    acknowledges and piggybacks the <code>ACK</code> packet to indicate that a
+    new node *E* has joined the cluster.
+
+<figure>
+    <img src="/img/swim_piggybacking.svg" />
+    <figcaption>SWIM: infection-style dissemination</figcaption>
+</figure>
+
+Infection-style dissemination implies that members of the cluster might have a
+different memberlist status as information takes more time to propagate. But it
+has been shown that such epidemic process spreads exponentially fast and all the
+nodes in the cluster will eventually (and rapidly) receive the gossips.
+
+### Suspicion mechanism
+
+### Deterministic probe-target selection
 
 ## *SWIM* in Go: memberlist
 
  * https://github.com/hashicorp/memberlist
+
+```go
+/* Create the initial memberlist from a safe configuration.
+   Please reference the godoc for other default config types.
+   http://godoc.org/github.com/hashicorp/memberlist#Config
+*/
+list, err := memberlist.Create(memberlist.DefaultLocalConfig())
+if err != nil {
+	panic("Failed to create memberlist: " + err.Error())
+}
+
+// Join an existing cluster by specifying at least one known member.
+n, err := list.Join([]string{"1.2.3.4"})
+if err != nil {
+	panic("Failed to join cluster: " + err.Error())
+}
+
+// Ask for members of the cluster
+for _, member := range list.Members() {
+	fmt.Printf("Member: %s %s\n", member.Name, member.Addr)
+}
+
+// Continue doing whatever you need, memberlist will maintain membership
+// information in the background. Delegates can be used for receiving
+// events when members join or leave.
+```
 
 ## Links
 
