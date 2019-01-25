@@ -2,7 +2,19 @@
 layout: post
 title: "Clusters and membership: discovering the SWIM protocol"
 description: >
-    Let's talk about SWIM!
+    Recently, I have been playing with distributed systems in Go. I am toying around
+    with a distributed key-value store. Because why not?
+    <br />
+    This store — again, that I am building just for the sake of learning — will be
+    able to operate as a single instance on a server as well as inside a cluster.
+    And instead of defining statically through a configuration file which nodes are
+    part for the cluster, I want to be able to add or remove nodes dynamically.
+    <br />
+    Each node in the cluster must be able to answer a seemingly simple question:
+    « *Who are my (active) peers?* »
+    Or expressed in a more fancy manner, how can the cluster **detect nodes addition,
+    nodes removal, nodes failures and propagate the information** across the whole
+    cluster?
 ---
 
 Recently, I have been playing with distributed systems in Go. I am toying around
