@@ -380,10 +380,33 @@ detection time of a node failure.
  * selected nodes to probe using a randomized round-robin makes the failure
      detection deterministic
 
-## *SWIM* in Go: memberlist
+## Going further
 
- * https://github.com/hashicorp/memberlist
+While we went pretty deep in the *memberlist* problem, there are still a lof of
+subjects we didn't explore:
 
+ * what happens in case of network partitions?
+ * how does *SWIM* deal with nodes voluntarily leaving the cluster?
+ * what about nodes re-joining?
+ * we totally ignored security. Shouldn't the communications between nodes at
+     least be encrypted?
+ * etc.
+
+Some of these concerns — and more — are addressed in [Serf](https://www.serf.io/).
+Two of [HashiCorp](https://www.hashicorp.com/)'s products rely on a version of
+the *SWIM* protocol enhanced by their teams: [Serf](https://www.serf.io/) and [Consul](https://www.consul.io/).
+
+They provide a [guide](https://www.serf.io/docs/internals/gossip.html) describing
+what modifications they introduced to the protocol. A [convergence simulator](https://www.serf.io/docs/internals/simulator.html)
+can also be found on their website to visualize how fast a cluster will converge
+to a consistent state.
+
+### *SWIM* in Go: memberlist
+
+And last but not least, the Go implementation of their modified version of *SWIM*
+is Open-Source and available on GitHub: [https://github.com/hashicorp/memberlist](https://github.com/hashicorp/memberlist)
+
+Here is how a node joins a cluster, using the memberlist library:
 ```go
 /* Create the initial memberlist from a safe configuration.
    Please reference the godoc for other default config types.
@@ -410,14 +433,9 @@ for _, member := range list.Members() {
 // events when members join or leave.
 ```
 
-## Links
+### Links
 
- * https://www.cs.cornell.edu/~asdas/research/dsn02-swim.pdf
- * https://www.youtube.com/watch?v=bkmbWsDz8LM
- * https://en.wikipedia.org/wiki/Gossip_protocol
- * https://www.serf.io/docs/internals/gossip.html
- * https://gotocon.com/dl/goto-chicago-2016/slides/WilfriedSchobeiri_BuildingAClusteredServiceInGo.pdf
-
- * https://www.brianstorti.com/swim/
- * https://asafdav2.github.io/2017/swim-protocol/
- * https://prakhar.me/articles/swim/
+ * [SWIM: Scalable Weakly-consistent Infection-style Process Group Membership Protocol](https://www.cs.cornell.edu/projects/Quicksilver/public_pdfs/SWIM.pdf)
+ * [Armon Dadgar from HashiCorp presents the SWIM protocol](https://www.youtube.com/watch?v=bkmbWsDz8LM)
+ * [https://en.wikipedia.org/wiki/Gossip_protocol](https://en.wikipedia.org/wiki/Gossip_protocol)
+ * [https://en.wikipedia.org/wiki/Lamport_timestamps](https://en.wikipedia.org/wiki/Lamport_timestamps)
