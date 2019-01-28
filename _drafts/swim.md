@@ -48,10 +48,10 @@ We could summarize the process like this:
     <figcaption>Heartbeat sent to a 4-nodes cluster</figcaption>
 </figure>
 
-The regularly sent heartbeats solve the failure detection problem and we can
-also use the broadcast communication channel to transmit information related to
-which nodes are in the cluster. So this protocol solves both the failure
-detection problem and the *member-list* one.
+The regular heartbeats solve the failure detection problem and we can also use
+the broadcast communication channel to transmit information related to which
+nodes are in the cluster. So this protocol solves both the failure detection
+problem and the *member-list* one.
 
 But when we look more closely at what happens in the network, we notice that the
 more the cluster grows, the more messages are sent.
@@ -66,7 +66,7 @@ network.
 After noticing this first limitation in the heartbeat-based method, I
 realized that I actually needed a way to objectively evaluate protocols.
 
-Luckily, a paper called « *On scalable and efficient distributed failure detectors* »
+Luckily, a paper called « [*On scalable and efficient distributed failure detectors*](https://www.cs.cornell.edu/projects/Quicksilver/public_pdfs/SWIM.pdf) »
 published in 2001 by I. Gupta, T. D. Chandra, and G. S. Goldszmidt addresses this
 topic.
 
@@ -107,7 +107,7 @@ traditional heart-beating protocols. They called their new protocol SWIM.
 
 ## Enters *SWIM*
 
-The new idea introduced in *SWIM* — or **S**calable **W**eakly-consistent
+The new idea introduced by *SWIM* — or **S**calable **W**eakly-consistent
 **I**nfection-style Process Group **M**embership Protocol — is the separation of
 the failure detection and membership update dissemination functionalities.
 
@@ -147,8 +147,8 @@ At the end of the protocol period <code>T</code>, *A* checks if it has received
 any direct or indirect response from *C*. If not, it declares *C* as dead in its
 local membership list and hands this update off to the dissemination component.
 
-Indirect probing is a great way to avoid any congestion network path between
-two nodes and dropped packets on the, which might have caused the direct
+Indirect probing is a great way to avoid any congested network path between
+two nodes and dropped packets, which might have caused the direct
 <code>PING</code> to have failed in the first place. That's also why the
 <code>ACK</code> is relayed back instead of being sent directly to the probing
 node. The number of false-positives decreases and the accuracy is improved.
@@ -171,7 +171,9 @@ leaving members are disseminated in a similar manner.
 </figure>
 
 **Note:** for a new node to join the cluster, it must know the address of
-at least one alive node member of the cluster.
+at least one alive node member of the cluster. This way, it can introduce itself
+to cluster and the rest of the nodes will include it to the gossips, this
+allowing it to gradually receive information about all the nodes of the cluster.
 
 ## Evaluating *SWIM*
 
@@ -265,7 +267,7 @@ In the following example, we see how piggybacking can be used to disseminate
 information:
 
  1. *A* knows that *C* is dead ;
- 2. *C* knows that *E* joined the cluster ;
+ 2. *D* knows that *E* joined the cluster ;
  3. *A* directly probes *B* and includes a gossip indicating that *C* should be
     considered as failed. *B* acknowledges and updates its own memberlist to
     remove *C* ;
