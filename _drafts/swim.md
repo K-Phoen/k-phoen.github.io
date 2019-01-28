@@ -27,9 +27,13 @@ part for the cluster, I want to be able to add or remove nodes dynamically.
 
 Each node in the cluster must be able to answer a seemingly simple question:
 « *Who are my (active) peers?* »
-Or expressed in a more fancy manner, how can the cluster **detect nodes addition,
-nodes removal, nodes failures and propagate the information** across the whole
-cluster?
+Or expressed in a more fancy manner: how can the cluster **detect nodes addition,
+nodes removal, nodes failures and propagate information** across an entire cluster?
+
+Have you ever wondered how [Cassandra](https://cassandra.apache.org/), [Redis](https://redis.io/),
+[Riak](http://basho.com/products/#riak), and many others could maintain a cluster?
+Well, I have. And in this blog post, we'll see two of the protocols that this
+type of service relies upon for their failure detection and memberships.
 
 ## Heartbeat
 
@@ -440,4 +444,3 @@ for _, member := range list.Members() {
  * [SWIM: Scalable Weakly-consistent Infection-style Process Group Membership Protocol](https://www.cs.cornell.edu/projects/Quicksilver/public_pdfs/SWIM.pdf)
  * [Armon Dadgar from HashiCorp presents the SWIM protocol](https://www.youtube.com/watch?v=bkmbWsDz8LM)
  * [https://en.wikipedia.org/wiki/Gossip_protocol](https://en.wikipedia.org/wiki/Gossip_protocol)
- * [https://en.wikipedia.org/wiki/Lamport_timestamps](https://en.wikipedia.org/wiki/Lamport_timestamps)
