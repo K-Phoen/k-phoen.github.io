@@ -25,6 +25,14 @@ code, code > span, kbd, pre, samp {
 
 /* LAYOUT CSS */
 
+figure {
+    text-align: center;
+}
+
+figure figcaption {
+    font-style: italic;
+}
+
 blockquote {
     margin: 0 0 1rem;
     padding: 0px 1.25rem 0px 1.1875rem;
