@@ -454,14 +454,24 @@ for _, member := range list.Members() {
 // events when members join or leave.
 ```
 
-### More gossip-based protocols
+## Wait… weren't you initially talking about a key-value store?!
 
-can be used to share state about nodes (load, ram, disk, ...)
+That's right! The idea for this post came from the fact that I am building a
+key-value store prototype.
 
-### Links
+I wanted it to be distributed, so I documented myself about how to detect node
+failures and how to maintain a membership list in a peer-to-peer cluster.
+
+Now that this step is done, I will have to take advantage of all of this to
+build the "store aspect" on top of it: how can I efficiently shard the data?
+How to replicate it? How to rebalance it when new nodes are added? Or when nodes
+fail?
+
+But that's for another day, in another post!
+
+## Links
 
  * [SWIM: Scalable Weakly-consistent Infection-style Process Group Membership Protocol](https://www.cs.cornell.edu/projects/Quicksilver/public_pdfs/SWIM.pdf)
  * [Armon Dadgar from HashiCorp presents the SWIM protocol](https://www.youtube.com/watch?v=bkmbWsDz8LM)
  * [https://en.wikipedia.org/wiki/Gossip_protocol](https://en.wikipedia.org/wiki/Gossip_protocol)
 
-## What it means for my key-value store
