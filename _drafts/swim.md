@@ -333,25 +333,45 @@ From the above discussion, <code>Alive</code> messages override
 local membership list element corresponding to the suspected member.
 
 However, a member might be suspected and unsuspected multiple times during its
-lifetime. These multiple events need to be distinguished through unique
-identifiers. Each node will maintain its own *incarnation number*.
-This number is set to 0 when the node joins the cluster and can be incremented
-only by the node itself, when it receives information about itself being
-suspected in the current incarnation. The suspected node will then emit an
-<code>Alive</code> message with an incremented incarnation number and
-disseminate it.
+lifetime. And as no ordering of the event between the nodes is guaranteed, the
+following situation might happen:
+
+<figure>
+    <img src="/img/swim_unordered_updates.svg" />
+    <figcaption>Two nodes, receiving ambiguous updates</figcaption>
+</figure>
+
+What's the status of *C*? Which node is right?
+Without any additional information, *A* believes that *C* is alive whereas *B*
+believes it's suspected.
+
+To resolve this ambiguity, the updates need to be distinguished through unique
+identifiers: an *incarnation number*. Each node will maintain its own
+*incarnation number*. It's number set to 0 when the node joins the cluster and
+can be **incremented only by the node itself**, when it receives information
+about itself being suspected in the current incarnation. The suspected node will
+then emit an <code>Alive</code> message with an incremented incarnation number
+and disseminate it.
 
 The incarnation number must be included, along a node identifier, in every
 <code>Alive</code>, <code>Suspect</code> and <code>Confirm</code> messages. This
-number will be used to establish an "happens-before" relationship between
-events.
+number will be used to **establish an "happens-before" relationship between
+events**.
 For instance:
 
- * receiving the message <code>{ Alive C, incarnation = 4 }</code> would overrides
-     the message <code>{ Suspect C, incarnation = 3 }</code> as the incarnation
+<figure>
+    <img src="/img/swim_ordered_updates.svg" />
+    <figcaption>Two nodes, receiving unambiguous updates</figcaption>
+</figure>
+
+ * receiving the message <code>{ Alive C, incarnation = 1 }</code> would override
+     the message <code>{ Suspect C, incarnation = 0 }</code> as the incarnation
      number of the suspected *C* node is less than the alive *C* node.
- * on the other hand, the message <code>{ Alive C, incarnation = 3 }</code>
-     would not be overridden by <code>{ Suspect C, incarnation = 2 }</code>
+ * on the other hand, the message <code>{ Alive C, incarnation = 1 }</code>
+     would not be overridden by <code>{ Suspect C, incarnation = 0 }</code>
+
+By comparing *incarnation numbers*, we can safely drop outdated messages and
+still end-up in a coherent state across the cluster.
 
 ### Deterministic probe-target selection
 
@@ -439,8 +459,14 @@ for _, member := range list.Members() {
 // events when members join or leave.
 ```
 
+### More gossip-based protocols
+
+can be used to share state about nodes (load, ram, disk, ...)
+
 ### Links
 
  * [SWIM: Scalable Weakly-consistent Infection-style Process Group Membership Protocol](https://www.cs.cornell.edu/projects/Quicksilver/public_pdfs/SWIM.pdf)
  * [Armon Dadgar from HashiCorp presents the SWIM protocol](https://www.youtube.com/watch?v=bkmbWsDz8LM)
  * [https://en.wikipedia.org/wiki/Gossip_protocol](https://en.wikipedia.org/wiki/Gossip_protocol)
+
+## What it means for my key-value store
