@@ -4,9 +4,9 @@ title: "Clusters and membership: discovering the SWIM protocol"
 description: >
     Have you ever wondered how [Cassandra](https://cassandra.apache.org/),
     [Redis](https://redis.io/), [Riak](http://basho.com/products/#riak), and
-    many others could maintain a cluster? How can a cluster can detect nodes
-    addition, nodes removal, nodes failures and keep the cluster's state
-    consistent across all the other nodes?
+    many others could maintain a cluster? How can a cluster detect nodes
+    addition, nodes removal, nodes failures and keep its state consistent across
+    all the other nodes?
     <br />
     Well, I have. And in this post, we'll see two of the protocols that this
     type of service relies upon for their failure detection and memberships.
