@@ -2,19 +2,14 @@
 layout: post
 title: "Clusters and membership: discovering the SWIM protocol"
 description: >
-    Recently, I have been playing with distributed systems in Go. I am toying around
-    with a distributed key-value store. Because why not?
+    Have you ever wondered how [Cassandra](https://cassandra.apache.org/),
+    [Redis](https://redis.io/), [Riak](http://basho.com/products/#riak), and
+    many others could maintain a cluster? How can a cluster can detect nodes
+    addition, nodes removal, nodes failures and keep the cluster's state
+    consistent across all the other nodes?
     <br />
-    This store — again, that I am building just for the sake of learning — will be
-    able to operate as a single instance on a server as well as inside a cluster.
-    And instead of defining statically through a configuration file which nodes are
-    part for the cluster, I want to be able to add or remove nodes dynamically.
-    <br />
-    Each node in the cluster must be able to answer a seemingly simple question:
-    « *Who are my (active) peers?* »
-    Or expressed in a more fancy manner, how can the cluster **detect nodes addition,
-    nodes removal, nodes failures and propagate the information** across the whole
-    cluster?
+    Well, I have. And in this post, we'll see two of the protocols that this
+    type of service relies upon for their failure detection and memberships.
 ---
 
 Recently, I have been playing with distributed systems in Go. I am toying around
