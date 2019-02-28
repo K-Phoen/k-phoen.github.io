@@ -13,10 +13,10 @@
     
     <item>
       <title>PHP ::class keyword</title>
-      <link>/til/php-class-keyword/</link>
+      <link>/til/2016/01/15/php-class-keyword/</link>
       <pubDate>Fri, 15 Jan 2016 00:00:00 +0000</pubDate>
       
-      <guid>/til/php-class-keyword/</guid>
+      <guid>/til/2016/01/15/php-class-keyword/</guid>
       <description>According to PHP documentation about the ::class keyword, it can be used for class name resolution:
  You can get a string containing the fully qualified name of the ClassName class by using ClassName::class.
  &amp;lt;?php namespace NS { class ClassName { } echo ClassName::class; } // outputs: &amp;#34;NS\ClassName&amp;#34;  It&amp;rsquo;s handy when you need to pass FQCN around. Some people even started using it to make sure that their code was referencing existing classes.</description>
@@ -24,10 +24,10 @@
     
     <item>
       <title>Why is uniqid() slow?</title>
-      <link>/til/why-is-uniqid-slow/</link>
+      <link>/til/2015/07/26/why-is-uniqid-slow/</link>
       <pubDate>Sun, 26 Jul 2015 00:00:00 +0000</pubDate>
       
-      <guid>/til/why-is-uniqid-slow/</guid>
+      <guid>/til/2015/07/26/why-is-uniqid-slow/</guid>
       <description>While profiling RulerZ with Blackfire.io, I noticed that a non-negligible amount of time was consumed by PHP&amp;rsquo;s uniqid() function.
 For those who don&amp;rsquo;t know, this function provides an easy way to generate unique identifiers based on the current date and an optional prefix.
 Wait, the &amp;ldquo;current date&amp;rdquo; part can actually be interesting for our performance issue. What happens if we write something like this:
@@ -36,10 +36,10 @@ Wait, the &amp;ldquo;current date&amp;rdquo; part can actually be interesting fo
     
     <item>
       <title>Parallel bundle install</title>
-      <link>/til/parallel-bundle-install/</link>
+      <link>/til/2015/07/12/parallel-bundle-install/</link>
       <pubDate>Sun, 12 Jul 2015 00:00:00 +0000</pubDate>
       
-      <guid>/til/parallel-bundle-install/</guid>
+      <guid>/til/2015/07/12/parallel-bundle-install/</guid>
       <description>In ruby projects, the bundle install command is known to be quite slow. To mitigate this, Bundler provides an option allowing to install gems using parallel workers: bundle install --jobs 4. Just tell Bundler how many concurrent jobs can be launched and let it work.</description>
     </item>
     
