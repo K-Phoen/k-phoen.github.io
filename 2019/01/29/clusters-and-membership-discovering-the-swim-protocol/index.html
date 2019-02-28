@@ -1,15 +1,29 @@
 <!DOCTYPE html>
 <html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
     <meta charset="utf-8" />
-    <meta property="og:locale" content="en-us" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <meta name="author" content="Kévin Gomez" />
 
     <title>Clusters and membership: discovering the SWIM protocol &mdash; Kévin Gomez</title>
-    <meta property="og:title" content="Clusters and membership: discovering the SWIM protocol &mdash; Kévin Gomez" />
-    <meta property="og:type" content="website" />
+
+    <meta name="description" content="Have you ever wondered how [Cassandra](https://cassandra.apache.org/), [Redis](https://redis.io/), [Riak](http://basho.com/products/#riak), and many others could maintain a cluster? How can a cluster detect nodes addition, nodes removal, nodes failures and keep its state consistent across all the other nodes? &lt;br /&gt; Well, I have. And in this post, we&#39;ll see two of the protocols that this type of service relies upon for their failure detection and memberships.
+">
+
+    <meta property="og:title" content="Clusters and membership: discovering the SWIM protocol" />
+<meta property="og:description" content="Have you ever wondered how [Cassandra](https://cassandra.apache.org/), [Redis](https://redis.io/), [Riak](http://basho.com/products/#riak), and many others could maintain a cluster? How can a cluster detect nodes addition, nodes removal, nodes failures and keep its state consistent across all the other nodes? &lt;br /&gt; Well, I have. And in this post, we&#39;ll see two of the protocols that this type of service relies upon for their failure detection and memberships.
+" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/" />
+<meta property="article:published_time" content="2019-01-29T00:00:00&#43;00:00"/>
+
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Clusters and membership: discovering the SWIM protocol"/>
+<meta name="twitter:description" content="Have you ever wondered how [Cassandra](https://cassandra.apache.org/), [Redis](https://redis.io/), [Riak](http://basho.com/products/#riak), and many others could maintain a cluster? How can a cluster detect nodes addition, nodes removal, nodes failures and keep its state consistent across all the other nodes? &lt;br /&gt; Well, I have. And in this post, we&#39;ll see two of the protocols that this type of service relies upon for their failure detection and memberships.
+"/>
+<meta name="twitter:site" content="@KPhoen"/>
+
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
 
