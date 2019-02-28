@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en-us" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Digging into: Humbug &mdash; Kévin Gomez</title>
+    <meta property="og:title" content="Kévin Gomez" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+            <div class="job-alert">
+                Are you <strong>looking for a software engineer?</strong> Perfect: <strong>I am looking for a job!</strong><br />
+                <strong><a href="mailto:contact+job@kevingomez.fr">Contact me</a></strong> and let's see what awesome things we can build together!
+            </div>
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2016/10/23/digging-into-humbug/">Digging into: Humbug</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2016-10-23T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2016-10-23T00:00:00+01:00" />
+                23 October 2016
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~5 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+    <section class="shortcuts">
+        <p><span class="label radius">Jump to:</span> <a href="#tl-dr">TL;DR</a></p>
+    </section>
+    
+
+    <section class="post-body" itemprop="articleBody">
+        
+
+<p>While I&rsquo;ve already used <a href="https://github.com/padraic/humbug">Humbug</a> a few time,
+a <a href="http://blog.eleven-labs.com/en/mutation-testing-check-quality-unit-tests/">recent article</a>
+made my realise that I didn&rsquo;t really know how it worked.</p>
+
+<p>That&rsquo;s when I got the idea to dig into Humbug to learn how it works, and publish
+my findings here.</p>
+
+<p>Before we start, let&rsquo;s quickly give some context on Humbug.</p>
+
+<h2 id="what-s-humbug">What&rsquo;s Humbug?</h2>
+
+<p>« <em>Humbug is a Mutation Testing framework for PHP</em> »</p>
+
+<p>In a nutshell, you write unit tests to prevent regressions in your application
+and use <em>code coverage</em> as an indicator of how well your application is tested
+or protected.</p>
+
+<p>Mutation testing comes after the redaction of these tests and helps you to judge
+how well your unit tests actually protect your code.</p>
+
+<p>To do that, mutation testing tools inject small defects into your source code
+and then check if the unit tests noticed the changes. If they did, then the
+coverage is sufficient and we say that they <em>killed the mutation</em>. If they didn&rsquo;t,
+then you have a problem because the <em>mutation escaped</em>.</p>
+
+<p>According to Humbug&rsquo;s README, mutations usually involve:
+* switching binary arithmetic operators: <code>+</code> becomes <code>-</code>, <code>*</code> becomes <code>/</code>, …
+* substituting logical operations: <code>&amp;&amp;</code> becomes <code>||</code>, <code>true</code> becomes <code>false</code>, …
+* inversing conditions: <code>&gt;</code> becomes <code>&lt;</code>, <code>===</code> becomes <code>!===</code>, …
+* …</p>
+
+<p>The purpose of this article is to answer the following question: how does
+Humbug manipulate your code? How are mutations generated?</p>
+
+<h2 id="the-analysis">The analysis</h2>
+
+<p>What follows is a redacted transcription of my investigation in Humbug&rsquo;s source
+code.</p>
+
+<h3 id="first-step-composer-json">First step: <code>composer.json</code></h3>
+
+<p>I&rsquo;ll use the <code>composer.json</code> file as entry point to this analysis. The goal here
+is to see if there is a dependency that could be use to analyse and manipulate
+source code. I&rsquo;m thinking about a library like
+<a href="https://github.com/nikic/PHP-Parser">nikic/PHP-Parser</a> for instance.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#960050;background-color:#1e0010">…</span>
+    <span style="color:#f92672">&#34;require&#34;</span>: {
+        <span style="color:#f92672">&#34;php&#34;</span>: <span style="color:#e6db74">&#34;&gt;=5.4.0&#34;</span>,
+        <span style="color:#f92672">&#34;phpunit/phpunit&#34;</span>: <span style="color:#e6db74">&#34;^4.5|^5.0&#34;</span>,
+        <span style="color:#f92672">&#34;symfony/console&#34;</span>: <span style="color:#e6db74">&#34;^2.6|^3.0&#34;</span>,
+        <span style="color:#f92672">&#34;symfony/finder&#34;</span>: <span style="color:#e6db74">&#34;^2.6|^3.0&#34;</span>,
+        <span style="color:#f92672">&#34;symfony/process&#34;</span>: <span style="color:#e6db74">&#34;^2.6|^3.0&#34;</span>,
+        <span style="color:#f92672">&#34;symfony/event-dispatcher&#34;</span>: <span style="color:#e6db74">&#34;^2.6|^3.0&#34;</span>,
+        <span style="color:#f92672">&#34;sebastian/diff&#34;</span>: <span style="color:#e6db74">&#34;^1.1&#34;</span>,
+        <span style="color:#f92672">&#34;padraic/phpunit-accelerator&#34;</span>: <span style="color:#e6db74">&#34;^1.0.2&#34;</span>,
+        <span style="color:#f92672">&#34;padraic/phpunit-extensions&#34;</span>: <span style="color:#e6db74">&#34;^1.0.0&#34;</span>,
+        <span style="color:#f92672">&#34;padraic/phar-updater&#34;</span>: <span style="color:#e6db74">&#34;^1.0.0&#34;</span>
+    },
+    <span style="color:#960050;background-color:#1e0010">…</span>
+}</code></pre></div>
+<p>After reading the dependencies list, I see nothing that would help to manipulate
+source code.</p>
+
+<p>I do see interesting things though:
+* <code>phpunit/phpunit</code> is a hard dependency: meaning that Humbug won&rsquo;t work with
+  other test frameworks
+* <code>symfony/finder</code> and <code>symfony/process</code>: common components used to find files
+  and launch processes
+* <code>sebastian/diff</code>: could be used to generate diffs between original source code
+  and mutants</p>
+
+<p>If there is nothing useful in the dependencies, it means that the source
+manipulation is in Humbug&rsquo;s repository.</p>
+
+<h3 id="time-to-read-some-code">Time to read some code!</h3>
+
+<p>When I open the sources, the <a href="https://github.com/padraic/humbug/tree/06b1c059e432dab8c22c36bc8b6e1ffc7e587c07/src/Mutator"><code>Mutator</code></a>
+directory immediately catches my eye. So let&rsquo;s see what&rsquo;s inside.</p>
+
+<pre><code>src/Mutator
+├── Arithmetic
+├── Boolean
+├── ConditionalBoundary
+├── ConditionalNegation
+├── IfStatement
+├── Increment
+├── MutatorAbstract.php
+├── Number
+└── ReturnValue
+</code></pre>
+
+<p>First thought: it reminds me of the mutations listed in the README. Let&rsquo;s open a
+file to check it. I&rsquo;ll begin with <a href="https://github.com/padraic/humbug/blob/06b1c059e432dab8c22c36bc8b6e1ffc7e587c07/src/Mutator/Arithmetic/Addition.php"><code>src/Mutator/Arithmetic/Addition.php</code></a>.</p>
+
+<p>The <code>Addition</code> class contains two methods: <code>getMutation(array &amp;$tokens, $index)</code>
+and <code>mutates(array &amp;$tokens, $index)</code>. Both of them receive an array of <em>tokens</em>
+which indicates that Humbug operates at the token level, not at the AST level.</p>
+
+<p><strong>N.B</strong>: a list of <em>tokens</em> is usually the result of the lexical analysis,
+which is the process of converting a source code into a sequence of strings — or
+tokens — with a precise signification (identifier, literal, assignment operator,
+…).</p>
+
+<p>The method <code>getMutation()</code> seems to be the one applying the mutation:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#e6db74">/**
+</span><span style="color:#e6db74"> * Replace plus sign (+) with minus sign (-)
+</span><span style="color:#e6db74"> *
+</span><span style="color:#e6db74"> * @param array $tokens
+</span><span style="color:#e6db74"> * @param int $index
+</span><span style="color:#e6db74"> * @return array
+</span><span style="color:#e6db74"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getMutation</span>(<span style="color:#66d9ef">array</span> <span style="color:#f92672">&amp;</span>$tokens, $index)
+{
+    $tokens[$index] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;-&#39;</span>;
+}
+</code></pre></div>
+<p>The method <code>mutates()</code>, on the other hand, checks whether the current mutation
+can be applied on the given token. This method&rsquo;s docblock gives a really
+meaningful example where it can&rsquo;t: <code>$var = ['foo' =&gt; true] + ['bar' =&gt; true]</code></p>
+
+<p><strong>N.B</strong>: I think that the documentation for these two methods is well redacted
+and useful.</p>
+
+<p>By reading the implementation of the <code>mutates()</code> method, I noticed the usage of
+the <code>T_ARRAY</code> constant. This constant being provided by PHP itself, its usage leads
+me to believe that the tokenization of the source code isn&rsquo;t done by hand by
+Humbug, but delegated to a function provided by PHP&rsquo;s standard library:
+<a href="http://php.net/manual/fr/function.token-get-all.php"><code>token_get_all()</code></a>.</p>
+
+<p>That being said, the tokenization process itself isn&rsquo;t done in the <code>Addition</code>
+class. Let&rsquo;s inspect its parent: <a href="https://github.com/padraic/humbug/blob/06b1c059e432dab8c22c36bc8b6e1ffc7e587c07/src/Mutator/MutatorAbstract.php"><code>MutatorAbstract</code></a></p>
+
+<p>In addition to the &ldquo;<em>utility</em>&rdquo; methods, this class has an interesting method
+that performs the mutation on the given tokens and returns the result as source
+code:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#e6db74">/**
+</span><span style="color:#e6db74"> * Perform a mutation against the given original source code tokens for
+</span><span style="color:#e6db74"> * a mutable element
+</span><span style="color:#e6db74"> *
+</span><span style="color:#e6db74"> * @param array $tokens
+</span><span style="color:#e6db74"> * @param int $index
+</span><span style="color:#e6db74"> * @return string
+</span><span style="color:#e6db74"> */</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">mutate</span>(<span style="color:#66d9ef">array</span> <span style="color:#f92672">&amp;</span>$tokens, $index)
+{
+    <span style="color:#66d9ef">static</span><span style="color:#f92672">::</span><span style="color:#a6e22e">getMutation</span>($tokens, $index);
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Tokenizer</span><span style="color:#f92672">::</span><span style="color:#a6e22e">reconstructFromTokens</span>($tokens);
+}
+</code></pre></div>
+<p>What&rsquo;s interesting here is the usage of a <code>Tokenizer</code> class.</p>
+
+<p>At this stage, I already know that Humbug manipulates tokens and rewrites them
+to generate <em>mutants</em>, but I still didn&rsquo;t see the code responsible for the tokenization
+process itself or even the reconstruction of the code source from the modified
+tokens.</p>
+
+<p>Logically, I expect to find all of this in the <a href="https://github.com/padraic/humbug/blob/06b1c059e432dab8c22c36bc8b6e1ffc7e587c07/src/Utility/Tokenizer.php"><code>Tokenizer</code></a>.</p>
+
+<p>And bingo! The class contains the two expected methods: <code>reconstructFromTokens()</code>
+and <code>getTokens()</code>.</p>
+
+<p>The tokenization is indeed done using <a href="http://php.net/manual/en/function.token-get-all.php"><code>token_get_all()</code></a>.
+According to the documentation, this function returns an array of token identifiers.
+Each individual token identifier is either a single character (i.e.: ;, ., &gt;, !, etc&hellip;),
+or a three element array containing the token index in element 0, the string
+content of the original token in element 1 and the line number in element 2.</p>
+
+<p>All of these information allow us to analyze the tokens and reconstruct the
+original source code. That&rsquo;s exactly what Humbugs does: mystery solved!</p>
+
+<h3 id="where-are-the-mutations-generated">Where are the mutations generated?</h3>
+
+<p>So far, we&rsquo;ve seen how a single mutation manipulates the tokens generated by the
+<code>Tokenizer</code>. The last thing that I&rsquo;d like to determine is, given a file, how are
+the mutations generated?</p>
+
+<p>When going back to the <code>src/</code> directory, I notice the <code>Mutable</code> class which
+could represent a mutable file/source code.</p>
+
+<p>And indeed, when opening it I see that the constructor accepts a file name!
+I also notice that the <code>$mutators</code> attribute contains a list of all the
+possible mutations.</p>
+
+<p>Farther in the file is the <code>generate()</code> method. It&rsquo;s were the file is opened,
+tokenized (using the <code>Tokenizer</code>) and modified using the mutators.</p>
+
+<p>One interesting thing: the mutators are applied only to method bodies!</p>
+
+    </section>
+
+    
+    <section class="post-tl-dr">
+        <h2 id="tl-dr">TL;DR</h2>
+        <p>In the end, the mutation generation by Humbug is <em>pretty straightforward</em>:
+1. it starts by splitting the code in tokens, using the standard <code>token_get_all()</code> function
+2. then it applies a list of <em>mutators</em> to the previously generated tokens. A
+   mutator being responsible to alter tokens (ie: replacing a <code>+</code> with a <code>-</code>)</p>
+
+<ol>
+<li><p>once all the mutators are applied, it uses the tokens to rebuild the source
+code.</p></li>
+
+<li><p>code having changed, the unit tests should fail. So it launches them and
+expects failures.</p></li>
+</ol>
+
+<p>Now I see why I didn&rsquo;t find something like nikic/PHP-parser in the dependencies: it simply would have been overkill and too complex to work with an AST.</p>
+
+    </section>
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>

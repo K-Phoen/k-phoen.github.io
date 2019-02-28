@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en-us" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Use cases for PHP generators &mdash; Kévin Gomez</title>
+    <meta property="og:title" content="Kévin Gomez" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+            <div class="job-alert">
+                Are you <strong>looking for a software engineer?</strong> Perfect: <strong>I am looking for a job!</strong><br />
+                <strong><a href="mailto:contact+job@kevingomez.fr">Contact me</a></strong> and let's see what awesome things we can build together!
+            </div>
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2016/01/20/use-cases-for-php-generators/">Use cases for PHP generators</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2016-01-20T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2016-01-20T00:00:00+01:00" />
+                20 January 2016
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~7 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+
+    <section class="post-body" itemprop="articleBody">
+        
+
+<p>Despite being available since PHP 5.5.0, generators are still largely underused.
+In fact, it appears than most of the developers I know understand how generators
+work but don&rsquo;t seem to see when they could be useful in <em>real-world</em> cases.</p>
+
+<blockquote>
+<p>Yeah, generators definitely look great but you know… except for computing the
+Fibonacci sequence, I don&rsquo;t see how it could be useful to me.</p>
+</blockquote>
+
+<p>And they&rsquo;re not wrong, even the examples in PHP&rsquo;s documentation about generators
+are pretty simplistic. They only show how to <a href="http://php.net/manual/en/language.generators.overview.php">efficiently implement <code>range</code></a>
+or <a href="http://php.net/manual/en/language.generators.comparison.php">iterate over the lines of a file</a>.</p>
+
+<p>But even from these simple examples we can understand the core aspects of
+generators: they are <em>just</em> simplified <code>Iterator</code>s.</p>
+
+<blockquote>
+<p>A generator allows you to write code that uses <code>foreach</code> to iterate over a set
+of data without needing to build an array in memory</p>
+</blockquote>
+
+<p>With that in mind, I&rsquo;ll try to explain why generators are awesome using some
+use-cases taken from applications I work on in my company.</p>
+
+<h2 id="some-context">Some context</h2>
+
+<p>I currently work for <a href="https://twitter.com/TEA_tech">TEA</a>. Basically, we develop
+an e-book reading ecosystem.
+It goes all the way from getting the e-book files from the publishers to present
+them in an e-commerce website and allowing the final customer to read them online
+(using a web-reader written by <a href="https://twitter.com/johanpoirier">@johanpoirier</a>)
+or on an e-reader.</p>
+
+<p>In order to be able to sell these e-books and display relevant information to
+our customers, we need to have a lot of metadata for our products (title,
+format, price, publisher, author(s), …).</p>
+
+<p>For most of the code samples that will be shown below, I&rsquo;ll refer to these
+metadata under the name of <em>e-book</em>.</p>
+
+<p>So here we go!</p>
+
+<h2 id="iterating-through-large-data-sets">Iterating through large data-sets</h2>
+
+<p>For this first use-case, let&rsquo;s assume that I have a large collection of e-books
+and I want to filter those which can be read in a web-reader.</p>
+
+<p>Traditionally, I would write something like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getEbooksEligibleToWebReader</span>($ebooks)
+{
+    $rule <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;</span>;
+    $filteredEbooks <span style="color:#f92672">=</span> [];
+
+    <span style="color:#66d9ef">foreach</span> ($ebooks <span style="color:#66d9ef">as</span> $ebook) {
+        <span style="color:#66d9ef">if</span> ($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">rulerz</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">satisfies</span>($ebook, $rule)) {
+            $filteredEbooks[] <span style="color:#f92672">=</span> $ebook;
+        }
+    }
+
+    <span style="color:#66d9ef">return</span> $filteredEbooks;
+}
+</code></pre></div>
+<p>The problem here is easy to see: the more free e-books I have, the more
+<code>$filteredEbooks</code> will consume memory.</p>
+
+<p>A solution could be to create an iterator that would iterate through the
+<code>$ebooks</code> and return the ones that are eligible. But we would have to create a
+new class just for that and iterators are a bit tedious to write… Lucky us,
+since PHP 5.5.0 we can use generators!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getEbooksEligibleToWebReader</span>($ebooks)
+{
+    $rule <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;</span>;
+
+    <span style="color:#66d9ef">foreach</span> ($ebooks <span style="color:#66d9ef">as</span> $ebook) {
+        <span style="color:#66d9ef">if</span> ($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">rulerz</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">satisfies</span>($ebook, $rule)) {
+            <span style="color:#66d9ef">yield</span> $ebook;
+        }
+    }
+}
+</code></pre></div>
+<p>Yep, refactoring the <code>getEbooksEligibleToWebReader</code> method to use generators is
+as simple as replacing the assignation to <code>$filteredEbooks</code> by a <code>yield</code>
+statement.</p>
+
+<p>Assuming that <code>$ebooks</code> isn&rsquo;t an array with all the e-books but an iterator or
+a generator (even better!), the memory consumption will now be constant, no
+matter the number of eligible books and we are sure to find these books only if
+and when we need them.</p>
+
+<p><strong>Bonus</strong>: <a href="https://github.com/K-Phoen/rulerz">RulerZ</a> internally uses generators
+so we could rewrite the method like this and be as efficient in terms of memory.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getEbooksEligibleToWebReader</span>($ebooks)
+{
+    $rule <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;</span>;
+
+    <span style="color:#66d9ef">return</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">rulerz</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">filter</span>($ebooks, $rule);
+}
+</code></pre></div>
+<h2 id="aggregating-several-data-sources">Aggregating several data-sources</h2>
+
+<p>Now, let&rsquo;s consider the <code>$ebooks</code> retrieval part. I didn&rsquo;t tell you, but these
+e-books come in fact from different data-sources: a relational database and
+Elasticsearch.</p>
+
+<p>We can then write a simple method to aggregate these two sources:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getEbooks</span>()
+{
+    $ebooks <span style="color:#f92672">=</span> [];
+
+    <span style="color:#75715e">// fetch from the DB
+</span><span style="color:#75715e"></span>    $stmt <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">db</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">prepare</span>(<span style="color:#e6db74">&#34;SELECT * FROM ebook_catalog&#34;</span>);
+    $stmt<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">execute</span>();
+    $stmt<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">setFetchMode</span>(<span style="color:#a6e22e">\PDO</span><span style="color:#f92672">::</span><span style="color:#a6e22e">FETCH_ASSOC</span>);
+
+    <span style="color:#66d9ef">foreach</span> ($stmt <span style="color:#66d9ef">as</span> $data) {
+        $ebooks[] <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">hydrateEbook</span>($data);
+    }
+
+    <span style="color:#75715e">// and from Elasticsearch (findAll uses ES scan/scroll)
+</span><span style="color:#75715e"></span>    $cursor <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">esClient</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">findAll</span>();
+
+    <span style="color:#66d9ef">foreach</span> ($cursor <span style="color:#66d9ef">as</span> $data) {
+        $ebooks[] <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">hydrateEbook</span>($data);
+    }
+
+    <span style="color:#66d9ef">return</span> $ebooks;
+}
+</code></pre></div>
+<p>But once again, the amount of memory used by this method depends too much on the
+number of e-books we have in the database and in Elasticsearch.</p>
+
+<p>We could start by using generators to return the results:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getEbooks</span>()
+{
+    <span style="color:#75715e">// fetch from the DB
+</span><span style="color:#75715e"></span>    $stmt <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">db</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">prepare</span>(<span style="color:#e6db74">&#34;SELECT * FROM ebook_catalog&#34;</span>);
+    $stmt<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">execute</span>();
+    $stmt<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">setFetchMode</span>(<span style="color:#a6e22e">\PDO</span><span style="color:#f92672">::</span><span style="color:#a6e22e">FETCH_ASSOC</span>);
+
+    <span style="color:#66d9ef">foreach</span> ($stmt <span style="color:#66d9ef">as</span> $data) {
+        <span style="color:#66d9ef">yield</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">hydrateEbook</span>($data);
+    }
+
+    <span style="color:#75715e">// and from Elasticsearch (findAll uses ES scan/scroll)
+</span><span style="color:#75715e"></span>    $cursor <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">esClient</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">findAll</span>();
+
+    <span style="color:#66d9ef">foreach</span> ($cursor <span style="color:#66d9ef">as</span> $data) {
+        <span style="color:#66d9ef">yield</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">hydrateEbook</span>($data);
+    }
+}
+</code></pre></div>
+<p>That&rsquo;s better, but we still have a problem: our <code>getBooks</code> method does too much
+work! We should split the two responsibilities (reading in the database and
+calling Elasticsearch) in two separate methods:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getEbooks</span>()
+{
+    <span style="color:#66d9ef">yield</span> <span style="color:#a6e22e">from</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">getEbooksFromDatabase</span>();
+    <span style="color:#66d9ef">yield</span> <span style="color:#a6e22e">from</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">getEbooksFromEs</span>();
+}
+
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getEbooksFromDatabase</span>()
+{
+    $stmt <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">db</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">prepare</span>(<span style="color:#e6db74">&#34;SELECT * FROM ebook_catalog&#34;</span>);
+    $stmt<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">execute</span>();
+    $stmt<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">setFetchMode</span>(<span style="color:#a6e22e">\PDO</span><span style="color:#f92672">::</span><span style="color:#a6e22e">FETCH_ASSOC</span>);
+
+    <span style="color:#66d9ef">foreach</span> ($stmt <span style="color:#66d9ef">as</span> $data) {
+        <span style="color:#66d9ef">yield</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">hydrateEbook</span>($data);
+    }
+}
+
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getEbooksFromEs</span>()
+{
+    <span style="color:#75715e">// and from Elasticsearch (findAll uses ES scan/scroll)
+</span><span style="color:#75715e"></span>    $cursor <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">esClient</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">findAll</span>();
+
+    <span style="color:#66d9ef">foreach</span> ($cursor <span style="color:#66d9ef">as</span> $data) {
+        <span style="color:#66d9ef">yield</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">hydrateEbook</span>($data);
+    }
+}
+</code></pre></div>
+<p>You will notice the use of the <code>yield from</code> operator (available since PHP 7.0)
+that allows to delegate the use of generators. That&rsquo;s perfect, for instance, to
+aggregate several data-sources that use generators.</p>
+
+<p>In fact, the <code>yield from</code> keyword works with any <code>Traversable</code> object, so arrays
+or iterators can also be used with this delegation operator.</p>
+
+<p>Using this keyword, we could aggregate several data-sources with only a few lines
+of code:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getEbooks</span>()
+{
+    <span style="color:#66d9ef">yield</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Ebook</span>(<span style="color:#a6e22e">…</span>);
+    <span style="color:#66d9ef">yield</span> <span style="color:#a6e22e">from</span> [<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Ebook</span>(<span style="color:#a6e22e">…</span>), <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Ebook</span>(<span style="color:#a6e22e">…</span>)];
+    <span style="color:#66d9ef">yield</span> <span style="color:#a6e22e">from</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">ArrayIterator</span>([<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Ebook</span>(<span style="color:#a6e22e">…</span>), <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Ebook</span>(<span style="color:#a6e22e">…</span>)]);
+    <span style="color:#66d9ef">yield</span> <span style="color:#a6e22e">from</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">getEbooksFromCSV</span>();
+    <span style="color:#66d9ef">yield</span> <span style="color:#a6e22e">from</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">getEbooksFromDatabase</span>();
+}
+</code></pre></div>
+<h2 id="complex-on-demand-hydration-for-database-rows">Complex, on-demand hydration for database rows</h2>
+
+<p>Another use-case I found for generators was the implementation of an on-demand
+hydration that could handle relationships.</p>
+
+<p>I had to import hundreds of thousands of orders from a legacy database into our
+system, each order having several order lines.</p>
+
+<p>Having both the order and the order lines was a pre-requisite for what we needed
+to do, so I had to write a method that would be able to return hydrated orders
+without being too slow or eating a lot of memory.</p>
+
+<p>The idea is quite naive: join the order and the matching lines, and group order
+and order lines together in a loop.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">loadOrdersWithItems</span>()
+{
+    $oracleQuery <span style="color:#f92672">=</span> <span style="color:#e6db74">&lt;&lt;&lt;</span><span style="color:#e6db74">SQL</span><span style="color:#e6db74">
+</span><span style="color:#e6db74">SELECT o.*, item.*
+</span><span style="color:#e6db74">FROM order_history o
+</span><span style="color:#e6db74">INNER JOIN ORDER_ITEM item ON item.order_id = o.id
+</span><span style="color:#e6db74">ORDER BY order.id
+</span><span style="color:#e6db74"></span><span style="color:#e6db74">SQL</span>;
+
+    <span style="color:#66d9ef">if</span> (($stmt <span style="color:#f92672">=</span> <span style="color:#a6e22e">oci_parse</span>($oracleDb, $oracleQuery)) <span style="color:#f92672">===</span> <span style="color:#66d9ef">false</span>) {
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">\RuntimeException</span>(<span style="color:#e6db74">&#39;Prepare fail in &#39;</span>);
+    }
+    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">oci_execute</span>($stmt) <span style="color:#f92672">===</span> <span style="color:#66d9ef">false</span>) {
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">\RuntimeException</span>(<span style="color:#e6db74">&#39;Execute fail in &#39;</span>);
+    }
+
+    $currentOrderId <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+    $currentOrder <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+    <span style="color:#66d9ef">while</span> (($row <span style="color:#f92672">=</span> <span style="color:#a6e22e">oci_fetch_assoc</span>($stmt)) <span style="color:#f92672">!==</span> <span style="color:#66d9ef">false</span>) {
+        <span style="color:#75715e">// did we move to the next order?
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> ($row[<span style="color:#e6db74">&#39;ID&#39;</span>] <span style="color:#f92672">!==</span> $currentOrderId) {
+            <span style="color:#66d9ef">if</span> ($currentOrderId <span style="color:#f92672">!==</span> <span style="color:#66d9ef">null</span>) {
+                <span style="color:#66d9ef">yield</span> $currentOrder;
+            }
+
+            $currentOrderId <span style="color:#f92672">=</span> $row[<span style="color:#e6db74">&#39;ID&#39;</span>];
+
+            $currentOrder <span style="color:#f92672">=</span> $row;
+            $currentOrder[<span style="color:#e6db74">&#39;lines&#39;</span>] <span style="color:#f92672">=</span> [];
+        }
+
+        $currentOrder[<span style="color:#e6db74">&#39;lines&#39;</span>][] <span style="color:#f92672">=</span> $row;
+    }
+
+    <span style="color:#66d9ef">yield</span> $currentOrder;
+}
+</code></pre></div>
+<p>Using a generator, I managed to implement a method that could fetch orders from
+the database and join the corresponding order lines. All of this while consuming
+a stable amount of memory.
+The generator removed the need to keep track of all the orders with their order
+lines: the <em>current order</em> was all I needed to aggregate all the data.</p>
+
+<h2 id="simulating-async-tasks">Simulating async tasks</h2>
+
+<p>Last but not least, generators can also be used to simulate asynchronous tasks.
+While writing this post, I stumbled upon <a href="https://twitter.com/nikita_ppv">@nikita_ppv</a>&rsquo;s
+post about the same subject, and as he is the one who originally implemented
+generators in PHP, I&rsquo;ll just link to <a href="https://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html">his post</a>.</p>
+
+<p>He quickly explains what are generators and explains (in depth) how we can take
+advantage of the fact that they can both be interrupted and <em>send/receive data</em>
+to implement coroutines and even cooperative multitasking.</p>
+
+<h2 id="wrapping-up">Wrapping up</h2>
+
+<p>Generators…</p>
+
+<ul>
+<li>… are simplified Iterators ;</li>
+<li>… can send an unlimited amount of data, without saturating the memory ;</li>
+<li>… can be aggregated using generators delegation ;</li>
+<li>… can be used to implement cooperative multitasking ;</li>
+<li>… are awesome!</li>
+</ul>
+
+    </section>
+
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>

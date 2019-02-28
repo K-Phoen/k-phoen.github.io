@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en-us" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Write documentation as tests in PHP using Rusty &mdash; Kévin Gomez</title>
+    <meta property="og:title" content="Kévin Gomez" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+            <div class="job-alert">
+                Are you <strong>looking for a software engineer?</strong> Perfect: <strong>I am looking for a job!</strong><br />
+                <strong><a href="mailto:contact+job@kevingomez.fr">Contact me</a></strong> and let's see what awesome things we can build together!
+            </div>
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2016/05/22/write-documentation-as-tests-in-php-using-rusty/">Write documentation as tests in PHP using Rusty</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2016-05-22T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2016-05-22T00:00:00+01:00" />
+                22 May 2016
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~ 1 minute
+                
+            </span>
+        </span>
+    </header>
+
+    
+
+    <section class="post-body" itemprop="articleBody">
+        <p>Languages such as Python, Rust, etc. provide a way to write code samples right
+inside doc-strings. They are supposed to be easy to read and they are called
+&ldquo;<strong>documentation as tests</strong>&rdquo; because they also can be executed.</p>
+
+<p>I thought that it was a great way to ensure that your documentation is
+up-to-date with your code so I searched a way to do the same in PHP… but I could
+not find anything.</p>
+
+<p>And <a href="https://github.com/K-Phoen/Rusty">Rusty</a> was born.</p>
+
+<p>Rusty is an attempt at implementing the &ldquo;documentation as tests&rdquo; idea in the PHP
+world.
+It already is able to <strong>extract code samples from</strong> both PHP <strong>doc-blocks and
+Markdown</strong> files (your documentation for instance).</p>
+
+<p>I <a href="https://github.com/K-Phoen/rulerz/commit/914a7813ffadd3175aa0ef47df9f5d78f46a20fe">set up Rusty in RulerZ&rsquo;s Ci process</a>
+and <a href="https://github.com/K-Phoen/rulerz/commit/c91d954e537c1b9ee94384807e420c223da71e38">it found a few mistakes</a>
+in the documentation so there is a chance that even in the PHP world were
+nothing is compiled, documentation as tests could be beneficial.</p>
+
+    </section>
+
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>

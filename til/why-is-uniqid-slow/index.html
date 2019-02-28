@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en-us" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Why is uniqid() slow? &mdash; Kévin Gomez</title>
+    <meta property="og:title" content="Kévin Gomez" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+            <div class="job-alert">
+                Are you <strong>looking for a software engineer?</strong> Perfect: <strong>I am looking for a job!</strong><br />
+                <strong><a href="mailto:contact+job@kevingomez.fr">Contact me</a></strong> and let's see what awesome things we can build together!
+            </div>
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            <abbr class="label radius til" title="Today I Learned">TIL</abbr>
+            <a href="/til/why-is-uniqid-slow/">Why is uniqid() slow?</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2015-07-26T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2015-07-26T00:00:00+01:00" />
+                26 July 2015
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~2 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+    <section class="shortcuts">
+        <p><span class="label radius">Jump to:</span> <a href="#tl-dr">TL;DR</a></p>
+    </section>
+    
+
+    <section class="post-body" itemprop="articleBody">
+        <p>While profiling <a href="https://github.com/K-Phoen/rulerz">RulerZ</a> with
+<a href="https://blackfire.io/">Blackfire.io</a>, I noticed that a non-negligible amount of
+time was consumed by PHP&rsquo;s <code>uniqid()</code> function.</p>
+
+<p>For those who don&rsquo;t know, this function provides an easy way to generate unique
+identifiers <strong>based on the current date</strong> and an optional prefix.</p>
+
+<p>Wait, the &ldquo;<em>current date</em>&rdquo; part can actually be interesting for our performance
+issue. What happens if we write something like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+
+<span style="color:#66d9ef">foreach</span> ($foo <span style="color:#66d9ef">as</span> $bar) {
+    $awesomeCollection[] <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">CoolObject</span>(<span style="color:#a6e22e">uniqid</span>(), $bar);
+}
+</code></pre></div>
+<p>A simple loop like this should run pretty fast, so if <code>uniqid()</code> simply relies
+on the current date we should have collisions&hellip; but it is not the case. Why?</p>
+
+<p>The answer to this question lies in <a href="https://github.com/php/php-src/blob/cd37e7c90d1745fe433ac66e8e0ec53eda388577/ext/standard/uniqid.c#L68">the implementation of
+<code>uniqid()</code></a>:
+in order to avoid time-induced collisions on the same host, <code>uniqid()</code> literally
+waits before getting the current date. That&rsquo;s why there is a <code>usleep(1)</code> call
+in the function&rsquo;s implementation.</p>
+
+<p>But wait, there&rsquo;s more. As the <em>man</em> page for <code>usleep</code> says, &ldquo;<cite>The usleep()
+function <strong>suspends execution</strong> of the calling thread for (<strong>at least</strong>) usec
+microseconds.  The sleep may be lengthened slightly by any system activity or by
+the time spent processing the call or by the granularity of system timers.</cite>&rdquo;.</p>
+
+<p>Yup, if you&rsquo;re not lucky <code>usleep(n)</code> calls can suspend the execution for more
+than <em>n</em> microseconds.</p>
+
+<p>Now, you may have noticed that the <code>usleep()</code> call is conditioned by the
+<code>more_entropy</code> variable, which happens to be a parameter exposed in the user-land
+<code>uniqid</code>.
+By setting <code>more_entropy</code> to <code>true</code>, we choose to provide an additional source
+of entropy by appending data using <a href="https://github.com/php/php-src/blob/master/ext/standard/lcg.c#L44-L74"><code>php_combined_lcg()</code></a> (a pseudo-random number
+generator), thus preventing time-induced collisions without having to sleep.</p>
+
+<p>So if you use <code>uniqid()</code>, make sure that the <code>$more_entropy</code> parameter is set
+to <code>true</code>.</p>
+
+    </section>
+
+    
+    <section class="post-tl-dr">
+        <h2 id="tl-dr">TL;DR</h2>
+        If called without <code>$more_entropy = true</code>, <code>uniqid()</code> calls sleep for <strong>at least</strong> 1 microsecond. <code>uniqid($prefix, $more_entropy = true)</code> will prevent function from sleeping.
+    </section>
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en-us" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Efficiently creating data chunks in PHP &mdash; Kévin Gomez</title>
+    <meta property="og:title" content="Kévin Gomez" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+            <div class="job-alert">
+                Are you <strong>looking for a software engineer?</strong> Perfect: <strong>I am looking for a job!</strong><br />
+                <strong><a href="mailto:contact+job@kevingomez.fr">Contact me</a></strong> and let's see what awesome things we can build together!
+            </div>
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2016/02/26/efficiently-creating-data-chunks-in-php/">Efficiently creating data chunks in PHP</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2016-02-26T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2016-02-26T00:00:00+01:00" />
+                26 February 2016
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~2 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+
+    <section class="post-body" itemprop="articleBody">
+        <p>While I was working on a library to build sitemaps and sitemap indexes, I
+identified the need to aggregate several iterators and then build chunks of a
+precise size from this aggregate.</p>
+
+<p>To be clearer: given a list of URL providers for a sitemap index, I wanted to
+iterate over all the data exposed by these providers in chunks of 50.000 (the
+maximum number of URL allowed in a sitemap).</p>
+
+<p>Each provider being an Iterator, I can <em>chain</em> them using nikic&rsquo;s <a href="https://github.com/nikic/iter"><code>iter</code></a>
+library:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+$firstUrlProvider <span style="color:#f92672">=</span> <span style="color:#a6e22e">…</span>;
+$secondUrlProvider <span style="color:#f92672">=</span> <span style="color:#a6e22e">…</span>;
+
+$aggregatedProvider <span style="color:#f92672">=</span> <span style="color:#a6e22e">iter\chain</span>($firstUrlProvider, $secondUrlProvider);
+</code></pre></div>
+<p>I now have a way to iterate over all the URLs exposed by my providers, with a
+single <code>foreach</code> statement.</p>
+
+<p>My next issue comes from the need to build as much sitemap as I need, with a
+maximum number of 50.000 URL in each sitemap and without knowing how much URL I
+have nor storing anything unnecessary in memory.</p>
+
+<p>To put it in other words: I want to be able to generate chunks of 50.000 URL
+from my <code>$aggregatedProvider</code>, without storing the whole chunks in memory.</p>
+
+<p>Looks like it&rsquo;s a job for PHP generators!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">function</span> <span style="color:#a6e22e">chunk</span>(<span style="color:#a6e22e">\Iterator</span> $iterable, $size)<span style="color:#f92672">:</span> <span style="color:#a6e22e">\Iterator</span>
+{
+    <span style="color:#66d9ef">while</span> ($iterable<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">valid</span>()) {
+        $closure <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() <span style="color:#66d9ef">use</span> ($iterable, $size) {
+            $count <span style="color:#f92672">=</span> $size;
+            <span style="color:#66d9ef">while</span> ($count<span style="color:#f92672">--</span> <span style="color:#f92672">&amp;&amp;</span> $iterable<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">valid</span>()) {
+                <span style="color:#66d9ef">yield</span> $iterable<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">current</span>();
+                $iterable<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">next</span>();
+            }
+        };
+        <span style="color:#66d9ef">yield</span> $closure();
+    }
+}
+</code></pre></div>
+<p>In the previous function, I delegate the iteration over my provider to a
+Generator, that uses both the provider itself and the desired size of the chunk
+to efficiently yield my URLs.</p>
+
+<p>When put together, I obtain a nice way to iterate and make chunks from a large
+amount of data.</p>
+
+<p>As I said in <a href="http://blog.kevingomez.fr/2016/01/20/use-cases-for-php-generators/">another blog post</a>,
+Generators are awesome!</p>
+
+    </section>
+
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>

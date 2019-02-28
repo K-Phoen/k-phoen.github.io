@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en-us" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Symfony best practices &mdash; Kévin Gomez</title>
+    <meta property="og:title" content="Kévin Gomez" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+            <div class="job-alert">
+                Are you <strong>looking for a software engineer?</strong> Perfect: <strong>I am looking for a job!</strong><br />
+                <strong><a href="mailto:contact+job@kevingomez.fr">Contact me</a></strong> and let's see what awesome things we can build together!
+            </div>
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2014/04/08/symfony-best-practices/">Symfony best practices</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2014-04-08T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2014-04-08T00:00:00+01:00" />
+                8 April 2014
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~3 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+
+    <section class="post-body" itemprop="articleBody">
+        
+
+<p>Here is a digest of the best practices that are commonly followed for Symfony2
+projects.
+They are given as is, in no particular order and are far from being exhaustive.</p>
+
+<h2 id="naming-things">Naming things</h2>
+
+<ul>
+<li>find a common naming scheme for your team and stick to it
+
+<ul>
+<li>be explicit</li>
+<li>be consistent</li>
+</ul></li>
+<li>same for routes and services naming
+
+<ul>
+<li>use service alias: <code>mailer</code> is better than <code>swiftmailer.mailer.default</code></li>
+</ul></li>
+<li>prefer <code>Vendor/Bundle/CoolBundle</code> over <code>Vendor/CoolBundle</code> for bundles namespace
+
+<ul>
+<li>for an application, you can even skip the vendor part</li>
+</ul></li>
+</ul>
+
+<h2 id="config">Config</h2>
+
+<p>Which configuration format should you use?</p>
+
+<ul>
+<li>bundles config: YAML</li>
+<li>routes: YAML</li>
+<li>entities: YAML/XML</li>
+<li>validation, serializer: YAML</li>
+<li>services: YAML (XML for some use cases)</li>
+</ul>
+
+<p>Create a <code>routing.yml</code> file per bundle and import it in <code>app/config/routing.yml</code>.
+Nest your routing files using prefixes.</p>
+
+<p>Split vendor bundles configurations and import them in <code>app/config/config.yml</code>.<br />
+<a href="http://blog.kevingomez.fr/2013/10/14/split-symfony2-yaml-validation-configuration-file/">Split validation configuration files</a>.</p>
+
+<h2 id="bundles">Bundles</h2>
+
+<ul>
+<li>should be self-contained</li>
+<li>should provide a feature, not an app (examples: Forum, Admin, &hellip;)</li>
+<li>should follow bundles <a href="http://symfony.com/doc/current/cookbook/bundles/best_practices.html">structure standards</a></li>
+</ul>
+
+<h2 id="controllers">Controllers</h2>
+
+<ul>
+<li>should be lightweight
+
+<ul>
+<li>do not put logic in them, write handlers/services instead</li>
+</ul></li>
+<li>avoid extending FrameworkBundle/Controller (expecially if your controller is meant to be distributed)
+
+<ul>
+<li>see <a href="http://richardmiller.co.uk/2011/06/14/symfony2-moving-away-from-the-base-controller/">http://richardmiller.co.uk/2011/06/14/symfony2-moving-away-from-the-base-controller/</a></li>
+<li>define them as services</li>
+</ul></li>
+<li>inject the request into controller actions parameters</li>
+<li>do not hesitate to dispatch events for &ldquo;add-on actions&rdquo;</li>
+<li>use Form handlers/persistence handlers</li>
+</ul>
+
+<h2 id="dependencyinjection">DependencyInjection</h2>
+
+<ul>
+<li>do not inject the Container (except for some scope-related use cases)
+
+<ul>
+<li>see <a href="http://symfony.com/doc/current/book/service_container.html#book-container-request-stack">RequestStack</a></li>
+<li>see <a href="http://symfony.com/doc/current/cookbook/service_container/scopes.html">synchronized services</a></li>
+</ul></li>
+<li>split services definition into several files
+
+<ul>
+<li>bonus: easy dynamic loading of services (per env for instance)</li>
+</ul></li>
+<li>use a semantic configuration</li>
+<li>inject configuration parameters in your services</li>
+<li>environment variables (defined in apache/nginx) can be used!</li>
+<li>know how <a href="http://symfony.com/doc/current/components/dependency_injection/tags.html">tagged services</a> and <a href="http://symfony.com/doc/current/cookbook/service_container/compiler_passes.html">compiler passes </a> work</li>
+</ul>
+
+<h2 id="dependencies-management">Dependencies management</h2>
+
+<ul>
+<li>(learn how-to) use composer</li>
+<li>group you dependencies by &ldquo;theme&rdquo; in your composer.json</li>
+<li>do not commit your <code>vendor</code> directory or composer.phar, only commit composer.json and
+composer.lock</li>
+<li>use <code>composer.phar install --no-dev --optimize-autoloader --prefer-dist</code> in prod</li>
+<li>do not require <code>dev-master</code> unless you absolutely have to</li>
+<li>use bounded versions constraints
+
+<ul>
+<li>BAD : <code>&gt;=1.2.0</code></li>
+<li>GOOD: <code>&gt;=1.2.0,&lt;2.0.0</code></li>
+<li>BETTER: <code>~1.2</code></li>
+</ul></li>
+<li>know about composer <a href="https://igor.io/2013/02/07/composer-stability-flags.html">stability flags</a></li>
+<li><a href="http://richardmiller.co.uk/2014/03/17/avoiding-optional-dependencies/">avoid optional dependencies</a></li>
+</ul>
+
+<h2 id="forms">Forms</h2>
+
+<ul>
+<li>use Type classes</li>
+<li>always set a default <code>data_class</code></li>
+<li>define types as services</li>
+<li>do not disable CSRF (except for API)</li>
+<li>set the <code>intention</code> option</li>
+</ul>
+
+<h2 id="doctrine">Doctrine</h2>
+
+<ul>
+<li>activate caches: metadata cache, query cache, result cache
+
+<ul>
+<li>and don&rsquo;t forget to clear these caches when you deploy</li>
+</ul></li>
+<li>register repositories as services and inject them</li>
+<li>do not write queries outside repositories</li>
+<li>only flush from the controller</li>
+</ul>
+
+<h2 id="tools">Tools</h2>
+
+<ul>
+<li><a href="https://github.com/fabpot/PHP-CS-Fixer">PHP-CS-Fixer</a></li>
+<li>use <a href="https://chrsm.org/post/static-analysis-tools-for-php/">static analysis tools</a></li>
+<li>XHProf + XHProf.io</li>
+<li>xdebug + kcachegrind</li>
+<li><a href="http://sismo.sensiolabs.org/">sismo</a></li>
+<li><a href="https://travis-ci.org/">Travis-CI</a></li>
+<li><a href="https://scrutinizer-ci.com/">Scrutinizer</a></li>
+<li><a href="http://www.vagrantup.com/">Vagrant</a></li>
+<li><a href="http://capifony.org/">capifony</a></li>
+</ul>
+
+<h2 id="useful-bundles">Useful bundles</h2>
+
+<ul>
+<li><a href="https://github.com/FriendsOfSymfony/">FOS</a>
+
+<ul>
+<li><a href="https://github.com/FriendsOfSymfony/FOSUserBundle/">FOSUserBundle</a></li>
+<li><a href="https://github.com/FriendsOfSymfony/FOSRestBundle/">FOSRestBundle</a></li>
+<li><a href="https://github.com/FriendsOfSymfony/FOSJsRoutingBundle">FOSJsRoutingBundle</a></li>
+</ul></li>
+<li><a href="https://github.com/stof/StofDoctrineExtensionsBundle">StofDoctrineExtensionsBundle</a></li>
+<li>e-commerce
+
+<ul>
+<li><a href="http://vespolina.org/">Vespolina</a></li>
+<li><a href="http://sylius.org/">Sylius</a></li>
+<li><a href="http://sonata-project.org/bundles/ecommerce/develop/doc/index.html">Sonata e-commerce</a></li>
+</ul></li>
+<li><a href="http://sonata-project.org/">Sonata</a>
+
+<ul>
+<li>Admin, User</li>
+<li>SEO, media, news, &hellip;</li>
+<li>i18n, cache, &hellip;</li>
+<li><a href="http://sonata-project.org/bundles/">http://sonata-project.org/bundles/</a></li>
+</ul></li>
+<li><a href="https://github.com/genemu/GenemuFormBundle">GenemuFormBundle</a></li>
+<li><a href="https://github.com/Elao/WebProfilerExtraBundle">WebProfilerExtraBundle</a></li>
+<li><a href="https://github.com/lexik/LexikMaintenanceBundle">LexikMaintenanceBundle</a></li>
+<li><a href="https://github.com/willdurand/BazingaFakerBundle">BazingaFakerBundle</a></li>
+<li><a href="https://github.com/willdurand/BazingaJsTranslationBundle">BazingaJsTranslationBundle</a></li>
+<li><a href="https://github.com/liip/LiipFunctionalTestBundle">LiipFunctionalTestBundle</a></li>
+<li><a href="https://github.com/dustin10/VichUploaderBundle">VichUploaderBundle</a></li>
+</ul>
+
+<h2 id="miscellaneous">Miscellaneous</h2>
+
+<ul>
+<li>add a .gitignore: only commit your own code</li>
+<li><a href="http://www.phptherightway.com/">PHP The right way</a></li>
+<li><a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md">PSR-0</a>, <a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md">PSR-1</a>, <a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md">PSR-2</a> and be aware of <a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md">PSR-3</a></li>
+<li>use APC</li>
+<li>use xdebug (in dev env)</li>
+<li><a href="http://symfony.com/doc/current/cookbook/configuration/pdo_session_storage.html">store sessions in the database</a> or in <a href="http://blog.kevingomez.fr/2012/12/18/storing-symfony2-sessions-in-memcached/">memcached</a></li>
+<li>translations
+
+<ul>
+<li>work with translation keys instead of sentences</li>
+<li>check for missing translations with tools (like <a href="https://github.com/maisonsdumonde/MDMTranslatorCheckerBundle">https://github.com/maisonsdumonde/MDMTranslatorCheckerBundle</a>)</li>
+</ul></li>
+<li>be pragmatic!</li>
+</ul>
+
+    </section>
+
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>

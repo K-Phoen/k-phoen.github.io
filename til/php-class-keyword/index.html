@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en-us" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>PHP ::class keyword &mdash; Kévin Gomez</title>
+    <meta property="og:title" content="Kévin Gomez" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+            <div class="job-alert">
+                Are you <strong>looking for a software engineer?</strong> Perfect: <strong>I am looking for a job!</strong><br />
+                <strong><a href="mailto:contact+job@kevingomez.fr">Contact me</a></strong> and let's see what awesome things we can build together!
+            </div>
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            <abbr class="label radius til" title="Today I Learned">TIL</abbr>
+            <a href="/til/php-class-keyword/">PHP ::class keyword</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2016-01-15T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2016-01-15T00:00:00+01:00" />
+                15 January 2016
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~ 1 minute
+                
+            </span>
+        </span>
+    </header>
+
+    
+    <section class="shortcuts">
+        <p><span class="label radius">Jump to:</span> <a href="#tl-dr">TL;DR</a></p>
+    </section>
+    
+
+    <section class="post-body" itemprop="articleBody">
+        <p>According to PHP documentation about the <code>::class</code> keyword, it can be used for
+class name resolution:</p>
+
+<blockquote>
+<p>You can get a string containing the fully qualified name of the ClassName
+class by using ClassName::class.</p>
+</blockquote>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">namespace</span> <span style="color:#a6e22e">NS</span> {
+    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ClassName</span> {
+    }
+
+    <span style="color:#66d9ef">echo</span> <span style="color:#a6e22e">ClassName</span><span style="color:#f92672">::</span><span style="color:#a6e22e">class</span>;
+}
+
+<span style="color:#75715e">// outputs: &#34;NS\ClassName&#34;
+</span></code></pre></div>
+<p>It&rsquo;s handy when you need to pass FQCN around.
+Some people even started using it to make sure that their code was referencing
+existing classes.</p>
+
+<p>Except that it&rsquo;s written nowhere in the documentation that this keyword will
+ensure that the generated FQCN maps to an existing class!</p>
+
+<p>In fact, you can use this keyword on classes that are neither defined nor
+autoloadable.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<span style="color:#66d9ef">use</span> <span style="color:#a6e22e">Foo\Bar</span>;
+
+<span style="color:#66d9ef">namespace</span> <span style="color:#a6e22e">NS</span> {
+    <span style="color:#66d9ef">echo</span> <span style="color:#a6e22e">ClassThatDoesNotExist</span><span style="color:#f92672">::</span><span style="color:#a6e22e">class</span> <span style="color:#f92672">.</span> <span style="color:#a6e22e">PHP_EOL</span>;
+}
+
+<span style="color:#66d9ef">echo</span> <span style="color:#a6e22e">Bar</span><span style="color:#f92672">::</span><span style="color:#a6e22e">class</span>;
+
+<span style="color:#75715e">// outputs:
+</span><span style="color:#75715e">// &#34;NS\ClassThatDoesNotExist&#34;
+</span><span style="color:#75715e">// &#34;Foo\Bar&#34;
+</span></code></pre></div>
+<p>Yup, <code>\NS\ClassThatDoesNotExist</code> won&rsquo;t be autoloaded. It&rsquo;s FQCN will just be
+generated using the current namespace or <code>use</code> statements.</p>
+
+    </section>
+
+    
+    <section class="post-tl-dr">
+        <h2 id="tl-dr">TL;DR</h2>
+        The <code>::class</code> keyword also works on classes that does not exist. It will only generate a FQCN, without actually autoloading the class and checking its existence.
+    </section>
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>

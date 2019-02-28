@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en-us" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>On Taming Repository Classes in Doctrine… Among other things. &mdash; Kévin Gomez</title>
+    <meta property="og:title" content="Kévin Gomez" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+            <div class="job-alert">
+                Are you <strong>looking for a software engineer?</strong> Perfect: <strong>I am looking for a job!</strong><br />
+                <strong><a href="mailto:contact+job@kevingomez.fr">Contact me</a></strong> and let's see what awesome things we can build together!
+            </div>
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things./">On Taming Repository Classes in Doctrine… Among other things.</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2015-02-07T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2015-02-07T00:00:00+01:00" />
+                7 February 2015
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~3 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+
+    <section class="post-body" itemprop="articleBody">
+        <p>A while ago I stumbled upon a - rather old but nonetheless interesting - <a href="http://www.whitewashing.de/2013/03/04/doctrine_repositories.html">post</a> written by <a href="https://twitter.com/beberlei">@beberlei</a>. In his post, he highlighted the issues of having <strong>too much responsibilities in a repository</strong> and suggested a solution based on the <strong><a href="http://en.wikipedia.org/wiki/Specification_pattern">Specification pattern</a></strong>.</p>
+
+<p>The idea behind this pattern is to isolate simple business rules into small specification objects and compose them later in order to express more complex rules.
+For those who need a reminder, it looks like this:
+<script src="https://gist.github.com/K-Phoen/04830079aa020b3577b7.js?file=specifications.php"></script></p>
+
+<p>The combinatorial explosion of methods in the repository is avoided and repositories become unit-testable again.</p>
+
+<p>Have we won? Not quite.</p>
+
+<p>Imagine for instance that we happen to have a use case where we have <strong>multiple repositories</strong> for the same entities (one in memory and another using Doctrine ORM) and we want our specifications to work with all of them.
+At this point you notice that the previous specifications are <strong>tied to Doctrine</strong> ORM <code>QueryBuilder</code> objects and that they can not work with anything else. Your carefully crafted specifications can&rsquo;t be used if you want - and you do - filter a simple array of objects stored in memory.</p>
+
+<p>Luckily, since Doctrine 2.4 we can use Doctrine <code>Criteria</code> objects to build <a href="http://docs.doctrine-project.org/en/latest/reference/working-with-associations.html#filtering-collections">expressions that can be used to filter</a> both <code>QueryBuilders</code> and <a href="https://github.com/doctrine/collections/">Collections</a>. Moreover, as of version 2.5 (still in alpha at this time) <code>ManyToMany</code> relations are supported.</p>
+
+<p>Despite being a little too verbose to me, this solution works. We can refactor our previous specifications to return a <code>Criteria</code> instead of modifying a <code>QueryBuilder</code> and later apply these criterion to a <code>QueryBuilder</code> or a <code>Collection</code>.
+<script src="https://gist.github.com/K-Phoen/04830079aa020b3577b7.js?file=criteria.php"></script></p>
+
+<p>The general concept is the same as before but now we use Doctrine <code>Criteria</code> objects as an <strong>intermediate representation for our specifications</strong>. As both the <code>EntityRepository</code> and the <code>ArrayCollection</code> implement the <code>Selectable</code> interface, we can use the <code>matching()</code> method to apply our specification.
+Theoretically, our problem should be solved by this solution.</p>
+
+<p>Have we won? Not quite.</p>
+
+<p>Besides the verbosity of these expressions, we would quickly come across another issue: it&rsquo;s not possible to use <strong>custom operators</strong> or custom functions.</p>
+
+<p>At this point I started to feel a bit desperate so I wrote my own solution, still based on the Specification pattern but not relying on Doctrine collections at all. I wanted a <strong>simple syntax</strong> to express my business rules and of course, I wanted to be able to apply them on <strong>any kind of target</strong>.
+With that in mind, I created <a href="https://github.com/K-Phoen/rulerz">RulerZ</a> (still trying to find a good name for this project&hellip;). Based on <a href="https://github.com/hoaproject/Ruler">hoa/ruler</a>, RulerZ is a library which tries to solve this exact problem.</p>
+
+<script src="https://gist.github.com/K-Phoen/04830079aa020b3577b7.js?file=rulerz.php"></script>
+
+<p>As shown by the previous examples, expressing rules is very easy as instead of creating a lot of objects we just use a simple DSL that is very close to SQL. Applying these rule is as easy as before and so is writing Specification classes.
+Oh, and I almost forgot: this example also uses a custom operator (&ldquo;length&rdquo;).</p>
+
+<p>For those who aren&rsquo;t convinced, here is how the specification pattern can be implemented with RulerZ and for all the targets you can imagine:</p>
+
+<script src="https://gist.github.com/K-Phoen/04830079aa020b3577b7.js?file=rulerz_specification.php"></script>
+
+<p>To summarize, Specifications written with RulerZ are <strong>more meaningful</strong> and yet they can be used on several types of targets.
+While this project is still a work-in-progress, it&rsquo;s already tested, documented and <a href="https://github.com/K-Phoen/RulerZBundle">integrated in Symfony</a>.
+Do not hesitate to browse <a href="https://github.com/K-Phoen/rulerz/blob/master/doc/index.md">RulerZ&rsquo; documentation</a> to discover what other features it has to offer.</p>
+
+<p>Have we won? Hell yeah. Or at least, I hope so.</p>
+    </section>
+
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>

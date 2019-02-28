@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta property="og:locale" content="en-us" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Clusters and membership: discovering the SWIM protocol &mdash; Kévin Gomez</title>
+    <meta property="og:title" content="Kévin Gomez" />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+            <div class="job-alert">
+                Are you <strong>looking for a software engineer?</strong> Perfect: <strong>I am looking for a job!</strong><br />
+                <strong><a href="mailto:contact+job@kevingomez.fr">Contact me</a></strong> and let's see what awesome things we can build together!
+            </div>
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/">Clusters and membership: discovering the SWIM protocol</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2019-01-29T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2019-01-29T00:00:00+01:00" />
+                29 January 2019
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~16 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+
+    <section class="post-body" itemprop="articleBody">
+        
+
+<p>Recently, I have been playing with distributed systems in Go. I am toying around
+with a distributed key-value store. Because why not?</p>
+
+<p>This store — again, that I am building just for the sake of learning — will be
+able to operate as a single instance on a server as well as inside a cluster.
+And instead of defining statically through a configuration file which nodes are
+part for the cluster, I want to be able to add or remove nodes dynamically.</p>
+
+<p>Each node in the cluster must be able to answer a seemingly simple question:
+« <em>Who are my (active) peers?</em> »
+Or expressed in a more fancy manner: how can the cluster <strong>detect nodes addition,
+nodes removal, nodes failures and propagate information</strong> across an entire cluster?</p>
+
+<p>Have you ever wondered how <a href="https://cassandra.apache.org/">Cassandra</a>, <a href="https://redis.io/">Redis</a>,
+<a href="http://basho.com/products/#riak">Riak</a>, and many others could maintain a cluster?
+Well, I have. And in this blog post, we&rsquo;ll see two of the protocols that this
+type of service relies upon for their failure detection and memberships.</p>
+
+<h2 id="heartbeat">Heartbeat</h2>
+
+<p>Traditionally, distributed peer-to-peer applications rely on <em>heart-beat style</em>
+protocols to detect node failures. When a failure is detected, it is usually
+communicated to the cluster using some kind of broadcast or multicast subsystem.</p>
+
+<p>We could summarize the process like this:
+ * every node sends an &ldquo;heartbeat signal&rdquo; every <code>T</code> interval of time to all
+    other nodes ;
+ * if no heartbeat from a node <code>N</code> is received after <code>T*limit</code>,
+    the non-responsive node is considered dead.</p>
+
+<figure>
+    <img src="/img/heartbeat.svg" />
+    <figcaption>Heartbeat sent to a 4-nodes cluster</figcaption>
+</figure>
+
+<p>The regular heartbeats solve the failure detection problem and we can also use
+the broadcast communication channel to transmit information related to which
+nodes are in the cluster. So this protocol solves both the failure detection
+problem and the <em>member-list</em> one.</p>
+
+<p>But when we look more closely at what happens in the network, we notice that the
+more the cluster grows, the more messages are sent.
+For instance, a four-nodes cluster will send twelve heartbeats every
+<code>T</code> interval, a five-nodes one will send twenty, a six-nodes one will
+send thirty, … <strong>The number of signals grows quadratically with heartbeat-style
+protocols</strong> and this means that a too large cluster could take down the whole
+network.</p>
+
+<h2 id="protocol-evaluation-criteria">Protocol evaluation criteria</h2>
+
+<p>After noticing this first limitation in the heartbeat-based method, I
+realized that I actually needed a way to objectively evaluate protocols.</p>
+
+<p>Luckily, a paper called « <a href="https://www.cs.cornell.edu/projects/Quicksilver/public_pdfs/SWIM.pdf"><em>On scalable and efficient distributed failure detectors</em></a> »
+published in 2001 by I. Gupta, T. D. Chandra, and G. S. Goldszmidt addresses this
+topic.</p>
+
+<p>According to them, the key characteristics of the efficiency and scalability of
+distributed failure detector protocols are:</p>
+
+<ul>
+<li><strong>Strong Completeness</strong>: crash-failure of any group member is detected by all non-faulty members ;</li>
+<li><strong>Speed of failure detection</strong>: the time interval between a member failure and its detection by some non-faulty group member ;</li>
+<li><strong>Accuracy</strong>: the rate of false positives of failure detection (note: <a href="http://www.ecommons.cornell.edu/bitstream/1813/7192/1/95-1535.pdf">100%
+accuracy is impossible on asynchronous networks</a>) ;</li>
+<li><strong>Network Message Load</strong>, in bytes per second generated by the protocol.</li>
+</ul>
+
+<h2 id="evaluating-heartbeat">Evaluating heartbeat</h2>
+
+<p>In the light of our evaluation criteria, what can we say about heartbeating?</p>
+
+<ul>
+<li><strong>Strong Completeness</strong>: every nodes receives heartbeats, so a node failure
+will be detected independently by every other node in the cluster ;</li>
+<li><strong>Speed of failure detection</strong>: this is tunable and is often set to a value
+looking like <strong><code>T * limit</code></strong> which means that a failure will be
+detected after <code>limit</code> intervals <code>T</code> of time ;</li>
+<li><strong>Network Message Load</strong>: <strong><code>O(n²)</code></strong>, where <code>n</code> is the
+number of nodes in the cluster.</li>
+<li><strong>Accuracy</strong>: there is a trade-off to be made here. No network being perfect,
+there will always be a portion of the packets that will be lost. So if the
+<code>limit</code> value is set too low (to 1, for instance), a node might
+be considered dead just because the heartbeat was dropped by the network.
+On the other hand, if <code>limit</code> is set to a value that is too high,
+the speed of failure detection will increase accordingly.
+The <strong>trade-off</strong> is therefore <strong>between speed and accuracy</strong>. With a
+reliable-enough network, we can safely assume that a low <code>limit</code>
+will suffice and hence we consider heartbeating as having a &ldquo;<strong>reasonably
+high</strong>&rdquo; accuracy.</li>
+</ul>
+
+<p>Back in 2002, a group of researchers from Cornell University (the same three as
+previously) devised a new protocol to address the network load imposed by
+traditional heart-beating protocols. They called their new protocol SWIM.</p>
+
+<h2 id="enters-swim">Enters <em>SWIM</em></h2>
+
+<p>The new idea introduced by <em>SWIM</em> — or <strong>S</strong>calable <strong>W</strong>eakly-consistent
+<strong>I</strong>nfection-style Process Group <strong>M</strong>embership Protocol — is the separation of
+the failure detection and membership update dissemination functionalities.</p>
+
+<h3 id="failure-detection-component">Failure detection component</h3>
+
+<p>As the name suggests, the role of this component is to detect potential failures
+of nodes in the cluster.</p>
+
+<p>Like in heartbeating protocols, each node has a list of the nodes that are in
+the cluster. But instead of brutally pinging all of them every <code>T</code>
+interval of time, only one of them will be checked.</p>
+
+<p>On this schema, we see a node <strong>randomly choosing</strong> another one of its peers to
+check if it is still alive. It sends a <code>PING</code> message and expects an
+<code>ACK</code> in response, indicating that the target node is healthy.</p>
+
+<figure>
+    <img src="/img/swim_ping_ack.svg" />
+    <figcaption>SWIM: node successfully pinged</figcaption>
+</figure>
+
+<p><strong>If no <code>ACK</code></strong> from the node <em>C</em> <strong>is received</strong> by <em>A</em> in the pre-specified
+timeout period (determined by the message round-trip time, which is chosen
+smaller than the protocol period), then <strong>an indirect check is performed</strong>.</p>
+
+<p><em>A</em> will select <code>k</code> members at random from its list of nodes and send
+them a <code>REQ-PING&copy;</code> message. Each of these nodes will in turn send
+a <code>PING</code> message to <em>C</em> and forward the <code>ACK</code> (if
+received) to <em>A</em>.</p>
+
+<figure>
+    <img src="/img/swim_req_ping.svg" />
+    <figcaption>SWIM: indirect checks from A to C</figcaption>
+</figure>
+
+<p>At the end of the protocol period <code>T</code>, <em>A</em> checks if it has received
+any direct or indirect response from <em>C</em>. If not, it declares <em>C</em> as dead in its
+local membership list and hands this update off to the dissemination component.</p>
+
+<p>Indirect probing is a great way to avoid any congested network path between
+two nodes and dropped packets, which might have caused the direct
+<code>PING</code> to have failed in the first place. That&rsquo;s also why the
+<code>ACK</code> is relayed back instead of being sent directly to the probing
+node. The number of false-positives decreases and the accuracy is improved.</p>
+
+<p><strong>Note:</strong> the values <code>T</code>, <code>k</code> as well as the timeout
+period are parameters of the protocol and can be tuned to suit different needs
+and networks.</p>
+
+<h3 id="dissemination-component">Dissemination component</h3>
+
+<p>Upon detecting the failure of another group member, the process multicasts this
+information to the rest of the cluster as <code>failed&copy;</code> message.
+A member receiving this message deletes the offending node from its local
+membership list. Information about newly joined members or voluntarily
+leaving members are disseminated in a similar manner.</p>
+
+<figure>
+    <img src="/img/swim_multicast_failure.svg" />
+    <figcaption>SWIM: failure of C, detected and multicast by A</figcaption>
+</figure>
+
+<p><strong>Note:</strong> for a new node to join the cluster, it must know the address of
+at least one alive node member of the cluster. This way, it can introduce itself
+to cluster and the rest of the nodes will include it to the gossips, this
+allowing it to gradually receive information about all the nodes of the cluster.</p>
+
+<h2 id="evaluating-swim">Evaluating <em>SWIM</em></h2>
+
+<p>If we sum up what <em>SWIM</em> does so far:</p>
+
+<ul>
+<li>it splits the failure detection and the dissemination components ;</li>
+<li>each node of the cluster periodically check the health of a random node of
+ its memberlist (either directly or indirectly) ;</li>
+<li><code>join()</code> and <code>failed()</code> events are multicast.</li>
+</ul>
+
+<p>So given our evaluation criteria, what can we say about the protocol?</p>
+
+<ul>
+<li><strong>Strong Completeness</strong>: as each node randomly selects at each protocol period
+a node to check, <strong>all nodes will eventually be checked</strong> and all faulty-nodes
+will be detected ;</li>
+<li><strong>Speed of failure detection</strong>: the expected time between a failure of a node
+and its detection by <em>some</em> other node is at most
+<code>T&rsquo; * (1 / (1 - e^Qf))</code>, where <code>Qf</code> is the fraction of
+non-faulty nodes in the cluster and <code>T&rsquo;</code> is the protocol period
+(in time units, should be at least three times the round-trip estimate) ;</li>
+<li><strong>False positives</strong>: the probability of direct or indirect probes being lost
+is (gross approximation here, the real equation is a bit larger) <code>(1 - Delivery<em>%²)*(1 - Delivery</em>%⁴)^k</code>
+— where <code>Delivery_%</code> is the probability of timely delivery of a
+packet and <code>k</code> is the number of members used to perform indirect
+probing). Notice how <code>k</code> is used as an exponent? It shows that
+<strong>increasing the number of nodes used for indirect probing will rapidly
+decrease the probability of having false positives</strong> ;</li>
+<li><strong>Accuracy</strong>: as the accuracy is directly correlated to the false positives,
+we can calculate that with 95% of the packets successfully delivered and 3
+nodes used for indirect probing, the protocol will have an accuracy of
+99.9%. Again, this value increases as we increase <code>k</code> ;</li>
+<li><strong>Network Message Load</strong>: as each node only pings one target each protocol period,
+we moved from an <code>O(N²)</code> to something in <code>O(N)</code>. We
+roughly have two packets (<code>PING</code> and <code>ACK</code>) and an
+optional indirect probe (hence the 4 extra packets per relay node)
+<code>(4*k + 2)*N</code>.</li>
+</ul>
+
+<p><strong>Important:</strong> the speed of failure detection and the probability of false
+positives don&rsquo;t depend on the number of nodes in the cluster (except
+asymptotically). Which means that the protocol will scale nicely, even on large
+clusters.</p>
+
+<h2 id="a-more-robust-and-efficient-swim">A more robust and efficient <em>SWIM</em></h2>
+
+<p>The version of the <em>SWIM</em> protocol we described so far could be qualified as «
+<em>basic SWIM</em> ». It works and showcases the main ideas of the protocol, but it
+suffers from a few issues and limitations:</p>
+
+<ul>
+<li>the dissemination component still relies on network multicasts. However,
+network multicast primitives such as IP multicast etc., are only best-effort
+and most of the time they aren&rsquo;t even enabled on production systems ;</li>
+<li>the failure detector doesn&rsquo;t handle well nodes that are perturbed for small
+durations of time (overloaded host, unexpectedly long GC pause, …) ;</li>
+<li>the basic SWIM failure detection protocol guarantees eventual detection of
+the failure of an arbitrary node. However, it gives no deterministic
+guarantees on the time between failure of an arbitrary node and its
+detection at another arbitrary member (in terms of the number of local
+protocol rounds).</li>
+</ul>
+
+<p>Let&rsquo;s dig in these limitations to better understand them and see what can be
+done to go around.</p>
+
+<h3 id="infection-style-dissemination">Infection-style dissemination</h3>
+
+<p>The basic protocol propagates membership updates (joins, leaves and failures)
+through the cluster using multicast primitives. Hardware multicast and IP
+multicast are available on most networks and operating systems, but are rarely
+enabled (for administrative or security reasons). The basic SWIM protocol would
+then have to use a costly broadcast, or an inefficient point-to-point messaging
+scheme, in order to disseminate the membership updates.</p>
+
+<p>Furthermore, this type of multicast usually uses UDP and is a best-effort
+protocol. Reliably maintaining the memberlist would prove challenging.</p>
+
+<p>Instead of multicast, the authors of the <em>SWIM</em> protocol suggested a different
+approach, eliminating the need for multicast altogether: <strong>piggybacking</strong>.</p>
+
+<p>They took advantage of the fact that the protocol regularly sends messages to
+other nodes (<code>PING</code>, <code>PING-REQ()</code>, <code>ACK</code>) so
+they decided to include &ldquo;<em>gossip information</em>&rdquo; in these packets. This
+dissemination mechanism is called &ldquo;<em>infection-style</em>&rdquo;, as information spreads
+in a manner analogous to the spread of gossip in society, or epidemic in the
+general population.</p>
+
+<p>Notice that this implementation of the dissemination component does not generate
+any extra packets (such as multicasts) - all &ldquo;messages&rdquo; handed to this component
+are propagated by piggybacking on the packets of the failure detection component.
+The network load remains the same as seen previously.</p>
+
+<p>In the following example, we see how piggybacking can be used to disseminate
+information:</p>
+
+<ol>
+<li><em>A</em> knows that <em>C</em> is dead ;</li>
+<li><em>D</em> knows that <em>E</em> joined the cluster ;</li>
+<li><em>A</em> directly probes <em>B</em> and includes a gossip indicating that <em>C</em> should be
+considered as failed. <em>B</em> acknowledges and updates its own memberlist to
+remove <em>C</em> ;</li>
+<li><em>A</em> directly probes <em>D</em> and also indicates that <em>C</em> is dead. <em>D</em>
+acknowledges and piggybacks the <code>ACK</code> packet to indicate that a
+new node <em>E</em> has joined the cluster.</li>
+</ol>
+
+<figure>
+    <img src="/img/swim_piggybacking.svg" />
+    <figcaption>SWIM: infection-style dissemination</figcaption>
+</figure>
+
+<p>Infection-style dissemination implies that members of the cluster might have a
+different memberlist status as information takes more time to propagate. But it
+has been shown that such epidemic process spreads exponentially fast and all the
+nodes in the cluster will eventually (and rapidly) receive the gossips (it takes
+<code>O(log(N))</code> time to reach every node).</p>
+
+<p>To improve resiliency in case of nodes failures and packet losses, each node
+has its own prioritized list of &ldquo;gossips&rdquo; to disseminate. And each packet sent
+by the protocol can be used to piggyback a fixed amount of gossips.</p>
+
+<h3 id="suspicion-mechanism">Suspicion mechanism</h3>
+
+<p>The failure detector component can easily detect as dead a node due to packet
+losses or because it was asleep for some time (because of a temporary issue, an
+unusual load of work, GC pauses, …). The node would then be incorrectly
+considered dead and forced to leave the cluster.</p>
+
+<p>To mitigate this effect, a &ldquo;<em>suspicion</em>&rdquo; sub-protocol was introduced.</p>
+
+<p>It works as follows. Consider a node <em>A</em> that chooses another node <em>B</em> as
+<code>ping</code> target. If <em>A</em> receives no direct or indirect <code>ACK</code>
+from <em>B</em>, it does NOT declare it dead. Instead, it marks the unresponsive node
+as <em>suspected</em> in its local memberlist and it transfers this update to the
+dissemination component.
+Each node receiving the update also updates its local memberlist and keeps on
+disseminating the update.</p>
+
+<p>That being said, <strong>suspected members do stay on the memberlists</strong> and are treated
+similarly to healthy members.</p>
+
+<p>If any node receives an <code>ACK</code> from a suspected node, it un-suspects
+the node and disseminate the information.
+Similarly, if a node receive a gossip indicating that it is suspected, it can
+start propagating a &ldquo;hey, I&rsquo;m alive!&rdquo; message to clarify the situation.</p>
+
+<p>After a predefined timeout, suspected nodes are marked as dead and the
+information is propagated.</p>
+
+<p>This mechanism reduces (but does not eliminate) the rate of failure detection
+false positives. Notice also that the <em>Strong Completeness</em> property of the
+original protocol continues to hold. Failures of processes suspecting a failed
+process may prolong detection time, but eventual detection is still guaranteed.</p>
+
+<p>From the above discussion, <code>Alive</code> messages override
+<code>Suspect</code> messages, and <code>Confirm</code> messages override both
+<code>Suspect</code> and <code>Alive</code> messages, in their effect on the
+local membership list element corresponding to the suspected member.</p>
+
+<p>However, a member might be suspected and unsuspected multiple times during its
+lifetime. And as no ordering of the event between the nodes is guaranteed, the
+following situation might happen:</p>
+
+<figure>
+    <img src="/img/swim_unordered_updates.svg" />
+    <figcaption>Two nodes, receiving ambiguous updates</figcaption>
+</figure>
+
+<p>What&rsquo;s the status of <em>C</em>? Which node is right?
+Without any additional information, <em>A</em> believes that <em>C</em> is alive whereas <em>B</em>
+believes it&rsquo;s suspected.</p>
+
+<p>To resolve this ambiguity, the updates need to be distinguished through unique
+identifiers: an <em>incarnation number</em>. Each node will maintain its own
+<em>incarnation number</em>. It&rsquo;s number set to 0 when the node joins the cluster and
+can be <strong>incremented only by the node itself</strong>, when it receives information
+about itself being suspected in the current incarnation. The suspected node will
+then emit an <code>Alive</code> message with an incremented incarnation number
+and disseminate it.</p>
+
+<p>The incarnation number must be included, along a node identifier, in every
+<code>Alive</code>, <code>Suspect</code> and <code>Confirm</code> messages. This
+number will be used to <strong>establish an &ldquo;happens-before&rdquo; relationship between
+events</strong>.
+For instance:</p>
+
+<figure>
+    <img src="/img/swim_ordered_updates.svg" />
+    <figcaption>Two nodes, receiving unambiguous updates</figcaption>
+</figure>
+
+<ul>
+<li>receiving the message <code>{ Alive C, incarnation = 1 }</code> would override
+ the message <code>{ Suspect C, incarnation = 0 }</code> as the incarnation
+ number of the suspected <em>C</em> node is less than the alive <em>C</em> node.</li>
+<li>on the other hand, the message <code>{ Alive C, incarnation = 1 }</code>
+ would not be overridden by <code>{ Suspect C, incarnation = 0 }</code></li>
+</ul>
+
+<p>By comparing <em>incarnation numbers</em>, we can safely drop outdated messages and
+still end-up in a coherent state across the cluster.</p>
+
+<h3 id="deterministic-probe-target-selection">Deterministic probe-target selection</h3>
+
+<p>In the first version of the protocol, the failure detector component chooses
+randomly the node to probe. Although each node failure is guaranteed to be
+detected eventually, a specially unlucky selection of nodes can lead to an
+important delay between the failure and its detection.</p>
+
+<p>This can be fixed by using a round-robin selection instead of a random one.
+Joining nodes will be inserted in the member-list at random positions and when
+the list traversal is complete, it is randomly rearranged before being traversed
+again.</p>
+
+<p>With this method, successive selections of the same target are at most
+<code>(2n - 1)</code> protocol periods apart. This bounds the worst case
+detection time of a node failure.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+<li><em>SWIM</em> is a membership protocol designed to answer the question « <em>Which are
+the alive nodes in a cluster?</em> » in a scalable way</li>
+<li>the protocol is divided in two components: failure detection and information
+ dissemination</li>
+<li>the failure detector works by directly or indirectly probing nodes, at fixed
+ intervals</li>
+<li>the suspicion sub-protocol improves the failure detector&rsquo;s accuracy by giving
+ time to nodes for recovery</li>
+<li>information about the status of the cluster is disseminated using a
+ infection-style method: events are included in the failure detection
+ component and propagated as an infection or gossip would in real life, from
+ peer to peer</li>
+<li>selected nodes to probe using a randomized round-robin makes the failure
+ detection deterministic</li>
+</ul>
+
+<h2 id="going-further">Going further</h2>
+
+<p>While we went pretty deep in the <em>memberlist</em> problem, there are still a lof of
+subjects we didn&rsquo;t explore:</p>
+
+<ul>
+<li>what happens in case of network partitions?</li>
+<li>how does <em>SWIM</em> deal with nodes voluntarily leaving the cluster?</li>
+<li>what about nodes re-joining?</li>
+<li>we totally ignored security. Shouldn&rsquo;t the communications between nodes at
+ least be encrypted?</li>
+<li>etc.</li>
+</ul>
+
+<p>Some of these concerns — and more — are addressed in <a href="https://www.serf.io/">Serf</a>.
+Two of <a href="https://www.hashicorp.com/">HashiCorp</a>&rsquo;s products rely on a version of
+the <em>SWIM</em> protocol enhanced by their teams: <a href="https://www.serf.io/">Serf</a> and <a href="https://www.consul.io/">Consul</a>.</p>
+
+<p>They provide a <a href="https://www.serf.io/docs/internals/gossip.html">guide</a> describing
+what modifications they introduced to the protocol. A <a href="https://www.serf.io/docs/internals/simulator.html">convergence simulator</a>
+can also be found on their website to visualize how fast a cluster will converge
+to a consistent state.</p>
+
+<h3 id="swim-in-go-memberlist"><em>SWIM</em> in Go: memberlist</h3>
+
+<p>And last but not least, the Go implementation of their modified version of <em>SWIM</em>
+is Open-Source and available on GitHub: <a href="https://github.com/hashicorp/memberlist">https://github.com/hashicorp/memberlist</a></p>
+
+<p>Here is how a node joins a cluster, using the memberlist library:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#75715e">/* Create the initial memberlist from a safe configuration.
+</span><span style="color:#75715e">   Please reference the godoc for other default config types.
+</span><span style="color:#75715e">   http://godoc.org/github.com/hashicorp/memberlist#Config
+</span><span style="color:#75715e">*/</span>
+<span style="color:#a6e22e">list</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">memberlist</span>.<span style="color:#a6e22e">Create</span>(<span style="color:#a6e22e">memberlist</span>.<span style="color:#a6e22e">DefaultLocalConfig</span>())
+<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+	panic(<span style="color:#e6db74">&#34;Failed to create memberlist: &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
+}
+
+<span style="color:#75715e">// Join an existing cluster by specifying at least one known member.
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">n</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">list</span>.<span style="color:#a6e22e">Join</span>([]<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;1.2.3.4&#34;</span>})
+<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+	panic(<span style="color:#e6db74">&#34;Failed to join cluster: &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">err</span>.<span style="color:#a6e22e">Error</span>())
+}
+
+<span style="color:#75715e">// Ask for members of the cluster
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">member</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">list</span>.<span style="color:#a6e22e">Members</span>() {
+	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;Member: %s %s\n&#34;</span>, <span style="color:#a6e22e">member</span>.<span style="color:#a6e22e">Name</span>, <span style="color:#a6e22e">member</span>.<span style="color:#a6e22e">Addr</span>)
+}
+
+<span style="color:#75715e">// Continue doing whatever you need, memberlist will maintain membership
+</span><span style="color:#75715e">// information in the background. Delegates can be used for receiving
+</span><span style="color:#75715e"></span><span style="color:#f92672">//</span> <span style="color:#a6e22e">events</span> <span style="color:#a6e22e">when</span> <span style="color:#a6e22e">members</span> <span style="color:#a6e22e">join</span> <span style="color:#a6e22e">or</span> <span style="color:#a6e22e">leave</span>.</code></pre></div>
+<h2 id="wait-weren-t-you-initially-talking-about-a-key-value-store">Wait… weren&rsquo;t you initially talking about a key-value store?!</h2>
+
+<p>That&rsquo;s right! The idea for this post came from the fact that I am building a
+key-value store prototype.</p>
+
+<p>I wanted it to be distributed, so I documented myself about how to detect node
+failures and how to maintain a membership list in a peer-to-peer cluster.</p>
+
+<p>Now that this step is done, I will have to take advantage of all of this to
+build the &ldquo;store aspect&rdquo; on top of it: how can I efficiently shard the data?
+How to replicate it? How to rebalance it when new nodes are added? Or when nodes
+fail?</p>
+
+<p>But that&rsquo;s for another day, in another post!</p>
+
+<h2 id="links">Links</h2>
+
+<ul>
+<li><a href="https://www.cs.cornell.edu/projects/Quicksilver/public_pdfs/SWIM.pdf">SWIM: Scalable Weakly-consistent Infection-style Process Group Membership Protocol</a></li>
+<li><a href="https://www.youtube.com/watch?v=bkmbWsDz8LM">Armon Dadgar from HashiCorp presents the SWIM protocol</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Gossip_protocol">https://en.wikipedia.org/wiki/Gossip_protocol</a></li>
+</ul>
+
+    </section>
+
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>
