@@ -100,10 +100,10 @@ organized by the &lt;a href=&#34;http://afup.org/pages/site/&#34;&gt;AFUP&lt;/a&
     
     <item>
       <title>Done with school.</title>
-      <link>/2015/08/30/done-with-school./</link>
+      <link>/2015/08/30/done-with-school/</link>
       <pubDate>Sun, 30 Aug 2015 00:00:00 +0000</pubDate>
       
-      <guid>/2015/08/30/done-with-school./</guid>
+      <guid>/2015/08/30/done-with-school/</guid>
       <description>&lt;p&gt;That&amp;rsquo;s it. After five years spent learning computer science in various schools
 and universities, I&amp;rsquo;m finally free!&lt;/p&gt;</description>
     </item>
@@ -134,10 +134,10 @@ that I&amp;rsquo;ve evolved since!&lt;/p&gt;</description>
     
     <item>
       <title>On Taming Repository Classes in Doctrine… Among other things.</title>
-      <link>/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things./</link>
+      <link>/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/</link>
       <pubDate>Sat, 07 Feb 2015 00:00:00 +0000</pubDate>
       
-      <guid>/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things./</guid>
+      <guid>/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/</guid>
       <description>&lt;p&gt;A while ago I stumbled upon a - rather old but nonetheless interesting - &lt;a href=&#34;http://www.whitewashing.de/2013/03/04/doctrine_repositories.html&#34;&gt;post&lt;/a&gt; written by &lt;a href=&#34;https://twitter.com/beberlei&#34;&gt;@beberlei&lt;/a&gt;. In his post, he highlighted the issues of having &lt;strong&gt;too much responsibilities in a repository&lt;/strong&gt; and suggested a solution based on the &lt;strong&gt;&lt;a href=&#34;http://en.wikipedia.org/wiki/Specification_pattern&#34;&gt;Specification pattern&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;</description>
     </item>
     
