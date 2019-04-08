@@ -75,10 +75,14 @@ TEA was — and still is — a company where talented people are building a rela
       <pubDate>Mon, 08 May 2017 00:00:00 +0000</pubDate>
       
       <guid>https:/2017/05/08/best-practices-for-exploitable-logs/</guid>
-      <description>« What to log? » — That&amp;rsquo;s the question I often ask myself when I launch new projects or work on existing applications.
-And by « what », I mean which events should be logged? Using which format? Where should they be sent?
-To answer these questions, we need to ask ourselves why do we need logs in the first place?
-Determine your logging strategy Logging everything would be counter-productive as we would end up with too much data to search and the important information would probably be hidden in non-essential logs.</description>
+      <description>&lt;p&gt;« &lt;strong&gt;What to log?&lt;/strong&gt; » — That&amp;rsquo;s the question I often ask myself when I launch new
+projects or work on existing applications.&lt;/p&gt;
+
+&lt;p&gt;And by « what », I mean which events should be logged? Using which format? Where
+should they be sent?&lt;/p&gt;
+
+&lt;p&gt;To answer these questions, we need to ask ourselves why do we need logs in the
+first place?&lt;/p&gt;</description>
     </item>
     
     <item>
