@@ -119,11 +119,14 @@ and then check if the unit tests noticed the changes. If they did, then the
 coverage is sufficient and we say that they <em>killed the mutation</em>. If they didn&rsquo;t,
 then you have a problem because the <em>mutation escaped</em>.</p>
 
-<p>According to Humbug&rsquo;s README, mutations usually involve:
-* switching binary arithmetic operators: <code>+</code> becomes <code>-</code>, <code>*</code> becomes <code>/</code>, …
-* substituting logical operations: <code>&amp;&amp;</code> becomes <code>||</code>, <code>true</code> becomes <code>false</code>, …
-* inversing conditions: <code>&gt;</code> becomes <code>&lt;</code>, <code>===</code> becomes <code>!===</code>, …
-* …</p>
+<p>According to Humbug&rsquo;s README, mutations usually involve:</p>
+
+<ul>
+<li>switching binary arithmetic operators: <code>+</code> becomes <code>-</code>, <code>*</code> becomes <code>/</code>, …</li>
+<li>substituting logical operations: <code>&amp;&amp;</code> becomes <code>||</code>, <code>true</code> becomes <code>false</code>, …</li>
+<li>inversing conditions: <code>&gt;</code> becomes <code>&lt;</code>, <code>===</code> becomes <code>!===</code>, …</li>
+<li>…</li>
+</ul>
 
 <p>The purpose of this article is to answer the following question: how does
 Humbug manipulate your code? How are mutations generated?</p>
@@ -158,13 +161,16 @@ source code. I&rsquo;m thinking about a library like
 <p>After reading the dependencies list, I see nothing that would help to manipulate
 source code.</p>
 
-<p>I do see interesting things though:
-* <code>phpunit/phpunit</code> is a hard dependency: meaning that Humbug won&rsquo;t work with
-  other test frameworks
-* <code>symfony/finder</code> and <code>symfony/process</code>: common components used to find files
-  and launch processes
-* <code>sebastian/diff</code>: could be used to generate diffs between original source code
-  and mutants</p>
+<p>I do see interesting things though:</p>
+
+<ul>
+<li><code>phpunit/phpunit</code> is a hard dependency: meaning that Humbug won&rsquo;t work with
+other test frameworks</li>
+<li><code>symfony/finder</code> and <code>symfony/process</code>: common components used to find files
+and launch processes</li>
+<li><code>sebastian/diff</code>: could be used to generate diffs between original source code
+and mutants</li>
+</ul>
 
 <p>If there is nothing useful in the dependencies, it means that the source
 manipulation is in Humbug&rsquo;s repository.</p>
@@ -290,17 +296,13 @@ tokenized (using the <code>Tokenizer</code>) and modified using the mutators.</p
     
     <section class="post-tl-dr">
         <h2 id="tl-dr">TL;DR</h2>
-        <p>In the end, the mutation generation by Humbug is <em>pretty straightforward</em>:
-1. it starts by splitting the code in tokens, using the standard <code>token_get_all()</code> function
-2. then it applies a list of <em>mutators</em> to the previously generated tokens. A
-   mutator being responsible to alter tokens (ie: replacing a <code>+</code> with a <code>-</code>)</p>
+        <p>In the end, the mutation generation by Humbug is <em>pretty straightforward</em>:</p>
 
 <ol>
-<li><p>once all the mutators are applied, it uses the tokens to rebuild the source
-code.</p></li>
-
-<li><p>code having changed, the unit tests should fail. So it launches them and
-expects failures.</p></li>
+<li>it starts by splitting the code in tokens, using the standard <code>token_get_all()</code> function</li>
+<li>then it applies a list of <em>mutators</em> to the previously generated tokens. A mutator being responsible to alter tokens (ie: replacing a <code>+</code> with a <code>-</code>)</li>
+<li>once all the mutators are applied, it uses the tokens to rebuild the source code.</li>
+<li>code having changed, the unit tests should fail. So it launches them and expects failures.</li>
 </ol>
 
 <p>Now I see why I didn&rsquo;t find something like nikic/PHP-parser in the dependencies: it simply would have been overkill and too complex to work with an AST.</p>
