@@ -26,9 +26,9 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/pygments-github.min.6404d027c779bb84523009ff4ea79fcc4ca3b7c3a439303cb0455841a8d09432.css">
+    <link rel="stylesheet" href="/css/pygments-github.min.e70dbba06e4ecaa09400b7f0bee3059711daf7814e5b25b0d1f3b45274ad57c6.css">
     
-    <link rel="stylesheet" href="/css/blog.min.901c6bc11c1cc8e166b7629105d45d68af2b61b413f246461aaa32501830a632.css">
+    <link rel="stylesheet" href="/css/blog.min.9cb8fbdf58cd28f97b0390c524ee18dea65295c280783d47e6c14e60cc125a2f.css">
 
     </head>
 <body>
@@ -98,12 +98,13 @@ identifiers <strong>based on the current date</strong> and an optional prefix.</
 
 <p>Wait, the &ldquo;<em>current date</em>&rdquo; part can actually be interesting for our performance
 issue. What happens if we write something like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#75715e">&lt;?php</span>
+<div class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
 
-<span style="color:#66d9ef">foreach</span> ($foo <span style="color:#66d9ef">as</span> $bar) {
-    $awesomeCollection[] <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">CoolObject</span>(<span style="color:#a6e22e">uniqid</span>(), $bar);
-}
+<span class="k">foreach</span> <span class="p">(</span><span class="nv">$foo</span> <span class="k">as</span> <span class="nv">$bar</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$awesomeCollection</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">CoolObject</span><span class="p">(</span><span class="nb">uniqid</span><span class="p">(),</span> <span class="nv">$bar</span><span class="p">);</span>
+<span class="p">}</span>
 </code></pre></div>
+
 <p>A simple loop like this should run pretty fast, so if <code>uniqid()</code> simply relies
 on the current date we should have collisions&hellip; but it is not the case. Why?</p>
 
