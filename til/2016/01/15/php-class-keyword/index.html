@@ -31,7 +31,7 @@
     
     <link rel="stylesheet" href="/css/pygments-github.min.e70dbba06e4ecaa09400b7f0bee3059711daf7814e5b25b0d1f3b45274ad57c6.css">
     
-    <link rel="stylesheet" href="/css/blog.min.9cb8fbdf58cd28f97b0390c524ee18dea65295c280783d47e6c14e60cc125a2f.css">
+    <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
 <body>
@@ -99,7 +99,7 @@ class name resolution:</p>
 <p>You can get a string containing the fully qualified name of the ClassName
 class by using ClassName::class.</p>
 </blockquote>
-<div class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
 <span class="k">namespace</span> <span class="nx">NS</span> <span class="p">{</span>
     <span class="k">class</span> <span class="nc">ClassName</span> <span class="p">{</span>
     <span class="p">}</span>
@@ -107,9 +107,8 @@ class by using ClassName::class.</p>
     <span class="k">echo</span> <span class="nx">ClassName</span><span class="o">::</span><span class="na">class</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="c1">// outputs: &quot;NS\ClassName&quot;</span>
-</code></pre></div>
-
+<span class="c1">// outputs: &#34;NS\ClassName&#34;
+</span></code></pre></div>
 <p>It&rsquo;s handy when you need to pass FQCN around.
 Some people even started using it to make sure that their code was referencing
 existing classes.</p>
@@ -119,7 +118,7 @@ ensure that the generated FQCN maps to an existing class!</p>
 
 <p>In fact, you can use this keyword on classes that are neither defined nor
 autoloadable.</p>
-<div class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
 <span class="k">use</span> <span class="nx">Foo\Bar</span><span class="p">;</span>
 
 <span class="k">namespace</span> <span class="nx">NS</span> <span class="p">{</span>
@@ -128,11 +127,10 @@ autoloadable.</p>
 
 <span class="k">echo</span> <span class="nx">Bar</span><span class="o">::</span><span class="na">class</span><span class="p">;</span>
 
-<span class="c1">// outputs:</span>
-<span class="c1">// &quot;NS\ClassThatDoesNotExist&quot;</span>
-<span class="c1">// &quot;Foo\Bar&quot;</span>
-</code></pre></div>
-
+<span class="c1">// outputs:
+</span><span class="c1">// &#34;NS\ClassThatDoesNotExist&#34;
+</span><span class="c1">// &#34;Foo\Bar&#34;
+</span></code></pre></div>
 <p>Yup, <code>\NS\ClassThatDoesNotExist</code> won&rsquo;t be autoloaded. It&rsquo;s FQCN will just be
 generated using the current namespace or <code>use</code> statements.</p>
 

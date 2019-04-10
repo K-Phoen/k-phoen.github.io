@@ -28,7 +28,7 @@
     
     <link rel="stylesheet" href="/css/pygments-github.min.e70dbba06e4ecaa09400b7f0bee3059711daf7814e5b25b0d1f3b45274ad57c6.css">
     
-    <link rel="stylesheet" href="/css/blog.min.9cb8fbdf58cd28f97b0390c524ee18dea65295c280783d47e6c14e60cc125a2f.css">
+    <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
 <body>
@@ -117,7 +117,7 @@ issue came when I started to implement a search engine. For each new search
 criteria, I had to update two classes and implement the same criteria twice.</p>
 
 <p>At this point, my repositories looked like this:</p>
-<div class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
 
 <span class="k">interface</span> <span class="nx">CompanyRepository</span>
 <span class="p">{</span>
@@ -128,8 +128,8 @@ criteria, I had to update two classes and implement the same criteria twice.</p>
 
 <span class="k">class</span> <span class="nc">DoctrineCompanyRepository</span> <span class="k">extends</span> <span class="nx">EntityRepository</span> <span class="k">implements</span> <span class="nx">CompanyRepository</span>
 <span class="p">{</span>
-    <span class="c1">// ...</span>
-
+    <span class="c1">// ...
+</span><span class="c1"></span>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">search</span><span class="p">(</span><span class="k">array</span> <span class="nv">$criteria</span> <span class="o">=</span> <span class="p">[])</span>
     <span class="p">{</span>
         <span class="nv">$qb</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">createQueryBuilder</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">);</span>
@@ -137,36 +137,35 @@ criteria, I had to update two classes and implement the same criteria twice.</p>
         <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$criteria</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span> <span class="p">{</span>
             <span class="nv">$qb</span>
                 <span class="o">-&gt;</span><span class="na">andWhere</span><span class="p">(</span><span class="s1">&#39;c.name LIKE :name&#39;</span><span class="p">)</span>
-                <span class="o">-&gt;</span><span class="na">setParameter</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">sprintf</span><span class="p">(</span><span class="s1">&#39;%%%s%%&#39;</span><span class="p">,</span> <span class="nv">$criteria</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]));</span>
+                <span class="o">-&gt;</span><span class="na">setParameter</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nx">sprintf</span><span class="p">(</span><span class="s1">&#39;%%%s%%&#39;</span><span class="p">,</span> <span class="nv">$criteria</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]));</span>
         <span class="p">}</span>
 
-        <span class="c1">// other criteria</span>
-
+        <span class="c1">// other criteria
+</span><span class="c1"></span>
         <span class="k">return</span> <span class="nv">$qb</span><span class="o">-&gt;</span><span class="na">getQuery</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">getResult</span><span class="p">();</span>
     <span class="p">}</span>
 <span class="p">}</span>
 
 <span class="k">class</span> <span class="nc">InMemoryCompanyRepository</span> <span class="k">implements</span> <span class="nx">CompanyRepository</span>
 <span class="p">{</span>
-    <span class="c1">// ...</span>
-
+    <span class="c1">// ...
+</span><span class="c1"></span>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">search</span><span class="p">(</span><span class="k">array</span> <span class="nv">$criteria</span> <span class="o">=</span> <span class="p">[])</span>
     <span class="p">{</span>
         <span class="nv">$companies</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">companies</span><span class="p">;</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">empty</span><span class="p">(</span><span class="nv">$criteria</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span> <span class="p">{</span>
-            <span class="nv">$companies</span> <span class="o">=</span> <span class="nb">array_filter</span><span class="p">(</span><span class="nv">$companies</span><span class="p">,</span> <span class="k">function</span><span class="p">(</span><span class="nv">$company</span><span class="p">)</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$criteria</span><span class="p">)</span> <span class="p">{</span>
-                <span class="k">return</span> <span class="nb">stripos</span><span class="p">(</span><span class="nb">strtolower</span><span class="p">(</span><span class="nv">$company</span><span class="o">-&gt;</span><span class="na">getName</span><span class="p">()),</span> <span class="nb">strtolower</span><span class="p">(</span><span class="nv">$criteria</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span> <span class="o">!==</span> <span class="k">false</span><span class="p">;</span>
+            <span class="nv">$companies</span> <span class="o">=</span> <span class="nx">array_filter</span><span class="p">(</span><span class="nv">$companies</span><span class="p">,</span> <span class="k">function</span><span class="p">(</span><span class="nv">$company</span><span class="p">)</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$criteria</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="nx">stripos</span><span class="p">(</span><span class="nx">strtolower</span><span class="p">(</span><span class="nv">$company</span><span class="o">-&gt;</span><span class="na">getName</span><span class="p">()),</span> <span class="nx">strtolower</span><span class="p">(</span><span class="nv">$criteria</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span> <span class="o">!==</span> <span class="k">false</span><span class="p">;</span>
             <span class="p">});</span>
         <span class="p">}</span>
 
-        <span class="c1">// other criteria</span>
-
+        <span class="c1">// other criteria
+</span><span class="c1"></span>
         <span class="k">return</span> <span class="nv">$companies</span><span class="p">;</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 <p>The first issue is that my <code>CompanyRepository::search(array $criteria)</code>
 method violates the <a href="http://en.wikipedia.org/wiki/Open/closed_principle">open/closed principle</a>.
 This is solved by replacing the <code>$criteria</code> parameter by <a href="http://en.wikipedia.org/wiki/Specification_pattern">specifications</a>.
@@ -177,7 +176,7 @@ can&rsquo;t be used to filter data from several data-sources. We saw that with R
 this <a href="http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/">problem is solved</a>.</p>
 
 <p><strong>Using RulerZ</strong>, the two previous repositories can be refactored:</p>
-<div class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
 <span class="k">interface</span> <span class="nx">CompanyRepository</span>
 <span class="p">{</span>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">save</span><span class="p">(</span><span class="nx">Company</span> <span class="nv">$company</span><span class="p">);</span>
@@ -187,8 +186,8 @@ this <a href="http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-
 
 <span class="k">class</span> <span class="nc">DoctrineCompanyRepository</span> <span class="k">extends</span> <span class="nx">EntityRepository</span> <span class="k">implements</span> <span class="nx">CompanyRepository</span>
 <span class="p">{</span>
-    <span class="c1">// ...</span>
-
+    <span class="c1">// ...
+</span><span class="c1"></span>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">matchingSpec</span><span class="p">(</span><span class="nx">Specification</span> <span class="nv">$spec</span><span class="p">)</span>
     <span class="p">{</span>
         <span class="nv">$qb</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">createQueryBuilder</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">);</span>
@@ -201,15 +200,14 @@ this <a href="http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-
 <span class="p">{</span>
     <span class="k">private</span> <span class="nv">$companies</span> <span class="o">=</span> <span class="p">[];</span>
 
-    <span class="c1">// ...</span>
-
+    <span class="c1">// ...
+</span><span class="c1"></span>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">matchingSpec</span><span class="p">(</span><span class="nx">Specification</span> <span class="nv">$spec</span><span class="p">)</span>
     <span class="p">{</span>
         <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">rulerz</span><span class="o">-&gt;</span><span class="na">filterSpec</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">companies</span><span class="p">,</span> <span class="nv">$spec</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-
 <p>You probably noticed a <small>not so</small> subtle difference compared to the
 old repositories: I rely on RulerZ so I have to inject it somehow. Lucky me,
 I&rsquo;m working on a Symfony application and there is <a href="https://github.com/K-Phoen/RulerZBundle">a bundle for that</a>!</p>
@@ -225,7 +223,7 @@ like a <strong><a href="http://symfony.com/doc/current/cookbook/form/data_transf
 don&rsquo;t you think?</p>
 
 <p>With that in mind, I wrote the following form type:</p>
-<div class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
 <span class="k">class</span> <span class="nc">CompanySearchType</span> <span class="k">extends</span> <span class="nx">AbstractType</span>
 <span class="p">{</span>
     <span class="k">public</span> <span class="k">function</span> <span class="nf">buildForm</span><span class="p">(</span><span class="nx">FormBuilderInterface</span> <span class="nv">$builder</span><span class="p">,</span> <span class="k">array</span> <span class="nv">$options</span><span class="p">)</span>
@@ -247,10 +245,9 @@ don&rsquo;t you think?</p>
             <span class="o">-&gt;</span><span class="na">add</span><span class="p">(</span><span class="nv">$location</span><span class="p">);</span>
     <span class="p">}</span>
 
-    <span class="c1">// ...</span>
-<span class="p">}</span>
+    <span class="c1">// ...
+</span><span class="c1"></span><span class="p">}</span>
 </code></pre></div>
-
 <p>The form type itself is pretty straightforward, the only thing to notice is the
 usage of <code>SpecToStringTransformer</code>. It takes two parameters: the
 <abbr title="Fully-Qualified Class Name">FQCN</abbr> of the specification to
@@ -260,7 +257,7 @@ read it, it&rsquo;s available as <a href="https://gist.github.com/K-Phoen/5c1b06
 
 <p>What&rsquo;s important is that combining the Form Component, a simple transformer and
 RulerZ leads to really simple controllers:</p>
-<div class="highlight"><pre><code class="language-php" data-lang="php"><span></span><span class="cp">&lt;?php</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
 <span class="k">public</span> <span class="k">function</span> <span class="nf">searchAction</span><span class="p">(</span><span class="nx">Request</span> <span class="nv">$request</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="nv">$results</span> <span class="o">=</span> <span class="p">[];</span>
@@ -268,17 +265,16 @@ RulerZ leads to really simple controllers:</p>
     <span class="nv">$form</span><span class="o">-&gt;</span><span class="na">handleRequest</span><span class="p">(</span><span class="nv">$request</span><span class="p">);</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="nv">$form</span><span class="o">-&gt;</span><span class="na">isValid</span><span class="p">())</span> <span class="p">{</span>
-        <span class="nv">$spec</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Spec\AndX</span><span class="p">(</span><span class="nb">array_merge</span><span class="p">(</span>        <span class="c1">// aggregate specifications</span>
-            <span class="nb">array_filter</span><span class="p">(</span><span class="nv">$form</span><span class="o">-&gt;</span><span class="na">getData</span><span class="p">()),</span>       <span class="c1">// remove empty fields/specs</span>
-            <span class="k">array</span><span class="p">(</span><span class="k">new</span> <span class="nx">AppSpec\CompanyPublished</span><span class="p">())</span> <span class="c1">// only display published companies</span>
-        <span class="p">));</span>
+        <span class="nv">$spec</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Spec\AndX</span><span class="p">(</span><span class="nx">array_merge</span><span class="p">(</span>        <span class="c1">// aggregate specifications
+</span><span class="c1"></span>            <span class="nx">array_filter</span><span class="p">(</span><span class="nv">$form</span><span class="o">-&gt;</span><span class="na">getData</span><span class="p">()),</span>       <span class="c1">// remove empty fields/specs
+</span><span class="c1"></span>            <span class="k">array</span><span class="p">(</span><span class="k">new</span> <span class="nx">AppSpec\CompanyPublished</span><span class="p">())</span> <span class="c1">// only display published companies
+</span><span class="c1"></span>        <span class="p">));</span>
         <span class="nv">$results</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">companyRepository</span><span class="o">-&gt;</span><span class="na">matchingSpec</span><span class="p">(</span><span class="nv">$spec</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">render</span><span class="p">(</span><span class="s1">&#39;...&#39;</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-
 <p>Do you see the magic? A classic <strong>form type</strong> can automatically <strong>build
 specifications</strong> that can be used to <strong>retrieve data</strong> from a Doctrine repository,
 an in-memory repository or virtually any other data-source.

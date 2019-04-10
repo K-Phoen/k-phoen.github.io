@@ -137,7 +137,7 @@ To be clearer: given a list of URL providers for a sitemap index, I wanted to it
       <guid>https:/til/2016/01/15/php-class-keyword/</guid>
       <description>According to PHP documentation about the ::class keyword, it can be used for class name resolution:
  You can get a string containing the fully qualified name of the ClassName class by using ClassName::class.
- &amp;lt;?php namespace NS { class ClassName { } echo ClassName::class; } // outputs: &amp;quot;NS\ClassName&amp;quot;  It&amp;rsquo;s handy when you need to pass FQCN around. Some people even started using it to make sure that their code was referencing existing classes.</description>
+ &amp;lt;?php namespace NS { class ClassName { } echo ClassName::class; } // outputs: &amp;#34;NS\ClassName&amp;#34;  It&amp;rsquo;s handy when you need to pass FQCN around. Some people even started using it to make sure that their code was referencing existing classes.</description>
     </item>
     
     <item>

@@ -31,7 +31,7 @@
     
     <link rel="stylesheet" href="/css/pygments-github.min.e70dbba06e4ecaa09400b7f0bee3059711daf7814e5b25b0d1f3b45274ad57c6.css">
     
-    <link rel="stylesheet" href="/css/blog.min.9cb8fbdf58cd28f97b0390c524ee18dea65295c280783d47e6c14e60cc125a2f.css">
+    <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
 <body>
@@ -524,31 +524,29 @@ to a consistent state.</p>
 is Open-Source and available on GitHub: <a href="https://github.com/hashicorp/memberlist">https://github.com/hashicorp/memberlist</a></p>
 
 <p>Here is how a node joins a cluster, using the memberlist library:</p>
-<div class="highlight"><pre><code class="language-go" data-lang="go"><span></span><span class="cm">/* Create the initial memberlist from a safe configuration.</span>
-<span class="cm">   Please reference the godoc for other default config types.</span>
-<span class="cm">   http://godoc.org/github.com/hashicorp/memberlist#Config</span>
-<span class="cm">*/</span>
-<span class="nx">list</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">memberlist</span><span class="p">.</span><span class="nx">Create</span><span class="p">(</span><span class="nx">memberlist</span><span class="p">.</span><span class="nx">DefaultLocalConfig</span><span class="p">())</span>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="cm">/* Create the initial memberlist from a safe configuration.
+</span><span class="cm">   Please reference the godoc for other default config types.
+</span><span class="cm">   http://godoc.org/github.com/hashicorp/memberlist#Config
+</span><span class="cm">*/</span>
+<span class="nx">list</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">memberlist</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="nx">memberlist</span><span class="p">.</span><span class="nf">DefaultLocalConfig</span><span class="p">())</span>
 <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-	<span class="nb">panic</span><span class="p">(</span><span class="s">&quot;Failed to create memberlist: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">Error</span><span class="p">())</span>
+	<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;Failed to create memberlist: &#34;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
 <span class="p">}</span>
 
-<span class="c1">// Join an existing cluster by specifying at least one known member.</span>
-<span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">list</span><span class="p">.</span><span class="nx">Join</span><span class="p">([]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;1.2.3.4&quot;</span><span class="p">})</span>
+<span class="c1">// Join an existing cluster by specifying at least one known member.
+</span><span class="c1"></span><span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">list</span><span class="p">.</span><span class="nf">Join</span><span class="p">([]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;1.2.3.4&#34;</span><span class="p">})</span>
 <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-	<span class="nb">panic</span><span class="p">(</span><span class="s">&quot;Failed to join cluster: &quot;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nx">Error</span><span class="p">())</span>
+	<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;Failed to join cluster: &#34;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
 <span class="p">}</span>
 
-<span class="c1">// Ask for members of the cluster</span>
-<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">member</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">list</span><span class="p">.</span><span class="nx">Members</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Member: %s %s\n&quot;</span><span class="p">,</span> <span class="nx">member</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">member</span><span class="p">.</span><span class="nx">Addr</span><span class="p">)</span>
+<span class="c1">// Ask for members of the cluster
+</span><span class="c1"></span><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">member</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">list</span><span class="p">.</span><span class="nf">Members</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Member: %s %s\n&#34;</span><span class="p">,</span> <span class="nx">member</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">member</span><span class="p">.</span><span class="nx">Addr</span><span class="p">)</span>
 <span class="p">}</span>
 
-<span class="c1">// Continue doing whatever you need, memberlist will maintain membership</span>
-<span class="c1">// information in the background. Delegates can be used for receiving</span>
-<span class="c1">// events when members join or leave.</span>
-</code></pre></div>
-
+<span class="c1">// Continue doing whatever you need, memberlist will maintain membership
+</span><span class="c1">// information in the background. Delegates can be used for receiving
+</span><span class="c1"></span><span class="o">//</span> <span class="nx">events</span> <span class="nx">when</span> <span class="nx">members</span> <span class="nx">join</span> <span class="nx">or</span> <span class="nx">leave</span><span class="p">.</span></code></pre></div>
 <h2 id="wait-weren-t-you-initially-talking-about-a-key-value-store">Wait… weren&rsquo;t you initially talking about a key-value store?!</h2>
 
 <p>That&rsquo;s right! The idea for this post came from the fact that I am building a
