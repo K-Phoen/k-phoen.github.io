@@ -13,7 +13,7 @@
     <item>
       <title>Clusters and data sharding: introducing rendezvous hashing</title>
       <link>https:/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</link>
-      <pubDate>Thu, 11 Apr 2019 00:12:59 +0200</pubDate>
+      <pubDate>Thu, 11 Apr 2019 00:27:24 +0200</pubDate>
       
       <guid>https:/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</guid>
       <description>&lt;p&gt;In a &lt;a href=&#34;/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/&#34;&gt;previous article&lt;/a&gt;,
