@@ -29,8 +29,6 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/pygments-github.min.e70dbba06e4ecaa09400b7f0bee3059711daf7814e5b25b0d1f3b45274ad57c6.css">
-    
     <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
@@ -98,7 +96,7 @@ maximum number of URL allowed in a sitemap).</p>
 
 <p>Each provider being an Iterator, I can <em>chain</em> them using nikic&rsquo;s <a href="https://github.com/nikic/iter"><code>iter</code></a>
 library:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">$firstUrlProvider = …;
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">$firstUrlProvider = …;
 $secondUrlProvider = …;
 
 $aggregatedProvider = iter\chain($firstUrlProvider, $secondUrlProvider);</code></pre></div>
@@ -113,12 +111,12 @@ have nor storing anything unnecessary in memory.</p>
 from my <code>$aggregatedProvider</code>, without storing the whole chunks in memory.</p>
 
 <p>Looks like it&rsquo;s a job for PHP generators!</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">function chunk(\Iterator $iterable, $size): \Iterator
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">function chunk(\Iterator $iterable, $size): \Iterator
 {
     while ($iterable-&gt;valid()) {
         $closure = function() use ($iterable, $size) {
             $count = $size;
-            while ($count-- <span class="err">&amp;&amp;</span> $iterable-&gt;valid()) {
+            while ($count-- <span style="color:#a40000">&amp;&amp;</span> $iterable-&gt;valid()) {
                 yield $iterable-&gt;current();
                 $iterable-&gt;next();
             }

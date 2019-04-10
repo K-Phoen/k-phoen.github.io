@@ -29,8 +29,6 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/pygments-github.min.e70dbba06e4ecaa09400b7f0bee3059711daf7814e5b25b0d1f3b45274ad57c6.css">
-    
     <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
@@ -138,7 +136,7 @@ metadata under the name of <em>e-book</em>.</p>
 and I want to filter those which can be read in a web-reader.</p>
 
 <p>Traditionally, I would write something like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
 {
     $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
     $filteredEbooks = [];
@@ -158,7 +156,7 @@ and I want to filter those which can be read in a web-reader.</p>
 <code>$ebooks</code> and return the ones that are eligible. But we would have to create a
 new class just for that and iterators are a bit tedious to write… Lucky us,
 since PHP 5.5.0 we can use generators!</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
 {
     $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
 
@@ -179,7 +177,7 @@ and when we need them.</p>
 
 <p><strong>Bonus</strong>: <a href="https://github.com/K-Phoen/rulerz">RulerZ</a> internally uses generators
 so we could rewrite the method like this and be as efficient in terms of memory.</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
 {
     $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
 
@@ -192,7 +190,7 @@ e-books come in fact from different data-sources: a relational database and
 Elasticsearch.</p>
 
 <p>We can then write a simple method to aggregate these two sources:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooks()
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
 {
     $ebooks = [];
 
@@ -218,7 +216,7 @@ Elasticsearch.</p>
 number of e-books we have in the database and in Elasticsearch.</p>
 
 <p>We could start by using generators to return the results:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooks()
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
 {
     // fetch from the DB
     $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
@@ -239,7 +237,7 @@ number of e-books we have in the database and in Elasticsearch.</p>
 <p>That&rsquo;s better, but we still have a problem: our <code>getBooks</code> method does too much
 work! We should split the two responsibilities (reading in the database and
 calling Elasticsearch) in two separate methods:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooks()
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
 {
     yield from $this-&gt;getEbooksFromDatabase();
     yield from $this-&gt;getEbooksFromEs();
@@ -274,7 +272,7 @@ or iterators can also be used with this delegation operator.</p>
 
 <p>Using this keyword, we could aggregate several data-sources with only a few lines
 of code:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooks()
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
 {
     yield new Ebook(…);
     yield from [new Ebook(…), new Ebook(…)];
@@ -296,42 +294,42 @@ without being too slow or eating a lot of memory.</p>
 
 <p>The idea is quite naive: join the order and the matching lines, and group order
 and order lines together in a loop.</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">public function loadOrdersWithItems()
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">public function loadOrdersWithItems()
 {
-    $oracleQuery = <span class="err">&lt;&lt;</span><span class="p">&lt;</span><span class="nt">SQL</span>
-<span class="na">SELECT</span> <span class="na">o</span><span class="err">.*,</span> <span class="na">item</span><span class="err">.*</span>
-<span class="na">FROM</span> <span class="na">order_history</span> <span class="na">o</span>
-<span class="na">INNER</span> <span class="na">JOIN</span> <span class="na">ORDER_ITEM</span> <span class="na">item</span> <span class="na">ON</span> <span class="na">item</span><span class="err">.</span><span class="na">order_id </span><span class="o">=</span> <span class="s">o.id</span>
-<span class="na">ORDER</span> <span class="na">BY</span> <span class="na">order</span><span class="err">.</span><span class="na">id</span>
-<span class="na">SQL</span><span class="err">;</span>
+    $oracleQuery = <span style="color:#a40000">&lt;&lt;</span><span style="color:#000;font-weight:bold">&lt;</span><span style="color:#204a87;font-weight:bold">SQL</span>
+<span style="color:#c4a000">SELECT</span> <span style="color:#c4a000">o</span><span style="color:#a40000">.*,</span> <span style="color:#c4a000">item</span><span style="color:#a40000">.*</span>
+<span style="color:#c4a000">FROM</span> <span style="color:#c4a000">order_history</span> <span style="color:#c4a000">o</span>
+<span style="color:#c4a000">INNER</span> <span style="color:#c4a000">JOIN</span> <span style="color:#c4a000">ORDER_ITEM</span> <span style="color:#c4a000">item</span> <span style="color:#c4a000">ON</span> <span style="color:#c4a000">item</span><span style="color:#a40000">.</span><span style="color:#c4a000">order_id </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">o.id</span>
+<span style="color:#c4a000">ORDER</span> <span style="color:#c4a000">BY</span> <span style="color:#c4a000">order</span><span style="color:#a40000">.</span><span style="color:#c4a000">id</span>
+<span style="color:#c4a000">SQL</span><span style="color:#a40000">;</span>
 
-    <span class="na">if</span> <span class="err">(($</span><span class="na">stmt </span><span class="o">=</span> <span class="s">oci_parse($oracleDb,</span> <span class="err">$</span><span class="na">oracleQuery</span><span class="err">))</span> <span class="err">===</span> <span class="na">false</span><span class="err">)</span> <span class="err">{</span>
-        <span class="na">throw</span> <span class="na">new</span> <span class="err">\</span><span class="na">RuntimeException</span><span class="err">(&#39;</span><span class="na">Prepare</span> <span class="na">fail</span> <span class="na">in</span> <span class="err">&#39;);</span>
-    <span class="err">}</span>
-    <span class="na">if</span> <span class="err">(</span><span class="na">oci_execute</span><span class="err">($</span><span class="na">stmt</span><span class="err">)</span> <span class="err">===</span> <span class="na">false</span><span class="err">)</span> <span class="err">{</span>
-        <span class="na">throw</span> <span class="na">new</span> <span class="err">\</span><span class="na">RuntimeException</span><span class="err">(&#39;</span><span class="na">Execute</span> <span class="na">fail</span> <span class="na">in</span> <span class="err">&#39;);</span>
-    <span class="err">}</span>
+    <span style="color:#c4a000">if</span> <span style="color:#a40000">(($</span><span style="color:#c4a000">stmt </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">oci_parse($oracleDb,</span> <span style="color:#a40000">$</span><span style="color:#c4a000">oracleQuery</span><span style="color:#a40000">))</span> <span style="color:#a40000">===</span> <span style="color:#c4a000">false</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+        <span style="color:#c4a000">throw</span> <span style="color:#c4a000">new</span> <span style="color:#a40000">\</span><span style="color:#c4a000">RuntimeException</span><span style="color:#a40000">(&#39;</span><span style="color:#c4a000">Prepare</span> <span style="color:#c4a000">fail</span> <span style="color:#c4a000">in</span> <span style="color:#a40000">&#39;);</span>
+    <span style="color:#a40000">}</span>
+    <span style="color:#c4a000">if</span> <span style="color:#a40000">(</span><span style="color:#c4a000">oci_execute</span><span style="color:#a40000">($</span><span style="color:#c4a000">stmt</span><span style="color:#a40000">)</span> <span style="color:#a40000">===</span> <span style="color:#c4a000">false</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+        <span style="color:#c4a000">throw</span> <span style="color:#c4a000">new</span> <span style="color:#a40000">\</span><span style="color:#c4a000">RuntimeException</span><span style="color:#a40000">(&#39;</span><span style="color:#c4a000">Execute</span> <span style="color:#c4a000">fail</span> <span style="color:#c4a000">in</span> <span style="color:#a40000">&#39;);</span>
+    <span style="color:#a40000">}</span>
 
-    <span class="err">$</span><span class="na">currentOrderId </span><span class="o">=</span> <span class="s">null;</span>
-    <span class="err">$</span><span class="na">currentOrder </span><span class="o">=</span> <span class="s">null;</span>
-    <span class="na">while</span> <span class="err">(($</span><span class="na">row </span><span class="o">=</span> <span class="s">oci_fetch_assoc($stmt))</span> <span class="err">!==</span> <span class="na">false</span><span class="err">)</span> <span class="err">{</span>
-        <span class="err">//</span> <span class="na">did</span> <span class="na">we</span> <span class="na">move</span> <span class="na">to</span> <span class="na">the</span> <span class="na">next</span> <span class="na">order</span><span class="err">?</span>
-        <span class="na">if</span> <span class="err">($</span><span class="na">row</span><span class="err">[&#39;</span><span class="na">ID</span><span class="err">&#39;]</span> <span class="err">!==</span> <span class="err">$</span><span class="na">currentOrderId</span><span class="err">)</span> <span class="err">{</span>
-            <span class="na">if</span> <span class="err">($</span><span class="na">currentOrderId</span> <span class="err">!==</span> <span class="na">null</span><span class="err">)</span> <span class="err">{</span>
-                <span class="na">yield</span> <span class="err">$</span><span class="na">currentOrder</span><span class="err">;</span>
-            <span class="err">}</span>
+    <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrderId </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">null;</span>
+    <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">null;</span>
+    <span style="color:#c4a000">while</span> <span style="color:#a40000">(($</span><span style="color:#c4a000">row </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">oci_fetch_assoc($stmt))</span> <span style="color:#a40000">!==</span> <span style="color:#c4a000">false</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+        <span style="color:#a40000">//</span> <span style="color:#c4a000">did</span> <span style="color:#c4a000">we</span> <span style="color:#c4a000">move</span> <span style="color:#c4a000">to</span> <span style="color:#c4a000">the</span> <span style="color:#c4a000">next</span> <span style="color:#c4a000">order</span><span style="color:#a40000">?</span>
+        <span style="color:#c4a000">if</span> <span style="color:#a40000">($</span><span style="color:#c4a000">row</span><span style="color:#a40000">[&#39;</span><span style="color:#c4a000">ID</span><span style="color:#a40000">&#39;]</span> <span style="color:#a40000">!==</span> <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrderId</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+            <span style="color:#c4a000">if</span> <span style="color:#a40000">($</span><span style="color:#c4a000">currentOrderId</span> <span style="color:#a40000">!==</span> <span style="color:#c4a000">null</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+                <span style="color:#c4a000">yield</span> <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">;</span>
+            <span style="color:#a40000">}</span>
 
-            <span class="err">$</span><span class="na">currentOrderId </span><span class="o">=</span> <span class="s">$row[&#39;ID&#39;];</span>
+            <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrderId </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">$row[&#39;ID&#39;];</span>
 
-            <span class="err">$</span><span class="na">currentOrder </span><span class="o">=</span> <span class="s">$row;</span>
-            <span class="err">$</span><span class="na">currentOrder</span><span class="err">[&#39;</span><span class="na">lines</span><span class="err">&#39;]</span> <span class="err">=</span> <span class="err">[];</span>
-        <span class="err">}</span>
+            <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">$row;</span>
+            <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">[&#39;</span><span style="color:#c4a000">lines</span><span style="color:#a40000">&#39;]</span> <span style="color:#a40000">=</span> <span style="color:#a40000">[];</span>
+        <span style="color:#a40000">}</span>
 
-        <span class="err">$</span><span class="na">currentOrder</span><span class="err">[&#39;</span><span class="na">lines</span><span class="err">&#39;][]</span> <span class="err">=</span> <span class="err">$</span><span class="na">row</span><span class="err">;</span>
-    <span class="err">}</span>
+        <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">[&#39;</span><span style="color:#c4a000">lines</span><span style="color:#a40000">&#39;][]</span> <span style="color:#a40000">=</span> <span style="color:#a40000">$</span><span style="color:#c4a000">row</span><span style="color:#a40000">;</span>
+    <span style="color:#a40000">}</span>
 
-    <span class="na">yield</span> <span class="err">$</span><span class="na">currentOrder</span><span class="err">;</span>
-<span class="err">}</span></code></pre></div>
+    <span style="color:#c4a000">yield</span> <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">;</span>
+<span style="color:#a40000">}</span></code></pre></div>
 <p>Using a generator, I managed to implement a method that could fetch orders from
 the database and join the corresponding order lines. All of this while consuming
 a stable amount of memory.

@@ -29,8 +29,6 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/pygments-github.min.e70dbba06e4ecaa09400b7f0bee3059711daf7814e5b25b0d1f3b45274ad57c6.css">
-    
     <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
@@ -524,29 +522,29 @@ to a consistent state.</p>
 is Open-Source and available on GitHub: <a href="https://github.com/hashicorp/memberlist">https://github.com/hashicorp/memberlist</a></p>
 
 <p>Here is how a node joins a cluster, using the memberlist library:</p>
-<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="cm">/* Create the initial memberlist from a safe configuration.
-</span><span class="cm">   Please reference the godoc for other default config types.
-</span><span class="cm">   http://godoc.org/github.com/hashicorp/memberlist#Config
-</span><span class="cm">*/</span>
-<span class="nx">list</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">memberlist</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="nx">memberlist</span><span class="p">.</span><span class="nf">DefaultLocalConfig</span><span class="p">())</span>
-<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-	<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;Failed to create memberlist: &#34;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
-<span class="p">}</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#8f5902;font-style:italic">/* Create the initial memberlist from a safe configuration.
+</span><span style="color:#8f5902;font-style:italic">   Please reference the godoc for other default config types.
+</span><span style="color:#8f5902;font-style:italic">   http://godoc.org/github.com/hashicorp/memberlist#Config
+</span><span style="color:#8f5902;font-style:italic">*/</span>
+<span style="color:#000">list</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">:=</span> <span style="color:#000">memberlist</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">memberlist</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">DefaultLocalConfig</span><span style="color:#000;font-weight:bold">())</span>
+<span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#204a87;font-weight:bold">nil</span> <span style="color:#000;font-weight:bold">{</span>
+	<span style="color:#204a87">panic</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Failed to create memberlist: &#34;</span> <span style="color:#ce5c00;font-weight:bold">+</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Error</span><span style="color:#000;font-weight:bold">())</span>
+<span style="color:#000;font-weight:bold">}</span>
 
-<span class="c1">// Join an existing cluster by specifying at least one known member.
-</span><span class="c1"></span><span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">list</span><span class="p">.</span><span class="nf">Join</span><span class="p">([]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;1.2.3.4&#34;</span><span class="p">})</span>
-<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-	<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;Failed to join cluster: &#34;</span> <span class="o">+</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
-<span class="p">}</span>
+<span style="color:#8f5902;font-style:italic">// Join an existing cluster by specifying at least one known member.
+</span><span style="color:#8f5902;font-style:italic"></span><span style="color:#000">n</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">:=</span> <span style="color:#000">list</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Join</span><span style="color:#000;font-weight:bold">([]</span><span style="color:#204a87;font-weight:bold">string</span><span style="color:#000;font-weight:bold">{</span><span style="color:#4e9a06">&#34;1.2.3.4&#34;</span><span style="color:#000;font-weight:bold">})</span>
+<span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#204a87;font-weight:bold">nil</span> <span style="color:#000;font-weight:bold">{</span>
+	<span style="color:#204a87">panic</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Failed to join cluster: &#34;</span> <span style="color:#ce5c00;font-weight:bold">+</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Error</span><span style="color:#000;font-weight:bold">())</span>
+<span style="color:#000;font-weight:bold">}</span>
 
-<span class="c1">// Ask for members of the cluster
-</span><span class="c1"></span><span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">member</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">list</span><span class="p">.</span><span class="nf">Members</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Member: %s %s\n&#34;</span><span class="p">,</span> <span class="nx">member</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">member</span><span class="p">.</span><span class="nx">Addr</span><span class="p">)</span>
-<span class="p">}</span>
+<span style="color:#8f5902;font-style:italic">// Ask for members of the cluster
+</span><span style="color:#8f5902;font-style:italic"></span><span style="color:#204a87;font-weight:bold">for</span> <span style="color:#000">_</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">member</span> <span style="color:#ce5c00;font-weight:bold">:=</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000">list</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Members</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+	<span style="color:#000">fmt</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Member: %s %s\n&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">member</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">member</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Addr</span><span style="color:#000;font-weight:bold">)</span>
+<span style="color:#000;font-weight:bold">}</span>
 
-<span class="c1">// Continue doing whatever you need, memberlist will maintain membership
-</span><span class="c1">// information in the background. Delegates can be used for receiving
-</span><span class="c1"></span><span class="o">//</span> <span class="nx">events</span> <span class="nx">when</span> <span class="nx">members</span> <span class="nx">join</span> <span class="nx">or</span> <span class="nx">leave</span><span class="p">.</span></code></pre></div>
+<span style="color:#8f5902;font-style:italic">// Continue doing whatever you need, memberlist will maintain membership
+</span><span style="color:#8f5902;font-style:italic">// information in the background. Delegates can be used for receiving
+</span><span style="color:#8f5902;font-style:italic"></span><span style="color:#ce5c00;font-weight:bold">//</span> <span style="color:#000">events</span> <span style="color:#000">when</span> <span style="color:#000">members</span> <span style="color:#000">join</span> <span style="color:#000">or</span> <span style="color:#000">leave</span><span style="color:#000;font-weight:bold">.</span></code></pre></div>
 <h2 id="wait-weren-t-you-initially-talking-about-a-key-value-store">Wait… weren&rsquo;t you initially talking about a key-value store?!</h2>
 
 <p>That&rsquo;s right! The idea for this post came from the fact that I am building a

@@ -29,8 +29,6 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/pygments-github.min.e70dbba06e4ecaa09400b7f0bee3059711daf7814e5b25b0d1f3b45274ad57c6.css">
-    
     <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
@@ -142,22 +140,22 @@ code.</p>
 is to see if there is a dependency that could be use to analyse and manipulate
 source code. I&rsquo;m thinking about a library like
 <a href="https://github.com/nikic/PHP-Parser">nikic/PHP-Parser</a> for instance.</p>
-<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
-    <span class="err">…</span>
-    <span class="nt">&#34;require&#34;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&#34;php&#34;</span><span class="p">:</span> <span class="s2">&#34;&gt;=5.4.0&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;phpunit/phpunit&#34;</span><span class="p">:</span> <span class="s2">&#34;^4.5|^5.0&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;symfony/console&#34;</span><span class="p">:</span> <span class="s2">&#34;^2.6|^3.0&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;symfony/finder&#34;</span><span class="p">:</span> <span class="s2">&#34;^2.6|^3.0&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;symfony/process&#34;</span><span class="p">:</span> <span class="s2">&#34;^2.6|^3.0&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;symfony/event-dispatcher&#34;</span><span class="p">:</span> <span class="s2">&#34;^2.6|^3.0&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;sebastian/diff&#34;</span><span class="p">:</span> <span class="s2">&#34;^1.1&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;padraic/phpunit-accelerator&#34;</span><span class="p">:</span> <span class="s2">&#34;^1.0.2&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;padraic/phpunit-extensions&#34;</span><span class="p">:</span> <span class="s2">&#34;^1.0.0&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;padraic/phar-updater&#34;</span><span class="p">:</span> <span class="s2">&#34;^1.0.0&#34;</span>
-    <span class="p">},</span>
-    <span class="err">…</span>
-<span class="p">}</span></code></pre></div>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#000;font-weight:bold">{</span>
+    <span style="color:#a40000">…</span>
+    <span style="color:#204a87;font-weight:bold">&#34;require&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">{</span>
+        <span style="color:#204a87;font-weight:bold">&#34;php&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;&gt;=5.4.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;phpunit/phpunit&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^4.5|^5.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;symfony/console&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^2.6|^3.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;symfony/finder&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^2.6|^3.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;symfony/process&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^2.6|^3.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;symfony/event-dispatcher&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^2.6|^3.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;sebastian/diff&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^1.1&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;padraic/phpunit-accelerator&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^1.0.2&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;padraic/phpunit-extensions&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^1.0.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;padraic/phar-updater&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^1.0.0&#34;</span>
+    <span style="color:#000;font-weight:bold">},</span>
+    <span style="color:#a40000">…</span>
+<span style="color:#000;font-weight:bold">}</span></code></pre></div>
 <p>After reading the dependencies list, I see nothing that would help to manipulate
 source code.</p>
 
@@ -205,14 +203,14 @@ tokens — with a precise signification (identifier, literal, assignment operato
 …).</p>
 
 <p>The method <code>getMutation()</code> seems to be the one applying the mutation:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">/**
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">/**
  * Replace plus sign (+) with minus sign (-)
  *
  * @param array $tokens
  * @param int $index
  * @return array
  */
-public static function getMutation(array <span class="err">&amp;</span>$tokens, $index)
+public static function getMutation(array <span style="color:#a40000">&amp;</span>$tokens, $index)
 {
     $tokens[$index] = &#39;-&#39;;
 }</code></pre></div>
@@ -235,7 +233,7 @@ class. Let&rsquo;s inspect its parent: <a href="https://github.com/padraic/humbu
 <p>In addition to the &ldquo;<em>utility</em>&rdquo; methods, this class has an interesting method
 that performs the mutation on the given tokens and returns the result as source
 code:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">/**
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">/**
  * Perform a mutation against the given original source code tokens for
  * a mutable element
  *
@@ -243,7 +241,7 @@ code:</p>
  * @param int $index
  * @return string
  */
-public static function mutate(array <span class="err">&amp;</span>$tokens, $index)
+public static function mutate(array <span style="color:#a40000">&amp;</span>$tokens, $index)
 {
     static::getMutation($tokens, $index);
     return Tokenizer::reconstructFromTokens($tokens);

@@ -26,8 +26,6 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/pygments-github.min.e70dbba06e4ecaa09400b7f0bee3059711daf7814e5b25b0d1f3b45274ad57c6.css">
-    
     <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
@@ -117,7 +115,7 @@ issue came when I started to implement a search engine. For each new search
 criteria, I had to update two classes and implement the same criteria twice.</p>
 
 <p>At this point, my repositories looked like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">interface CompanyRepository
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">interface CompanyRepository
 {
     public function save(Company $company);
     public function find($slug);
@@ -173,7 +171,7 @@ can&rsquo;t be used to filter data from several data-sources. We saw that with R
 this <a href="http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/">problem is solved</a>.</p>
 
 <p><strong>Using RulerZ</strong>, the two previous repositories can be refactored:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">interface CompanyRepository
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">interface CompanyRepository
 {
     public function save(Company $company);
     public function find($slug);
@@ -218,7 +216,7 @@ like a <strong><a href="http://symfony.com/doc/current/cookbook/form/data_transf
 don&rsquo;t you think?</p>
 
 <p>With that in mind, I wrote the following form type:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">class CompanySearchType extends AbstractType
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">class CompanySearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -250,7 +248,7 @@ read it, it&rsquo;s available as <a href="https://gist.github.com/K-Phoen/5c1b06
 
 <p>What&rsquo;s important is that combining the Form Component, a simple transformer and
 RulerZ leads to really simple controllers:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">public function searchAction(Request $request)
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">public function searchAction(Request $request)
 {
     $results = [];
     $form = $this-&gt;formFactory-&gt;create(&#39;company_search&#39;);
