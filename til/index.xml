@@ -19,7 +19,7 @@
       <guid>/til/2016/01/15/php-class-keyword/</guid>
       <description>According to PHP documentation about the ::class keyword, it can be used for class name resolution:
  You can get a string containing the fully qualified name of the ClassName class by using ClassName::class.
- &amp;lt;?php namespace NS { class ClassName { } echo ClassName::class; } // outputs: &amp;#34;NS\ClassName&amp;#34;  It&amp;rsquo;s handy when you need to pass FQCN around. Some people even started using it to make sure that their code was referencing existing classes.</description>
+ namespace NS { class ClassName { } echo ClassName::class; } // outputs: &amp;#34;NS\ClassName&amp;#34; It&amp;rsquo;s handy when you need to pass FQCN around. Some people even started using it to make sure that their code was referencing existing classes.</description>
     </item>
     
     <item>
@@ -31,7 +31,7 @@
       <description>While profiling RulerZ with Blackfire.io, I noticed that a non-negligible amount of time was consumed by PHP&amp;rsquo;s uniqid() function.
 For those who don&amp;rsquo;t know, this function provides an easy way to generate unique identifiers based on the current date and an optional prefix.
 Wait, the &amp;ldquo;current date&amp;rdquo; part can actually be interesting for our performance issue. What happens if we write something like this:
-&amp;lt;?php foreach ($foo as $bar) { $awesomeCollection[] = new CoolObject(uniqid(), $bar); }  A simple loop like this should run pretty fast, so if uniqid() simply relies on the current date we should have collisions&amp;hellip; but it is not the case.</description>
+foreach ($foo as $bar) { $awesomeCollection[] = new CoolObject(uniqid(), $bar); } A simple loop like this should run pretty fast, so if uniqid() simply relies on the current date we should have collisions&amp;hellip; but it is not the case.</description>
     </item>
     
     <item>

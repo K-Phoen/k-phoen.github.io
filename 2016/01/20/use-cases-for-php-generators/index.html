@@ -138,21 +138,19 @@ metadata under the name of <em>e-book</em>.</p>
 and I want to filter those which can be read in a web-reader.</p>
 
 <p>Traditionally, I would write something like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="k">private</span> <span class="k">function</span> <span class="nf">getEbooksEligibleToWebReader</span><span class="p">(</span><span class="nv">$ebooks</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="nv">$rule</span> <span class="o">=</span> <span class="s1">&#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;</span><span class="p">;</span>
-    <span class="nv">$filteredEbooks</span> <span class="o">=</span> <span class="p">[];</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
+{
+    $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
+    $filteredEbooks = [];
 
-    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$ebooks</span> <span class="k">as</span> <span class="nv">$ebook</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">rulerz</span><span class="o">-&gt;</span><span class="na">satisfies</span><span class="p">(</span><span class="nv">$ebook</span><span class="p">,</span> <span class="nv">$rule</span><span class="p">))</span> <span class="p">{</span>
-            <span class="nv">$filteredEbooks</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$ebook</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+    foreach ($ebooks as $ebook) {
+        if ($this-&gt;rulerz-&gt;satisfies($ebook, $rule)) {
+            $filteredEbooks[] = $ebook;
+        }
+    }
 
-    <span class="k">return</span> <span class="nv">$filteredEbooks</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
+    return $filteredEbooks;
+}</code></pre></div>
 <p>The problem here is easy to see: the more free e-books I have, the more
 <code>$filteredEbooks</code> will consume memory.</p>
 
@@ -160,18 +158,16 @@ and I want to filter those which can be read in a web-reader.</p>
 <code>$ebooks</code> and return the ones that are eligible. But we would have to create a
 new class just for that and iterators are a bit tedious to write… Lucky us,
 since PHP 5.5.0 we can use generators!</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="k">private</span> <span class="k">function</span> <span class="nf">getEbooksEligibleToWebReader</span><span class="p">(</span><span class="nv">$ebooks</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="nv">$rule</span> <span class="o">=</span> <span class="s1">&#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;</span><span class="p">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
+{
+    $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
 
-    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$ebooks</span> <span class="k">as</span> <span class="nv">$ebook</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">rulerz</span><span class="o">-&gt;</span><span class="na">satisfies</span><span class="p">(</span><span class="nv">$ebook</span><span class="p">,</span> <span class="nv">$rule</span><span class="p">))</span> <span class="p">{</span>
-            <span class="k">yield</span> <span class="nv">$ebook</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
+    foreach ($ebooks as $ebook) {
+        if ($this-&gt;rulerz-&gt;satisfies($ebook, $rule)) {
+            yield $ebook;
+        }
+    }
+}</code></pre></div>
 <p>Yep, refactoring the <code>getEbooksEligibleToWebReader</code> method to use generators is
 as simple as replacing the assignation to <code>$filteredEbooks</code> by a <code>yield</code>
 statement.</p>
@@ -183,14 +179,12 @@ and when we need them.</p>
 
 <p><strong>Bonus</strong>: <a href="https://github.com/K-Phoen/rulerz">RulerZ</a> internally uses generators
 so we could rewrite the method like this and be as efficient in terms of memory.</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="k">private</span> <span class="k">function</span> <span class="nf">getEbooksEligibleToWebReader</span><span class="p">(</span><span class="nv">$ebooks</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="nv">$rule</span> <span class="o">=</span> <span class="s1">&#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;</span><span class="p">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
+{
+    $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
 
-    <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">rulerz</span><span class="o">-&gt;</span><span class="na">filter</span><span class="p">(</span><span class="nv">$ebooks</span><span class="p">,</span> <span class="nv">$rule</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div>
+    return $this-&gt;rulerz-&gt;filter($ebooks, $rule);
+}</code></pre></div>
 <h2 id="aggregating-several-data-sources">Aggregating several data-sources</h2>
 
 <p>Now, let&rsquo;s consider the <code>$ebooks</code> retrieval part. I didn&rsquo;t tell you, but these
@@ -198,85 +192,79 @@ e-books come in fact from different data-sources: a relational database and
 Elasticsearch.</p>
 
 <p>We can then write a simple method to aggregate these two sources:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="k">private</span> <span class="k">function</span> <span class="nf">getEbooks</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="nv">$ebooks</span> <span class="o">=</span> <span class="p">[];</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooks()
+{
+    $ebooks = [];
 
-    <span class="c1">// fetch from the DB
-</span><span class="c1"></span>    <span class="nv">$stmt</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">db</span><span class="o">-&gt;</span><span class="na">prepare</span><span class="p">(</span><span class="s2">&#34;SELECT * FROM ebook_catalog&#34;</span><span class="p">);</span>
-    <span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">execute</span><span class="p">();</span>
-    <span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">setFetchMode</span><span class="p">(</span><span class="nx">\PDO</span><span class="o">::</span><span class="na">FETCH_ASSOC</span><span class="p">);</span>
+    // fetch from the DB
+    $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
+    $stmt-&gt;execute();
+    $stmt-&gt;setFetchMode(\PDO::FETCH_ASSOC);
 
-    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$stmt</span> <span class="k">as</span> <span class="nv">$data</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nv">$ebooks</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">hydrateEbook</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span>
-    <span class="p">}</span>
+    foreach ($stmt as $data) {
+        $ebooks[] = $this-&gt;hydrateEbook($data);
+    }
 
-    <span class="c1">// and from Elasticsearch (findAll uses ES scan/scroll)
-</span><span class="c1"></span>    <span class="nv">$cursor</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">esClient</span><span class="o">-&gt;</span><span class="na">findAll</span><span class="p">();</span>
+    // and from Elasticsearch (findAll uses ES scan/scroll)
+    $cursor = $this-&gt;esClient-&gt;findAll();
 
-    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$cursor</span> <span class="k">as</span> <span class="nv">$data</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nv">$ebooks</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">hydrateEbook</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span>
-    <span class="p">}</span>
+    foreach ($cursor as $data) {
+        $ebooks[] = $this-&gt;hydrateEbook($data);
+    }
 
-    <span class="k">return</span> <span class="nv">$ebooks</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
+    return $ebooks;
+}</code></pre></div>
 <p>But once again, the amount of memory used by this method depends too much on the
 number of e-books we have in the database and in Elasticsearch.</p>
 
 <p>We could start by using generators to return the results:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="k">private</span> <span class="k">function</span> <span class="nf">getEbooks</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="c1">// fetch from the DB
-</span><span class="c1"></span>    <span class="nv">$stmt</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">db</span><span class="o">-&gt;</span><span class="na">prepare</span><span class="p">(</span><span class="s2">&#34;SELECT * FROM ebook_catalog&#34;</span><span class="p">);</span>
-    <span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">execute</span><span class="p">();</span>
-    <span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">setFetchMode</span><span class="p">(</span><span class="nx">\PDO</span><span class="o">::</span><span class="na">FETCH_ASSOC</span><span class="p">);</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooks()
+{
+    // fetch from the DB
+    $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
+    $stmt-&gt;execute();
+    $stmt-&gt;setFetchMode(\PDO::FETCH_ASSOC);
 
-    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$stmt</span> <span class="k">as</span> <span class="nv">$data</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">yield</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">hydrateEbook</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span>
-    <span class="p">}</span>
+    foreach ($stmt as $data) {
+        yield $this-&gt;hydrateEbook($data);
+    }
 
-    <span class="c1">// and from Elasticsearch (findAll uses ES scan/scroll)
-</span><span class="c1"></span>    <span class="nv">$cursor</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">esClient</span><span class="o">-&gt;</span><span class="na">findAll</span><span class="p">();</span>
+    // and from Elasticsearch (findAll uses ES scan/scroll)
+    $cursor = $this-&gt;esClient-&gt;findAll();
 
-    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$cursor</span> <span class="k">as</span> <span class="nv">$data</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">yield</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">hydrateEbook</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
+    foreach ($cursor as $data) {
+        yield $this-&gt;hydrateEbook($data);
+    }
+}</code></pre></div>
 <p>That&rsquo;s better, but we still have a problem: our <code>getBooks</code> method does too much
 work! We should split the two responsibilities (reading in the database and
 calling Elasticsearch) in two separate methods:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="k">private</span> <span class="k">function</span> <span class="nf">getEbooks</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="k">yield</span> <span class="nx">from</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEbooksFromDatabase</span><span class="p">();</span>
-    <span class="k">yield</span> <span class="nx">from</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEbooksFromEs</span><span class="p">();</span>
-<span class="p">}</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooks()
+{
+    yield from $this-&gt;getEbooksFromDatabase();
+    yield from $this-&gt;getEbooksFromEs();
+}
 
-<span class="k">private</span> <span class="k">function</span> <span class="nf">getEbooksFromDatabase</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="nv">$stmt</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">db</span><span class="o">-&gt;</span><span class="na">prepare</span><span class="p">(</span><span class="s2">&#34;SELECT * FROM ebook_catalog&#34;</span><span class="p">);</span>
-    <span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">execute</span><span class="p">();</span>
-    <span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">setFetchMode</span><span class="p">(</span><span class="nx">\PDO</span><span class="o">::</span><span class="na">FETCH_ASSOC</span><span class="p">);</span>
+private function getEbooksFromDatabase()
+{
+    $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
+    $stmt-&gt;execute();
+    $stmt-&gt;setFetchMode(\PDO::FETCH_ASSOC);
 
-    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$stmt</span> <span class="k">as</span> <span class="nv">$data</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">yield</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">hydrateEbook</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+    foreach ($stmt as $data) {
+        yield $this-&gt;hydrateEbook($data);
+    }
+}
 
-<span class="k">private</span> <span class="k">function</span> <span class="nf">getEbooksFromEs</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="c1">// and from Elasticsearch (findAll uses ES scan/scroll)
-</span><span class="c1"></span>    <span class="nv">$cursor</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">esClient</span><span class="o">-&gt;</span><span class="na">findAll</span><span class="p">();</span>
+private function getEbooksFromEs()
+{
+    // and from Elasticsearch (findAll uses ES scan/scroll)
+    $cursor = $this-&gt;esClient-&gt;findAll();
 
-    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$cursor</span> <span class="k">as</span> <span class="nv">$data</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">yield</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">hydrateEbook</span><span class="p">(</span><span class="nv">$data</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
+    foreach ($cursor as $data) {
+        yield $this-&gt;hydrateEbook($data);
+    }
+}</code></pre></div>
 <p>You will notice the use of the <code>yield from</code> operator (available since PHP 7.0)
 that allows to delegate the use of generators. That&rsquo;s perfect, for instance, to
 aggregate several data-sources that use generators.</p>
@@ -286,16 +274,14 @@ or iterators can also be used with this delegation operator.</p>
 
 <p>Using this keyword, we could aggregate several data-sources with only a few lines
 of code:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="k">private</span> <span class="k">function</span> <span class="nf">getEbooks</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="k">yield</span> <span class="k">new</span> <span class="nx">Ebook</span><span class="p">(</span><span class="nx">…</span><span class="p">);</span>
-    <span class="k">yield</span> <span class="nx">from</span> <span class="p">[</span><span class="k">new</span> <span class="nx">Ebook</span><span class="p">(</span><span class="nx">…</span><span class="p">),</span> <span class="k">new</span> <span class="nx">Ebook</span><span class="p">(</span><span class="nx">…</span><span class="p">)];</span>
-    <span class="k">yield</span> <span class="nx">from</span> <span class="k">new</span> <span class="nx">ArrayIterator</span><span class="p">([</span><span class="k">new</span> <span class="nx">Ebook</span><span class="p">(</span><span class="nx">…</span><span class="p">),</span> <span class="k">new</span> <span class="nx">Ebook</span><span class="p">(</span><span class="nx">…</span><span class="p">)]);</span>
-    <span class="k">yield</span> <span class="nx">from</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEbooksFromCSV</span><span class="p">();</span>
-    <span class="k">yield</span> <span class="nx">from</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getEbooksFromDatabase</span><span class="p">();</span>
-<span class="p">}</span>
-</code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">private function getEbooks()
+{
+    yield new Ebook(…);
+    yield from [new Ebook(…), new Ebook(…)];
+    yield from new ArrayIterator([new Ebook(…), new Ebook(…)]);
+    yield from $this-&gt;getEbooksFromCSV();
+    yield from $this-&gt;getEbooksFromDatabase();
+}</code></pre></div>
 <h2 id="complex-on-demand-hydration-for-database-rows">Complex, on-demand hydration for database rows</h2>
 
 <p>Another use-case I found for generators was the implementation of an on-demand
@@ -310,44 +296,42 @@ without being too slow or eating a lot of memory.</p>
 
 <p>The idea is quite naive: join the order and the matching lines, and group order
 and order lines together in a loop.</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="k">public</span> <span class="k">function</span> <span class="nf">loadOrdersWithItems</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="nv">$oracleQuery</span> <span class="o">=</span> <span class="s">&lt;&lt;&lt;</span><span class="dl">SQL</span><span class="s">
-</span><span class="s">SELECT o.*, item.*
-</span><span class="s">FROM order_history o
-</span><span class="s">INNER JOIN ORDER_ITEM item ON item.order_id = o.id
-</span><span class="s">ORDER BY order.id
-</span><span class="s"></span><span class="dl">SQL</span><span class="p">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">public function loadOrdersWithItems()
+{
+    $oracleQuery = <span class="err">&lt;&lt;</span><span class="p">&lt;</span><span class="nt">SQL</span>
+<span class="na">SELECT</span> <span class="na">o</span><span class="err">.*,</span> <span class="na">item</span><span class="err">.*</span>
+<span class="na">FROM</span> <span class="na">order_history</span> <span class="na">o</span>
+<span class="na">INNER</span> <span class="na">JOIN</span> <span class="na">ORDER_ITEM</span> <span class="na">item</span> <span class="na">ON</span> <span class="na">item</span><span class="err">.</span><span class="na">order_id </span><span class="o">=</span> <span class="s">o.id</span>
+<span class="na">ORDER</span> <span class="na">BY</span> <span class="na">order</span><span class="err">.</span><span class="na">id</span>
+<span class="na">SQL</span><span class="err">;</span>
 
-    <span class="k">if</span> <span class="p">((</span><span class="nv">$stmt</span> <span class="o">=</span> <span class="nx">oci_parse</span><span class="p">(</span><span class="nv">$oracleDb</span><span class="p">,</span> <span class="nv">$oracleQuery</span><span class="p">))</span> <span class="o">===</span> <span class="k">false</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">throw</span> <span class="k">new</span> <span class="nx">\RuntimeException</span><span class="p">(</span><span class="s1">&#39;Prepare fail in &#39;</span><span class="p">);</span>
-    <span class="p">}</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">oci_execute</span><span class="p">(</span><span class="nv">$stmt</span><span class="p">)</span> <span class="o">===</span> <span class="k">false</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">throw</span> <span class="k">new</span> <span class="nx">\RuntimeException</span><span class="p">(</span><span class="s1">&#39;Execute fail in &#39;</span><span class="p">);</span>
-    <span class="p">}</span>
+    <span class="na">if</span> <span class="err">(($</span><span class="na">stmt </span><span class="o">=</span> <span class="s">oci_parse($oracleDb,</span> <span class="err">$</span><span class="na">oracleQuery</span><span class="err">))</span> <span class="err">===</span> <span class="na">false</span><span class="err">)</span> <span class="err">{</span>
+        <span class="na">throw</span> <span class="na">new</span> <span class="err">\</span><span class="na">RuntimeException</span><span class="err">(&#39;</span><span class="na">Prepare</span> <span class="na">fail</span> <span class="na">in</span> <span class="err">&#39;);</span>
+    <span class="err">}</span>
+    <span class="na">if</span> <span class="err">(</span><span class="na">oci_execute</span><span class="err">($</span><span class="na">stmt</span><span class="err">)</span> <span class="err">===</span> <span class="na">false</span><span class="err">)</span> <span class="err">{</span>
+        <span class="na">throw</span> <span class="na">new</span> <span class="err">\</span><span class="na">RuntimeException</span><span class="err">(&#39;</span><span class="na">Execute</span> <span class="na">fail</span> <span class="na">in</span> <span class="err">&#39;);</span>
+    <span class="err">}</span>
 
-    <span class="nv">$currentOrderId</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
-    <span class="nv">$currentOrder</span> <span class="o">=</span> <span class="k">null</span><span class="p">;</span>
-    <span class="k">while</span> <span class="p">((</span><span class="nv">$row</span> <span class="o">=</span> <span class="nx">oci_fetch_assoc</span><span class="p">(</span><span class="nv">$stmt</span><span class="p">))</span> <span class="o">!==</span> <span class="k">false</span><span class="p">)</span> <span class="p">{</span>
-        <span class="c1">// did we move to the next order?
-</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="o">!==</span> <span class="nv">$currentOrderId</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nv">$currentOrderId</span> <span class="o">!==</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
-                <span class="k">yield</span> <span class="nv">$currentOrder</span><span class="p">;</span>
-            <span class="p">}</span>
+    <span class="err">$</span><span class="na">currentOrderId </span><span class="o">=</span> <span class="s">null;</span>
+    <span class="err">$</span><span class="na">currentOrder </span><span class="o">=</span> <span class="s">null;</span>
+    <span class="na">while</span> <span class="err">(($</span><span class="na">row </span><span class="o">=</span> <span class="s">oci_fetch_assoc($stmt))</span> <span class="err">!==</span> <span class="na">false</span><span class="err">)</span> <span class="err">{</span>
+        <span class="err">//</span> <span class="na">did</span> <span class="na">we</span> <span class="na">move</span> <span class="na">to</span> <span class="na">the</span> <span class="na">next</span> <span class="na">order</span><span class="err">?</span>
+        <span class="na">if</span> <span class="err">($</span><span class="na">row</span><span class="err">[&#39;</span><span class="na">ID</span><span class="err">&#39;]</span> <span class="err">!==</span> <span class="err">$</span><span class="na">currentOrderId</span><span class="err">)</span> <span class="err">{</span>
+            <span class="na">if</span> <span class="err">($</span><span class="na">currentOrderId</span> <span class="err">!==</span> <span class="na">null</span><span class="err">)</span> <span class="err">{</span>
+                <span class="na">yield</span> <span class="err">$</span><span class="na">currentOrder</span><span class="err">;</span>
+            <span class="err">}</span>
 
-            <span class="nv">$currentOrderId</span> <span class="o">=</span> <span class="nv">$row</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">];</span>
+            <span class="err">$</span><span class="na">currentOrderId </span><span class="o">=</span> <span class="s">$row[&#39;ID&#39;];</span>
 
-            <span class="nv">$currentOrder</span> <span class="o">=</span> <span class="nv">$row</span><span class="p">;</span>
-            <span class="nv">$currentOrder</span><span class="p">[</span><span class="s1">&#39;lines&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[];</span>
-        <span class="p">}</span>
+            <span class="err">$</span><span class="na">currentOrder </span><span class="o">=</span> <span class="s">$row;</span>
+            <span class="err">$</span><span class="na">currentOrder</span><span class="err">[&#39;</span><span class="na">lines</span><span class="err">&#39;]</span> <span class="err">=</span> <span class="err">[];</span>
+        <span class="err">}</span>
 
-        <span class="nv">$currentOrder</span><span class="p">[</span><span class="s1">&#39;lines&#39;</span><span class="p">][]</span> <span class="o">=</span> <span class="nv">$row</span><span class="p">;</span>
-    <span class="p">}</span>
+        <span class="err">$</span><span class="na">currentOrder</span><span class="err">[&#39;</span><span class="na">lines</span><span class="err">&#39;][]</span> <span class="err">=</span> <span class="err">$</span><span class="na">row</span><span class="err">;</span>
+    <span class="err">}</span>
 
-    <span class="k">yield</span> <span class="nv">$currentOrder</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
+    <span class="na">yield</span> <span class="err">$</span><span class="na">currentOrder</span><span class="err">;</span>
+<span class="err">}</span></code></pre></div>
 <p>Using a generator, I managed to implement a method that could fetch orders from
 the database and join the corresponding order lines. All of this while consuming
 a stable amount of memory.

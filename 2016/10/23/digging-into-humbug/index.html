@@ -205,19 +205,17 @@ tokens — with a precise signification (identifier, literal, assignment operato
 …).</p>
 
 <p>The method <code>getMutation()</code> seems to be the one applying the mutation:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="sd">/**
-</span><span class="sd"> * Replace plus sign (+) with minus sign (-)
-</span><span class="sd"> *
-</span><span class="sd"> * @param array $tokens
-</span><span class="sd"> * @param int $index
-</span><span class="sd"> * @return array
-</span><span class="sd"> */</span>
-<span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">getMutation</span><span class="p">(</span><span class="k">array</span> <span class="o">&amp;</span><span class="nv">$tokens</span><span class="p">,</span> <span class="nv">$index</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="nv">$tokens</span><span class="p">[</span><span class="nv">$index</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">/**
+ * Replace plus sign (+) with minus sign (-)
+ *
+ * @param array $tokens
+ * @param int $index
+ * @return array
+ */
+public static function getMutation(array <span class="err">&amp;</span>$tokens, $index)
+{
+    $tokens[$index] = &#39;-&#39;;
+}</code></pre></div>
 <p>The method <code>mutates()</code>, on the other hand, checks whether the current mutation
 can be applied on the given token. This method&rsquo;s docblock gives a really
 meaningful example where it can&rsquo;t: <code>$var = ['foo' =&gt; true] + ['bar' =&gt; true]</code></p>
@@ -237,21 +235,19 @@ class. Let&rsquo;s inspect its parent: <a href="https://github.com/padraic/humbu
 <p>In addition to the &ldquo;<em>utility</em>&rdquo; methods, this class has an interesting method
 that performs the mutation on the given tokens and returns the result as source
 code:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="sd">/**
-</span><span class="sd"> * Perform a mutation against the given original source code tokens for
-</span><span class="sd"> * a mutable element
-</span><span class="sd"> *
-</span><span class="sd"> * @param array $tokens
-</span><span class="sd"> * @param int $index
-</span><span class="sd"> * @return string
-</span><span class="sd"> */</span>
-<span class="k">public</span> <span class="k">static</span> <span class="k">function</span> <span class="nf">mutate</span><span class="p">(</span><span class="k">array</span> <span class="o">&amp;</span><span class="nv">$tokens</span><span class="p">,</span> <span class="nv">$index</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="k">static</span><span class="o">::</span><span class="na">getMutation</span><span class="p">(</span><span class="nv">$tokens</span><span class="p">,</span> <span class="nv">$index</span><span class="p">);</span>
-    <span class="k">return</span> <span class="nx">Tokenizer</span><span class="o">::</span><span class="na">reconstructFromTokens</span><span class="p">(</span><span class="nv">$tokens</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">/**
+ * Perform a mutation against the given original source code tokens for
+ * a mutable element
+ *
+ * @param array $tokens
+ * @param int $index
+ * @return string
+ */
+public static function mutate(array <span class="err">&amp;</span>$tokens, $index)
+{
+    static::getMutation($tokens, $index);
+    return Tokenizer::reconstructFromTokens($tokens);
+}</code></pre></div>
 <p>What&rsquo;s interesting here is the usage of a <code>Tokenizer</code> class.</p>
 
 <p>At this stage, I already know that Humbug manipulates tokens and rewrites them

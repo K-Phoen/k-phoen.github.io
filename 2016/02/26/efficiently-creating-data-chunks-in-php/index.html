@@ -98,12 +98,10 @@ maximum number of URL allowed in a sitemap).</p>
 
 <p>Each provider being an Iterator, I can <em>chain</em> them using nikic&rsquo;s <a href="https://github.com/nikic/iter"><code>iter</code></a>
 library:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="nv">$firstUrlProvider</span> <span class="o">=</span> <span class="nx">…</span><span class="p">;</span>
-<span class="nv">$secondUrlProvider</span> <span class="o">=</span> <span class="nx">…</span><span class="p">;</span>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">$firstUrlProvider = …;
+$secondUrlProvider = …;
 
-<span class="nv">$aggregatedProvider</span> <span class="o">=</span> <span class="nx">iter\chain</span><span class="p">(</span><span class="nv">$firstUrlProvider</span><span class="p">,</span> <span class="nv">$secondUrlProvider</span><span class="p">);</span>
-</code></pre></div>
+$aggregatedProvider = iter\chain($firstUrlProvider, $secondUrlProvider);</code></pre></div>
 <p>I now have a way to iterate over all the URLs exposed by my providers, with a
 single <code>foreach</code> statement.</p>
 
@@ -115,21 +113,19 @@ have nor storing anything unnecessary in memory.</p>
 from my <code>$aggregatedProvider</code>, without storing the whole chunks in memory.</p>
 
 <p>Looks like it&rsquo;s a job for PHP generators!</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-<span class="k">function</span> <span class="nf">chunk</span><span class="p">(</span><span class="nx">\Iterator</span> <span class="nv">$iterable</span><span class="p">,</span> <span class="nv">$size</span><span class="p">)</span><span class="o">:</span> <span class="nx">\Iterator</span>
-<span class="p">{</span>
-    <span class="k">while</span> <span class="p">(</span><span class="nv">$iterable</span><span class="o">-&gt;</span><span class="na">valid</span><span class="p">())</span> <span class="p">{</span>
-        <span class="nv">$closure</span> <span class="o">=</span> <span class="k">function</span><span class="p">()</span> <span class="k">use</span> <span class="p">(</span><span class="nv">$iterable</span><span class="p">,</span> <span class="nv">$size</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nv">$count</span> <span class="o">=</span> <span class="nv">$size</span><span class="p">;</span>
-            <span class="k">while</span> <span class="p">(</span><span class="nv">$count</span><span class="o">--</span> <span class="o">&amp;&amp;</span> <span class="nv">$iterable</span><span class="o">-&gt;</span><span class="na">valid</span><span class="p">())</span> <span class="p">{</span>
-                <span class="k">yield</span> <span class="nv">$iterable</span><span class="o">-&gt;</span><span class="na">current</span><span class="p">();</span>
-                <span class="nv">$iterable</span><span class="o">-&gt;</span><span class="na">next</span><span class="p">();</span>
-            <span class="p">}</span>
-        <span class="p">};</span>
-        <span class="k">yield</span> <span class="nv">$closure</span><span class="p">();</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">function chunk(\Iterator $iterable, $size): \Iterator
+{
+    while ($iterable-&gt;valid()) {
+        $closure = function() use ($iterable, $size) {
+            $count = $size;
+            while ($count-- <span class="err">&amp;&amp;</span> $iterable-&gt;valid()) {
+                yield $iterable-&gt;current();
+                $iterable-&gt;next();
+            }
+        };
+        yield $closure();
+    }
+}</code></pre></div>
 <p>In the previous function, I delegate the iteration over my provider to a
 Generator, that uses both the provider itself and the desired size of the chunk
 to efficiently yield my URLs.</p>

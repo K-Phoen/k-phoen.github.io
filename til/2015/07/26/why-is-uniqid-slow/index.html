@@ -98,12 +98,9 @@ identifiers <strong>based on the current date</strong> and an optional prefix.</
 
 <p>Wait, the &ldquo;<em>current date</em>&rdquo; part can actually be interesting for our performance
 issue. What happens if we write something like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php"><span class="cp">&lt;?php</span>
-
-<span class="k">foreach</span> <span class="p">(</span><span class="nv">$foo</span> <span class="k">as</span> <span class="nv">$bar</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nv">$awesomeCollection</span><span class="p">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">CoolObject</span><span class="p">(</span><span class="nx">uniqid</span><span class="p">(),</span> <span class="nv">$bar</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-php" data-lang="php">foreach ($foo as $bar) {
+    $awesomeCollection[] = new CoolObject(uniqid(), $bar);
+}</code></pre></div>
 <p>A simple loop like this should run pretty fast, so if <code>uniqid()</code> simply relies
 on the current date we should have collisions&hellip; but it is not the case. Why?</p>
 
