@@ -11,6 +11,21 @@
     
     
     <item>
+      <title>Clusters and data sharding: introducing rendezvous hashing</title>
+      <link>https:/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</link>
+      <pubDate>Thu, 11 Apr 2019 00:12:59 +0200</pubDate>
+      
+      <guid>https:/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</guid>
+      <description>&lt;p&gt;In a &lt;a href=&#34;/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/&#34;&gt;previous article&lt;/a&gt;,
+I started playing with distributed systems by implementing a distributed key-value
+store.&lt;/p&gt;
+
+&lt;p&gt;I used SWIM to create a cluster, know its members and monitor their health. But
+I still didn&amp;rsquo;t touch the main feature of my store: actually distributing data.
+Now is the time to address that.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>About me</title>
       <link>https:/about-me/</link>
       <pubDate>Thu, 28 Feb 2019 02:16:16 +0100</pubDate>
