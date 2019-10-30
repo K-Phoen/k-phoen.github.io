@@ -13,7 +13,7 @@
 <meta property="og:description" content="I already introduced [RulerZ and the reasoning behind it](/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/). This time I&#39;ll showcase its integration with Symfony and the Form Component." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="/2015/03/14/rulerz-specifications-and-symfony-are-in-a-boat/" />
-<meta property="article:published_time" content="2015-03-14T00:00:00&#43;00:00"/>
+<meta property="article:published_time" content="2015-03-14T00:00:00+00:00" />
 
 
     <meta name="twitter:card" content="summary"/>
@@ -26,7 +26,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
+    <link rel="stylesheet" href="/css/blog.min.3cb1c5546ad2231369059c2e3e7672679cd1a99af4be7ed0c73f15ba83148464.css">
 
     </head>
 <body>
@@ -115,52 +115,54 @@ issue came when I started to implement a search engine. For each new search
 criteria, I had to update two classes and implement the same criteria twice.</p>
 
 <p>At this point, my repositories looked like this:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">interface CompanyRepository
-{
-    public function save(Company $company);
-    public function find($slug);
-    public function search(array $criteria = []);
-}
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">interface</span> <span style="color: #000000">CompanyRepository</span>
+<span style="color: #000000; font-weight: bold">{</span>
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">save</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">Company</span> <span style="color: #000000">$company</span><span style="color: #000000; font-weight: bold">);</span>
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">find</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$slug</span><span style="color: #000000; font-weight: bold">);</span>
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">search</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87; font-weight: bold">array</span> <span style="color: #000000">$criteria</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[]);</span>
+<span style="color: #000000; font-weight: bold">}</span>
 
-class DoctrineCompanyRepository extends EntityRepository implements CompanyRepository
-{
-    // ...
+<span style="color: #204a87; font-weight: bold">class</span> <span style="color: #000000">DoctrineCompanyRepository</span> <span style="color: #204a87; font-weight: bold">extends</span> <span style="color: #000000">EntityRepository</span> <span style="color: #204a87; font-weight: bold">implements</span> <span style="color: #000000">CompanyRepository</span>
+<span style="color: #000000; font-weight: bold">{</span>
+    <span style="color: #8f5902; font-style: italic">// ...</span>
 
-    public function search(array $criteria = [])
-    {
-        $qb = $this-&gt;createQueryBuilder(&#39;c&#39;);
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">search</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87; font-weight: bold">array</span> <span style="color: #000000">$criteria</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[])</span>
+    <span style="color: #000000; font-weight: bold">{</span>
+        <span style="color: #000000">$qb</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">createQueryBuilder</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;c&#39;</span><span style="color: #000000; font-weight: bold">);</span>
 
-        if (!empty($criteria[&#39;name&#39;])) {
-            $qb
-                -&gt;andWhere(&#39;c.name LIKE :name&#39;)
-                -&gt;setParameter(&#39;name&#39;, sprintf(&#39;%%%s%%&#39;, $criteria[&#39;name&#39;]));
-        }
+        <span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #ce5c00; font-weight: bold">!</span><span style="color: #204a87; font-weight: bold">empty</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$criteria</span><span style="color: #000000; font-weight: bold">[</span><span style="color: #4e9a06">&#39;name&#39;</span><span style="color: #000000; font-weight: bold">]))</span> <span style="color: #000000; font-weight: bold">{</span>
+            <span style="color: #000000">$qb</span>
+                <span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">andWhere</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;c.name LIKE :name&#39;</span><span style="color: #000000; font-weight: bold">)</span>
+                <span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">setParameter</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;name&#39;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #204a87">sprintf</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;%%%s%%&#39;</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$criteria</span><span style="color: #000000; font-weight: bold">[</span><span style="color: #4e9a06">&#39;name&#39;</span><span style="color: #000000; font-weight: bold">]));</span>
+        <span style="color: #000000; font-weight: bold">}</span>
 
-        // other criteria
+        <span style="color: #8f5902; font-style: italic">// other criteria</span>
 
-        return $qb-&gt;getQuery()-&gt;getResult();
-    }
-}
+        <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #000000">$qb</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">getQuery</span><span style="color: #000000; font-weight: bold">()</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">getResult</span><span style="color: #000000; font-weight: bold">();</span>
+    <span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
 
-class InMemoryCompanyRepository implements CompanyRepository
-{
-    // ...
+<span style="color: #204a87; font-weight: bold">class</span> <span style="color: #000000">InMemoryCompanyRepository</span> <span style="color: #204a87; font-weight: bold">implements</span> <span style="color: #000000">CompanyRepository</span>
+<span style="color: #000000; font-weight: bold">{</span>
+    <span style="color: #8f5902; font-style: italic">// ...</span>
 
-    public function search(array $criteria = [])
-    {
-        $companies = $this-&gt;companies;
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">search</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87; font-weight: bold">array</span> <span style="color: #000000">$criteria</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[])</span>
+    <span style="color: #000000; font-weight: bold">{</span>
+        <span style="color: #000000">$companies</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">companies</span><span style="color: #000000; font-weight: bold">;</span>
 
-        if (!empty($criteria[&#39;name&#39;])) {
-            $companies = array_filter($companies, function($company) use ($criteria) {
-                return stripos(strtolower($company-&gt;getName()), strtolower($criteria[&#39;name&#39;])) !== false;
-            });
-        }
+        <span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #ce5c00; font-weight: bold">!</span><span style="color: #204a87; font-weight: bold">empty</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$criteria</span><span style="color: #000000; font-weight: bold">[</span><span style="color: #4e9a06">&#39;name&#39;</span><span style="color: #000000; font-weight: bold">]))</span> <span style="color: #000000; font-weight: bold">{</span>
+            <span style="color: #000000">$companies</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #204a87">array_filter</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$companies</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #204a87; font-weight: bold">function</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$company</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #204a87; font-weight: bold">use</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$criteria</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
+                <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #204a87">stripos</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">strtolower</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$company</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">getName</span><span style="color: #000000; font-weight: bold">()),</span> <span style="color: #204a87">strtolower</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$criteria</span><span style="color: #000000; font-weight: bold">[</span><span style="color: #4e9a06">&#39;name&#39;</span><span style="color: #000000; font-weight: bold">]))</span> <span style="color: #ce5c00; font-weight: bold">!==</span> <span style="color: #204a87; font-weight: bold">false</span><span style="color: #000000; font-weight: bold">;</span>
+            <span style="color: #000000; font-weight: bold">});</span>
+        <span style="color: #000000; font-weight: bold">}</span>
 
-        // other criteria
+        <span style="color: #8f5902; font-style: italic">// other criteria</span>
 
-        return $companies;
-    }
-}</code></pre></div>
+        <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #000000">$companies</span><span style="color: #000000; font-weight: bold">;</span>
+    <span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+</code></pre></div>
+
 <p>The first issue is that my <code>CompanyRepository::search(array $criteria)</code>
 method violates the <a href="http://en.wikipedia.org/wiki/Open/closed_principle">open/closed principle</a>.
 This is solved by replacing the <code>$criteria</code> parameter by <a href="http://en.wikipedia.org/wiki/Specification_pattern">specifications</a>.
@@ -171,36 +173,38 @@ can&rsquo;t be used to filter data from several data-sources. We saw that with R
 this <a href="http://blog.kevingomez.fr/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/">problem is solved</a>.</p>
 
 <p><strong>Using RulerZ</strong>, the two previous repositories can be refactored:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">interface CompanyRepository
-{
-    public function save(Company $company);
-    public function find($slug);
-    public function matchingSpec(Specification $spec);
-}
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">interface</span> <span style="color: #000000">CompanyRepository</span>
+<span style="color: #000000; font-weight: bold">{</span>
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">save</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">Company</span> <span style="color: #000000">$company</span><span style="color: #000000; font-weight: bold">);</span>
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">find</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$slug</span><span style="color: #000000; font-weight: bold">);</span>
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">matchingSpec</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">Specification</span> <span style="color: #000000">$spec</span><span style="color: #000000; font-weight: bold">);</span>
+<span style="color: #000000; font-weight: bold">}</span>
 
-class DoctrineCompanyRepository extends EntityRepository implements CompanyRepository
-{
-    // ...
+<span style="color: #204a87; font-weight: bold">class</span> <span style="color: #000000">DoctrineCompanyRepository</span> <span style="color: #204a87; font-weight: bold">extends</span> <span style="color: #000000">EntityRepository</span> <span style="color: #204a87; font-weight: bold">implements</span> <span style="color: #000000">CompanyRepository</span>
+<span style="color: #000000; font-weight: bold">{</span>
+    <span style="color: #8f5902; font-style: italic">// ...</span>
 
-    public function matchingSpec(Specification $spec)
-    {
-        $qb = $this-&gt;createQueryBuilder(&#39;c&#39;);
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">matchingSpec</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">Specification</span> <span style="color: #000000">$spec</span><span style="color: #000000; font-weight: bold">)</span>
+    <span style="color: #000000; font-weight: bold">{</span>
+        <span style="color: #000000">$qb</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">createQueryBuilder</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;c&#39;</span><span style="color: #000000; font-weight: bold">);</span>
 
-        return $this-&gt;rulerz-&gt;filterSpec($qb, $spec);
-    }
-}
+        <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">rulerz</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">filterSpec</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$qb</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$spec</span><span style="color: #000000; font-weight: bold">);</span>
+    <span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
 
-class InMemoryCompanyRepository implements CompanyRepository
-{
-    private $companies = [];
+<span style="color: #204a87; font-weight: bold">class</span> <span style="color: #000000">InMemoryCompanyRepository</span> <span style="color: #204a87; font-weight: bold">implements</span> <span style="color: #000000">CompanyRepository</span>
+<span style="color: #000000; font-weight: bold">{</span>
+    <span style="color: #204a87; font-weight: bold">private</span> <span style="color: #000000">$companies</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[];</span>
 
-    // ...
+    <span style="color: #8f5902; font-style: italic">// ...</span>
 
-    public function matchingSpec(Specification $spec)
-    {
-        return $this-&gt;rulerz-&gt;filterSpec($this-&gt;companies, $spec);
-    }
-}</code></pre></div>
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">matchingSpec</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">Specification</span> <span style="color: #000000">$spec</span><span style="color: #000000; font-weight: bold">)</span>
+    <span style="color: #000000; font-weight: bold">{</span>
+        <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">rulerz</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">filterSpec</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">companies</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$spec</span><span style="color: #000000; font-weight: bold">);</span>
+    <span style="color: #000000; font-weight: bold">}</span>
+<span style="color: #000000; font-weight: bold">}</span>
+</code></pre></div>
+
 <p>You probably noticed a <small>not so</small> subtle difference compared to the
 old repositories: I rely on RulerZ so I have to inject it somehow. Lucky me,
 I&rsquo;m working on a Symfony application and there is <a href="https://github.com/K-Phoen/RulerZBundle">a bundle for that</a>!</p>
@@ -216,29 +220,31 @@ like a <strong><a href="http://symfony.com/doc/current/cookbook/form/data_transf
 don&rsquo;t you think?</p>
 
 <p>With that in mind, I wrote the following form type:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">class CompanySearchType extends AbstractType
-{
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
-        $terms = $builder
-            -&gt;create(&#39;who&#39;)
-            -&gt;addModelTransformer(
-                new SpecToStringTransformer(Spec\CompanyName::class, &#39;terms&#39;)
-            );
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">class</span> <span style="color: #000000">CompanySearchType</span> <span style="color: #204a87; font-weight: bold">extends</span> <span style="color: #000000">AbstractType</span>
+<span style="color: #000000; font-weight: bold">{</span>
+    <span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">buildForm</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">FormBuilderInterface</span> <span style="color: #000000">$builder</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #204a87; font-weight: bold">array</span> <span style="color: #000000">$options</span><span style="color: #000000; font-weight: bold">)</span>
+    <span style="color: #000000; font-weight: bold">{</span>
+        <span style="color: #000000">$terms</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$builder</span>
+            <span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">create</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;who&#39;</span><span style="color: #000000; font-weight: bold">)</span>
+            <span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">addModelTransformer</span><span style="color: #000000; font-weight: bold">(</span>
+                <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">SpecToStringTransformer</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">Spec\CompanyName</span><span style="color: #ce5c00; font-weight: bold">::</span><span style="color: #c4a000">class</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&#39;terms&#39;</span><span style="color: #000000; font-weight: bold">)</span>
+            <span style="color: #000000; font-weight: bold">);</span>
 
-        $location = $builder
-            -&gt;create(&#39;where&#39;)
-            -&gt;addModelTransformer(
-                new SpecToStringTransformer(Spec\CompanyLocation::class, &#39;location&#39;)
-            );
+        <span style="color: #000000">$location</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$builder</span>
+            <span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">create</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;where&#39;</span><span style="color: #000000; font-weight: bold">)</span>
+            <span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">addModelTransformer</span><span style="color: #000000; font-weight: bold">(</span>
+                <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">SpecToStringTransformer</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">Spec\CompanyLocation</span><span style="color: #ce5c00; font-weight: bold">::</span><span style="color: #c4a000">class</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #4e9a06">&#39;location&#39;</span><span style="color: #000000; font-weight: bold">)</span>
+            <span style="color: #000000; font-weight: bold">);</span>
 
-        $builder
-            -&gt;add($terms)
-            -&gt;add($location);
-    }
+        <span style="color: #000000">$builder</span>
+            <span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">add</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$terms</span><span style="color: #000000; font-weight: bold">)</span>
+            <span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">add</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$location</span><span style="color: #000000; font-weight: bold">);</span>
+    <span style="color: #000000; font-weight: bold">}</span>
 
-    // ...
-}</code></pre></div>
+    <span style="color: #8f5902; font-style: italic">// ...</span>
+<span style="color: #000000; font-weight: bold">}</span>
+</code></pre></div>
+
 <p>The form type itself is pretty straightforward, the only thing to notice is the
 usage of <code>SpecToStringTransformer</code>. It takes two parameters: the
 <abbr title="Fully-Qualified Class Name">FQCN</abbr> of the specification to
@@ -248,22 +254,24 @@ read it, it&rsquo;s available as <a href="https://gist.github.com/K-Phoen/5c1b06
 
 <p>What&rsquo;s important is that combining the Form Component, a simple transformer and
 RulerZ leads to really simple controllers:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">public function searchAction(Request $request)
-{
-    $results = [];
-    $form = $this-&gt;formFactory-&gt;create(&#39;company_search&#39;);
-    $form-&gt;handleRequest($request);
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">searchAction</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">Request</span> <span style="color: #000000">$request</span><span style="color: #000000; font-weight: bold">)</span>
+<span style="color: #000000; font-weight: bold">{</span>
+    <span style="color: #000000">$results</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[];</span>
+    <span style="color: #000000">$form</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">formFactory</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">create</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;company_search&#39;</span><span style="color: #000000; font-weight: bold">);</span>
+    <span style="color: #000000">$form</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">handleRequest</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$request</span><span style="color: #000000; font-weight: bold">);</span>
 
-    if ($form-&gt;isValid()) {
-        $spec = new Spec\AndX(array_merge(        // aggregate specifications
-            array_filter($form-&gt;getData()),       // remove empty fields/specs
-            array(new AppSpec\CompanyPublished()) // only display published companies
-        ));
-        $results = $this-&gt;companyRepository-&gt;matchingSpec($spec);
-    }
+    <span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$form</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">isValid</span><span style="color: #000000; font-weight: bold">())</span> <span style="color: #000000; font-weight: bold">{</span>
+        <span style="color: #000000">$spec</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">Spec\AndX</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">array_merge</span><span style="color: #000000; font-weight: bold">(</span>        <span style="color: #8f5902; font-style: italic">// aggregate specifications</span>
+            <span style="color: #204a87">array_filter</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$form</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">getData</span><span style="color: #000000; font-weight: bold">()),</span>       <span style="color: #8f5902; font-style: italic">// remove empty fields/specs</span>
+            <span style="color: #204a87; font-weight: bold">array</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">AppSpec\CompanyPublished</span><span style="color: #000000; font-weight: bold">())</span> <span style="color: #8f5902; font-style: italic">// only display published companies</span>
+        <span style="color: #000000; font-weight: bold">));</span>
+        <span style="color: #000000">$results</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">companyRepository</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">matchingSpec</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$spec</span><span style="color: #000000; font-weight: bold">);</span>
+    <span style="color: #000000; font-weight: bold">}</span>
 
-    return $this-&gt;render(&#39;...&#39;);
-}</code></pre></div>
+    <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">render</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;...&#39;</span><span style="color: #000000; font-weight: bold">);</span>
+<span style="color: #000000; font-weight: bold">}</span>
+</code></pre></div>
+
 <p>Do you see the magic? A classic <strong>form type</strong> can automatically <strong>build
 specifications</strong> that can be used to <strong>retrieve data</strong> from a Doctrine repository,
 an in-memory repository or virtually any other data-source.
