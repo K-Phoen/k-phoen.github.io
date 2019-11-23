@@ -1,21 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Kévin Gomez</title>
     <link>https:/</link>
     <description>Recent content on Kévin Gomez</description>
     <language>en-us</language>
-    <lastBuildDate>Thu, 11 Apr 2019 00:27:24 +0200</lastBuildDate>
+    <lastBuildDate>Mon, 14 Oct 2013 00:00:00 +0000</lastBuildDate>
     
         <atom:link href="https:/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Posts</title>
-      <link>https:/posts/</link>
+      <title>Clusters and data sharding: introducing rendezvous hashing</title>
+      <link>https:/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</link>
       <pubDate>Thu, 11 Apr 2019 00:27:24 +0200</pubDate>
       
-      <guid>https:/posts/</guid>
-      <description></description>
+      <guid>https:/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</guid>
+      <description>&lt;p&gt;In a &lt;a href=&#34;/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/&#34;&gt;previous article&lt;/a&gt;,
+I started playing with distributed systems by implementing a distributed key-value
+store.&lt;/p&gt;
+
+&lt;p&gt;I used SWIM to create a cluster, know its members and monitor their health. But
+I still didn&amp;rsquo;t touch the main feature of my store: actually distributing data.
+Now is the time to address that.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -46,12 +53,201 @@
     </item>
     
     <item>
-      <title>Tils</title>
-      <link>https:/til/</link>
+      <title>Questions I ask in an interview</title>
+      <link>https:/2019/02/28/questions-i-ask-in-an-interview/</link>
+      <pubDate>Thu, 28 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2019/02/28/questions-i-ask-in-an-interview/</guid>
+      <description>&lt;p&gt;As I currently am looking for a company to work with, I took some time to think
+about some questions to ask in an interview to gain some insight about the
+company, its culture and how it works.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Clusters and membership: discovering the SWIM protocol</title>
+      <link>https:/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/</link>
+      <pubDate>Tue, 29 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/</guid>
+      <description>Recently, I have been playing with distributed systems in Go. I am toying around with a distributed key-value store. Because why not?
+This store — again, that I am building just for the sake of learning — will be able to operate as a single instance on a server as well as inside a cluster. And instead of defining statically through a configuration file which nodes are part for the cluster, I want to be able to add or remove nodes dynamically.</description>
+    </item>
+    
+    <item>
+      <title>Looking for a new job!</title>
+      <link>https:/2018/05/14/looking-for-a-new-job/</link>
+      <pubDate>Mon, 14 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2018/05/14/looking-for-a-new-job/</guid>
+      <description>After three years as a software engineer at TEA — The Ebook Alternative, I quit my job, I left my flat and I took my backpack and my shoes to travel across Europe… in part to look for a job.
+Why did I quit? When I was hired, one of my personal goals was to benefit from the knowledge and experience of my coworkers to improve myself.
+TEA was — and still is — a company where talented people are building a relatively complex platform and where I learned a lot by their side: I improved my knowledge of PHP, I learned new languages, I helped introduce a testing culture, I developed my skills in architecture, project management and teamwork.</description>
+    </item>
+    
+    <item>
+      <title>Best practices for exploitable logs</title>
+      <link>https:/2017/05/08/best-practices-for-exploitable-logs/</link>
+      <pubDate>Mon, 08 May 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2017/05/08/best-practices-for-exploitable-logs/</guid>
+      <description>&lt;p&gt;« &lt;strong&gt;What to log?&lt;/strong&gt; » — That&amp;rsquo;s the question I often ask myself when I launch new
+projects or work on existing applications.&lt;/p&gt;
+
+&lt;p&gt;And by « what », I mean which events should be logged? Using which format? Where
+should they be sent?&lt;/p&gt;
+
+&lt;p&gt;To answer these questions, we need to ask ourselves why do we need logs in the
+first place?&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Digging into: Humbug</title>
+      <link>https:/2016/10/23/digging-into-humbug/</link>
+      <pubDate>Sun, 23 Oct 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2016/10/23/digging-into-humbug/</guid>
+      <description>While I&amp;rsquo;ve already used Humbug a few time, a recent article made my realise that I didn&amp;rsquo;t really know how it worked.
+That&amp;rsquo;s when I got the idea to dig into Humbug to learn how it works, and publish my findings here.
+Before we start, let&amp;rsquo;s quickly give some context on Humbug.
+What&amp;rsquo;s Humbug? « Humbug is a Mutation Testing framework for PHP »
+In a nutshell, you write unit tests to prevent regressions in your application and use code coverage as an indicator of how well your application is tested or protected.</description>
+    </item>
+    
+    <item>
+      <title>Write documentation as tests in PHP using Rusty</title>
+      <link>https:/2016/05/22/write-documentation-as-tests-in-php-using-rusty/</link>
+      <pubDate>Sun, 22 May 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2016/05/22/write-documentation-as-tests-in-php-using-rusty/</guid>
+      <description>Languages such as Python, Rust, etc. provide a way to write code samples right inside doc-strings. They are supposed to be easy to read and they are called &amp;ldquo;documentation as tests&amp;rdquo; because they also can be executed.
+I thought that it was a great way to ensure that your documentation is up-to-date with your code so I searched a way to do the same in PHP… but I could not find anything.</description>
+    </item>
+    
+    <item>
+      <title>Efficiently creating data chunks in PHP</title>
+      <link>https:/2016/02/26/efficiently-creating-data-chunks-in-php/</link>
+      <pubDate>Fri, 26 Feb 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2016/02/26/efficiently-creating-data-chunks-in-php/</guid>
+      <description>While I was working on a library to build sitemaps and sitemap indexes, I identified the need to aggregate several iterators and then build chunks of a precise size from this aggregate.
+To be clearer: given a list of URL providers for a sitemap index, I wanted to iterate over all the data exposed by these providers in chunks of 50.000 (the maximum number of URL allowed in a sitemap).</description>
+    </item>
+    
+    <item>
+      <title>Use cases for PHP generators</title>
+      <link>https:/2016/01/20/use-cases-for-php-generators/</link>
+      <pubDate>Wed, 20 Jan 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2016/01/20/use-cases-for-php-generators/</guid>
+      <description>Despite being available since PHP 5.5.0, generators are still largely underused. In fact, it appears than most of the developers I know understand how generators work but don&amp;rsquo;t seem to see when they could be useful in real-world cases.
+ Yeah, generators definitely look great but you know… except for computing the Fibonacci sequence, I don&amp;rsquo;t see how it could be useful to me.
+ And they&amp;rsquo;re not wrong, even the examples in PHP&amp;rsquo;s documentation about generators are pretty simplistic.</description>
+    </item>
+    
+    <item>
+      <title>PHP ::class keyword</title>
+      <link>https:/til/2016/01/15/php-class-keyword/</link>
       <pubDate>Fri, 15 Jan 2016 00:00:00 +0000</pubDate>
       
-      <guid>https:/til/</guid>
-      <description></description>
+      <guid>https:/til/2016/01/15/php-class-keyword/</guid>
+      <description>According to PHP documentation about the ::class keyword, it can be used for class name resolution:
+ You can get a string containing the fully qualified name of the ClassName class by using ClassName::class.
+ namespace NS { class ClassName { } echo ClassName::class; } // outputs: &amp;#34;NS\ClassName&amp;#34; It&amp;rsquo;s handy when you need to pass FQCN around. Some people even started using it to make sure that their code was referencing existing classes.</description>
+    </item>
+    
+    <item>
+      <title>Be specific - A clear business and limpid code with RulerZ</title>
+      <link>https:/2015/11/29/be-specific-a-clear-business-and-limpid-code-with-rulerz/</link>
+      <pubDate>Sun, 29 Nov 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2015/11/29/be-specific-a-clear-business-and-limpid-code-with-rulerz/</guid>
+      <description>&lt;p&gt;November 24th 2015, I gave my first &lt;em&gt;big&lt;/em&gt; talk at the Forum PHP conference,
+organized by the &lt;a href=&#34;http://afup.org/pages/site/&#34;&gt;AFUP&lt;/a&gt; in Paris.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Done with school.</title>
+      <link>https:/2015/08/30/done-with-school/</link>
+      <pubDate>Sun, 30 Aug 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2015/08/30/done-with-school/</guid>
+      <description>&lt;p&gt;That&amp;rsquo;s it. After five years spent learning computer science in various schools
+and universities, I&amp;rsquo;m finally free!&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Why is uniqid() slow?</title>
+      <link>https:/til/2015/07/26/why-is-uniqid-slow/</link>
+      <pubDate>Sun, 26 Jul 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https:/til/2015/07/26/why-is-uniqid-slow/</guid>
+      <description>While profiling RulerZ with Blackfire.io, I noticed that a non-negligible amount of time was consumed by PHP&amp;rsquo;s uniqid() function.
+For those who don&amp;rsquo;t know, this function provides an easy way to generate unique identifiers based on the current date and an optional prefix.
+Wait, the &amp;ldquo;current date&amp;rdquo; part can actually be interesting for our performance issue. What happens if we write something like this:
+foreach ($foo as $bar) { $awesomeCollection[] = new CoolObject(uniqid(), $bar); } A simple loop like this should run pretty fast, so if uniqid() simply relies on the current date we should have collisions&amp;hellip; but it is not the case.</description>
+    </item>
+    
+    <item>
+      <title>Parallel bundle install</title>
+      <link>https:/til/2015/07/12/parallel-bundle-install/</link>
+      <pubDate>Sun, 12 Jul 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https:/til/2015/07/12/parallel-bundle-install/</guid>
+      <description>In ruby projects, the bundle install command is known to be quite slow. To mitigate this, Bundler provides an option allowing to install gems using parallel workers: bundle install --jobs 4. Just tell Bundler how many concurrent jobs can be launched and let it work.</description>
+    </item>
+    
+    <item>
+      <title>RulerZ, specifications and Symfony are in a boat</title>
+      <link>https:/2015/03/14/rulerz-specifications-and-symfony-are-in-a-boat/</link>
+      <pubDate>Sat, 14 Mar 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2015/03/14/rulerz-specifications-and-symfony-are-in-a-boat/</guid>
+      <description>In my previous post, I tried to answer the following question: how do you keep your Doctrine repositories from growing exponentially? Long story short, I came up with a generic solution based on the Specification pattern that essentially abstracts and simplifies the way we write and compose queries. And the best part is that it works with Doctrine but also with any other data-source.
+RulerZ was born.
+Of course, there was a real need behind my previous question.</description>
+    </item>
+    
+    <item>
+      <title>New life, new blog</title>
+      <link>https:/2015/03/13/new-life-new-blog/</link>
+      <pubDate>Fri, 13 Mar 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2015/03/13/new-life-new-blog/</guid>
+      <description>&lt;p&gt;I launched &lt;a href=&#34;http://archives.kevingomez.fr&#34;&gt;my first blog&lt;/a&gt; in 2007, when I
+started to attend &lt;em&gt;lycée&lt;/em&gt; (the American equivalent would be High School I guess,
+something like 9th or 10th grade). While most my posts were kinda
+&lt;em&gt;tech-oriented&lt;/em&gt;, the rest of them were&amp;hellip; well let&amp;rsquo;s say that I was young and
+that I&amp;rsquo;ve evolved since!&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>On Taming Repository Classes in Doctrine… Among other things.</title>
+      <link>https:/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/</link>
+      <pubDate>Sat, 07 Feb 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2015/02/07/on-taming-repository-classes-in-doctrine-among-other-things/</guid>
+      <description>&lt;p&gt;A while ago I stumbled upon a - rather old but nonetheless interesting - &lt;a href=&#34;http://www.whitewashing.de/2013/03/04/doctrine_repositories.html&#34;&gt;post&lt;/a&gt; written by &lt;a href=&#34;https://twitter.com/beberlei&#34;&gt;@beberlei&lt;/a&gt;. In his post, he highlighted the issues of having &lt;strong&gt;too much responsibilities in a repository&lt;/strong&gt; and suggested a solution based on the &lt;strong&gt;&lt;a href=&#34;http://en.wikipedia.org/wiki/Specification_pattern&#34;&gt;Specification pattern&lt;/a&gt;&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Symfony best practices</title>
+      <link>https:/2014/04/08/symfony-best-practices/</link>
+      <pubDate>Tue, 08 Apr 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2014/04/08/symfony-best-practices/</guid>
+      <description>Here is a digest of the best practices that are commonly followed for Symfony2 projects. They are given as is, in no particular order and are far from being exhaustive.
+Naming things  find a common naming scheme for your team and stick to it  be explicit be consistent  same for routes and services naming  use service alias: mailer is better than swiftmailer.mailer.default  prefer Vendor/Bundle/CoolBundle over Vendor/CoolBundle for bundles namespace  for an application, you can even skip the vendor part   Config Which configuration format should you use?</description>
+    </item>
+    
+    <item>
+      <title>Split Symfony2 YAML validation configuration file</title>
+      <link>https:/2013/10/14/split-symfony2-yaml-validation-configuration-file/</link>
+      <pubDate>Mon, 14 Oct 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https:/2013/10/14/split-symfony2-yaml-validation-configuration-file/</guid>
+      <description>Important : as j0k pointed out in the comments, Symfony 2.5 changed the way validation files are loaded. Refer to this StackOverflow answer if you are using Symfony &amp;gt;= 2.5.
+Defining validation rules for several entities in the same file can really be a pain. Unfortunately, Symfony2 only looks in the validation.yml file by default. Let&amp;rsquo;s see how we can split the following file:
+ The solution lies in the AcmeBlogExtension class, and more specifically in the validator.</description>
     </item>
     
   </channel>

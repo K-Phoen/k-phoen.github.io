@@ -14,7 +14,7 @@
 " />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="/2016/10/23/digging-into-humbug/" />
-<meta property="article:published_time" content="2016-10-23T00:00:00+00:00" />
+<meta property="article:published_time" content="2016-10-23T00:00:00&#43;00:00"/>
 
 
     <meta name="twitter:card" content="summary"/>
@@ -28,7 +28,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/blog.min.3cb1c5546ad2231369059c2e3e7672679cd1a99af4be7ed0c73f15ba83148464.css">
+    <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
 <body>
@@ -139,24 +139,22 @@ code.</p>
 is to see if there is a dependency that could be use to analyse and manipulate
 source code. I&rsquo;m thinking about a library like
 <a href="https://github.com/nikic/PHP-Parser">nikic/PHP-Parser</a> for instance.</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-json" data-lang="json"><span></span><span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #a40000; border: 1px solid #ef2929">…</span>
-    <span style="color: #204a87; font-weight: bold">&quot;require&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #204a87; font-weight: bold">&quot;php&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;&gt;=5.4.0&quot;</span><span style="color: #000000; font-weight: bold">,</span>
-        <span style="color: #204a87; font-weight: bold">&quot;phpunit/phpunit&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;^4.5|^5.0&quot;</span><span style="color: #000000; font-weight: bold">,</span>
-        <span style="color: #204a87; font-weight: bold">&quot;symfony/console&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;^2.6|^3.0&quot;</span><span style="color: #000000; font-weight: bold">,</span>
-        <span style="color: #204a87; font-weight: bold">&quot;symfony/finder&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;^2.6|^3.0&quot;</span><span style="color: #000000; font-weight: bold">,</span>
-        <span style="color: #204a87; font-weight: bold">&quot;symfony/process&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;^2.6|^3.0&quot;</span><span style="color: #000000; font-weight: bold">,</span>
-        <span style="color: #204a87; font-weight: bold">&quot;symfony/event-dispatcher&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;^2.6|^3.0&quot;</span><span style="color: #000000; font-weight: bold">,</span>
-        <span style="color: #204a87; font-weight: bold">&quot;sebastian/diff&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;^1.1&quot;</span><span style="color: #000000; font-weight: bold">,</span>
-        <span style="color: #204a87; font-weight: bold">&quot;padraic/phpunit-accelerator&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;^1.0.2&quot;</span><span style="color: #000000; font-weight: bold">,</span>
-        <span style="color: #204a87; font-weight: bold">&quot;padraic/phpunit-extensions&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;^1.0.0&quot;</span><span style="color: #000000; font-weight: bold">,</span>
-        <span style="color: #204a87; font-weight: bold">&quot;padraic/phar-updater&quot;</span><span style="color: #000000; font-weight: bold">:</span> <span style="color: #4e9a06">&quot;^1.0.0&quot;</span>
-    <span style="color: #000000; font-weight: bold">},</span>
-    <span style="color: #a40000; border: 1px solid #ef2929">…</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#000;font-weight:bold">{</span>
+    <span style="color:#a40000">…</span>
+    <span style="color:#204a87;font-weight:bold">&#34;require&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">{</span>
+        <span style="color:#204a87;font-weight:bold">&#34;php&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;&gt;=5.4.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;phpunit/phpunit&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^4.5|^5.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;symfony/console&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^2.6|^3.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;symfony/finder&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^2.6|^3.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;symfony/process&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^2.6|^3.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;symfony/event-dispatcher&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^2.6|^3.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;sebastian/diff&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^1.1&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;padraic/phpunit-accelerator&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^1.0.2&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;padraic/phpunit-extensions&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^1.0.0&#34;</span><span style="color:#000;font-weight:bold">,</span>
+        <span style="color:#204a87;font-weight:bold">&#34;padraic/phar-updater&#34;</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#4e9a06">&#34;^1.0.0&#34;</span>
+    <span style="color:#000;font-weight:bold">},</span>
+    <span style="color:#a40000">…</span>
+<span style="color:#000;font-weight:bold">}</span></code></pre></div>
 <p>After reading the dependencies list, I see nothing that would help to manipulate
 source code.</p>
 
@@ -204,19 +202,17 @@ tokens — with a precise signification (identifier, literal, assignment operato
 …).</p>
 
 <p>The method <code>getMutation()</code> seems to be the one applying the mutation:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #8f5902; font-style: italic">/**</span>
-<span style="color: #8f5902; font-style: italic"> * Replace plus sign (+) with minus sign (-)</span>
-<span style="color: #8f5902; font-style: italic"> *</span>
-<span style="color: #8f5902; font-style: italic"> * @param array $tokens</span>
-<span style="color: #8f5902; font-style: italic"> * @param int $index</span>
-<span style="color: #8f5902; font-style: italic"> * @return array</span>
-<span style="color: #8f5902; font-style: italic"> */</span>
-<span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">static</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getMutation</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87; font-weight: bold">array</span> <span style="color: #ce5c00; font-weight: bold">&amp;</span><span style="color: #000000">$tokens</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$index</span><span style="color: #000000; font-weight: bold">)</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #000000">$tokens</span><span style="color: #000000; font-weight: bold">[</span><span style="color: #000000">$index</span><span style="color: #000000; font-weight: bold">]</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #4e9a06">&#39;-&#39;</span><span style="color: #000000; font-weight: bold">;</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">/**
+ * Replace plus sign (+) with minus sign (-)
+ *
+ * @param array $tokens
+ * @param int $index
+ * @return array
+ */
+public static function getMutation(array <span style="color:#a40000">&amp;</span>$tokens, $index)
+{
+    $tokens[$index] = &#39;-&#39;;
+}</code></pre></div>
 <p>The method <code>mutates()</code>, on the other hand, checks whether the current mutation
 can be applied on the given token. This method&rsquo;s docblock gives a really
 meaningful example where it can&rsquo;t: <code>$var = ['foo' =&gt; true] + ['bar' =&gt; true]</code></p>
@@ -236,21 +232,19 @@ class. Let&rsquo;s inspect its parent: <a href="https://github.com/padraic/humbu
 <p>In addition to the &ldquo;<em>utility</em>&rdquo; methods, this class has an interesting method
 that performs the mutation on the given tokens and returns the result as source
 code:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #8f5902; font-style: italic">/**</span>
-<span style="color: #8f5902; font-style: italic"> * Perform a mutation against the given original source code tokens for</span>
-<span style="color: #8f5902; font-style: italic"> * a mutable element</span>
-<span style="color: #8f5902; font-style: italic"> *</span>
-<span style="color: #8f5902; font-style: italic"> * @param array $tokens</span>
-<span style="color: #8f5902; font-style: italic"> * @param int $index</span>
-<span style="color: #8f5902; font-style: italic"> * @return string</span>
-<span style="color: #8f5902; font-style: italic"> */</span>
-<span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">static</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">mutate</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87; font-weight: bold">array</span> <span style="color: #ce5c00; font-weight: bold">&amp;</span><span style="color: #000000">$tokens</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$index</span><span style="color: #000000; font-weight: bold">)</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #204a87; font-weight: bold">static</span><span style="color: #ce5c00; font-weight: bold">::</span><span style="color: #c4a000">getMutation</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$tokens</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$index</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #000000">Tokenizer</span><span style="color: #ce5c00; font-weight: bold">::</span><span style="color: #c4a000">reconstructFromTokens</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$tokens</span><span style="color: #000000; font-weight: bold">);</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">/**
+ * Perform a mutation against the given original source code tokens for
+ * a mutable element
+ *
+ * @param array $tokens
+ * @param int $index
+ * @return string
+ */
+public static function mutate(array <span style="color:#a40000">&amp;</span>$tokens, $index)
+{
+    static::getMutation($tokens, $index);
+    return Tokenizer::reconstructFromTokens($tokens);
+}</code></pre></div>
 <p>What&rsquo;s interesting here is the usage of a <code>Tokenizer</code> class.</p>
 
 <p>At this stage, I already know that Humbug manipulates tokens and rewrites them

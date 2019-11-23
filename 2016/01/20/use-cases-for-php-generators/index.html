@@ -14,7 +14,7 @@
 " />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="/2016/01/20/use-cases-for-php-generators/" />
-<meta property="article:published_time" content="2016-01-20T00:00:00+00:00" />
+<meta property="article:published_time" content="2016-01-20T00:00:00&#43;00:00"/>
 
 
     <meta name="twitter:card" content="summary"/>
@@ -28,7 +28,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/blog.min.3cb1c5546ad2231369059c2e3e7672679cd1a99af4be7ed0c73f15ba83148464.css">
+    <link rel="stylesheet" href="/css/blog.min.3860a573f4dbae3a3e048ca307efea325969b59abd3ddda376f3db085ff025e4.css">
 
     </head>
 <body>
@@ -135,21 +135,19 @@ metadata under the name of <em>e-book</em>.</p>
 and I want to filter those which can be read in a web-reader.</p>
 
 <p>Traditionally, I would write something like this:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">private</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getEbooksEligibleToWebReader</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$ebooks</span><span style="color: #000000; font-weight: bold">)</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #000000">$rule</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #4e9a06">&#39;format = &quot;EPUB&quot; AND protection != &quot;Adobe DRM&quot;&#39;</span><span style="color: #000000; font-weight: bold">;</span>
-    <span style="color: #000000">$filteredEbooks</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[];</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
+{
+    $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
+    $filteredEbooks = [];
 
-    <span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$ebooks</span> <span style="color: #204a87; font-weight: bold">as</span> <span style="color: #000000">$ebook</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">rulerz</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">satisfies</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$ebook</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$rule</span><span style="color: #000000; font-weight: bold">))</span> <span style="color: #000000; font-weight: bold">{</span>
-            <span style="color: #000000">$filteredEbooks</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$ebook</span><span style="color: #000000; font-weight: bold">;</span>
-        <span style="color: #000000; font-weight: bold">}</span>
-    <span style="color: #000000; font-weight: bold">}</span>
+    foreach ($ebooks as $ebook) {
+        if ($this-&gt;rulerz-&gt;satisfies($ebook, $rule)) {
+            $filteredEbooks[] = $ebook;
+        }
+    }
 
-    <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #000000">$filteredEbooks</span><span style="color: #000000; font-weight: bold">;</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+    return $filteredEbooks;
+}</code></pre></div>
 <p>The problem here is easy to see: the more free e-books I have, the more
 <code>$filteredEbooks</code> will consume memory.</p>
 
@@ -157,18 +155,16 @@ and I want to filter those which can be read in a web-reader.</p>
 <code>$ebooks</code> and return the ones that are eligible. But we would have to create a
 new class just for that and iterators are a bit tedious to write… Lucky us,
 since PHP 5.5.0 we can use generators!</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">private</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getEbooksEligibleToWebReader</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$ebooks</span><span style="color: #000000; font-weight: bold">)</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #000000">$rule</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #4e9a06">&#39;format = &quot;EPUB&quot; AND protection != &quot;Adobe DRM&quot;&#39;</span><span style="color: #000000; font-weight: bold">;</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
+{
+    $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
 
-    <span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$ebooks</span> <span style="color: #204a87; font-weight: bold">as</span> <span style="color: #000000">$ebook</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">rulerz</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">satisfies</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$ebook</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$rule</span><span style="color: #000000; font-weight: bold">))</span> <span style="color: #000000; font-weight: bold">{</span>
-            <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">$ebook</span><span style="color: #000000; font-weight: bold">;</span>
-        <span style="color: #000000; font-weight: bold">}</span>
-    <span style="color: #000000; font-weight: bold">}</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+    foreach ($ebooks as $ebook) {
+        if ($this-&gt;rulerz-&gt;satisfies($ebook, $rule)) {
+            yield $ebook;
+        }
+    }
+}</code></pre></div>
 <p>Yep, refactoring the <code>getEbooksEligibleToWebReader</code> method to use generators is
 as simple as replacing the assignation to <code>$filteredEbooks</code> by a <code>yield</code>
 statement.</p>
@@ -180,14 +176,12 @@ and when we need them.</p>
 
 <p><strong>Bonus</strong>: <a href="https://github.com/K-Phoen/rulerz">RulerZ</a> internally uses generators
 so we could rewrite the method like this and be as efficient in terms of memory.</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">private</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getEbooksEligibleToWebReader</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$ebooks</span><span style="color: #000000; font-weight: bold">)</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #000000">$rule</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #4e9a06">&#39;format = &quot;EPUB&quot; AND protection != &quot;Adobe DRM&quot;&#39;</span><span style="color: #000000; font-weight: bold">;</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
+{
+    $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
 
-    <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">rulerz</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">filter</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$ebooks</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$rule</span><span style="color: #000000; font-weight: bold">);</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+    return $this-&gt;rulerz-&gt;filter($ebooks, $rule);
+}</code></pre></div>
 <h2 id="aggregating-several-data-sources">Aggregating several data-sources</h2>
 
 <p>Now, let&rsquo;s consider the <code>$ebooks</code> retrieval part. I didn&rsquo;t tell you, but these
@@ -195,85 +189,79 @@ e-books come in fact from different data-sources: a relational database and
 Elasticsearch.</p>
 
 <p>We can then write a simple method to aggregate these two sources:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">private</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getEbooks</span><span style="color: #000000; font-weight: bold">()</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #000000">$ebooks</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[];</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
+{
+    $ebooks = [];
 
-    <span style="color: #8f5902; font-style: italic">// fetch from the DB</span>
-    <span style="color: #000000">$stmt</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">db</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">prepare</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;SELECT * FROM ebook_catalog&quot;</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000">$stmt</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">execute</span><span style="color: #000000; font-weight: bold">();</span>
-    <span style="color: #000000">$stmt</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">setFetchMode</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">\PDO</span><span style="color: #ce5c00; font-weight: bold">::</span><span style="color: #c4a000">FETCH_ASSOC</span><span style="color: #000000; font-weight: bold">);</span>
+    // fetch from the DB
+    $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
+    $stmt-&gt;execute();
+    $stmt-&gt;setFetchMode(\PDO::FETCH_ASSOC);
 
-    <span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$stmt</span> <span style="color: #204a87; font-weight: bold">as</span> <span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #000000">$ebooks</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">hydrateEbook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000; font-weight: bold">}</span>
+    foreach ($stmt as $data) {
+        $ebooks[] = $this-&gt;hydrateEbook($data);
+    }
 
-    <span style="color: #8f5902; font-style: italic">// and from Elasticsearch (findAll uses ES scan/scroll)</span>
-    <span style="color: #000000">$cursor</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">esClient</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">findAll</span><span style="color: #000000; font-weight: bold">();</span>
+    // and from Elasticsearch (findAll uses ES scan/scroll)
+    $cursor = $this-&gt;esClient-&gt;findAll();
 
-    <span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$cursor</span> <span style="color: #204a87; font-weight: bold">as</span> <span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #000000">$ebooks</span><span style="color: #000000; font-weight: bold">[]</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">hydrateEbook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000; font-weight: bold">}</span>
+    foreach ($cursor as $data) {
+        $ebooks[] = $this-&gt;hydrateEbook($data);
+    }
 
-    <span style="color: #204a87; font-weight: bold">return</span> <span style="color: #000000">$ebooks</span><span style="color: #000000; font-weight: bold">;</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+    return $ebooks;
+}</code></pre></div>
 <p>But once again, the amount of memory used by this method depends too much on the
 number of e-books we have in the database and in Elasticsearch.</p>
 
 <p>We could start by using generators to return the results:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">private</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getEbooks</span><span style="color: #000000; font-weight: bold">()</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #8f5902; font-style: italic">// fetch from the DB</span>
-    <span style="color: #000000">$stmt</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">db</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">prepare</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;SELECT * FROM ebook_catalog&quot;</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000">$stmt</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">execute</span><span style="color: #000000; font-weight: bold">();</span>
-    <span style="color: #000000">$stmt</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">setFetchMode</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">\PDO</span><span style="color: #ce5c00; font-weight: bold">::</span><span style="color: #c4a000">FETCH_ASSOC</span><span style="color: #000000; font-weight: bold">);</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
+{
+    // fetch from the DB
+    $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
+    $stmt-&gt;execute();
+    $stmt-&gt;setFetchMode(\PDO::FETCH_ASSOC);
 
-    <span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$stmt</span> <span style="color: #204a87; font-weight: bold">as</span> <span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">hydrateEbook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000; font-weight: bold">}</span>
+    foreach ($stmt as $data) {
+        yield $this-&gt;hydrateEbook($data);
+    }
 
-    <span style="color: #8f5902; font-style: italic">// and from Elasticsearch (findAll uses ES scan/scroll)</span>
-    <span style="color: #000000">$cursor</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">esClient</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">findAll</span><span style="color: #000000; font-weight: bold">();</span>
+    // and from Elasticsearch (findAll uses ES scan/scroll)
+    $cursor = $this-&gt;esClient-&gt;findAll();
 
-    <span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$cursor</span> <span style="color: #204a87; font-weight: bold">as</span> <span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">hydrateEbook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000; font-weight: bold">}</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+    foreach ($cursor as $data) {
+        yield $this-&gt;hydrateEbook($data);
+    }
+}</code></pre></div>
 <p>That&rsquo;s better, but we still have a problem: our <code>getBooks</code> method does too much
 work! We should split the two responsibilities (reading in the database and
 calling Elasticsearch) in two separate methods:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">private</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getEbooks</span><span style="color: #000000; font-weight: bold">()</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">from</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">getEbooksFromDatabase</span><span style="color: #000000; font-weight: bold">();</span>
-    <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">from</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">getEbooksFromEs</span><span style="color: #000000; font-weight: bold">();</span>
-<span style="color: #000000; font-weight: bold">}</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
+{
+    yield from $this-&gt;getEbooksFromDatabase();
+    yield from $this-&gt;getEbooksFromEs();
+}
 
-<span style="color: #204a87; font-weight: bold">private</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getEbooksFromDatabase</span><span style="color: #000000; font-weight: bold">()</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #000000">$stmt</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">db</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">prepare</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&quot;SELECT * FROM ebook_catalog&quot;</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000">$stmt</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">execute</span><span style="color: #000000; font-weight: bold">();</span>
-    <span style="color: #000000">$stmt</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">setFetchMode</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">\PDO</span><span style="color: #ce5c00; font-weight: bold">::</span><span style="color: #c4a000">FETCH_ASSOC</span><span style="color: #000000; font-weight: bold">);</span>
+private function getEbooksFromDatabase()
+{
+    $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
+    $stmt-&gt;execute();
+    $stmt-&gt;setFetchMode(\PDO::FETCH_ASSOC);
 
-    <span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$stmt</span> <span style="color: #204a87; font-weight: bold">as</span> <span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">hydrateEbook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000; font-weight: bold">}</span>
-<span style="color: #000000; font-weight: bold">}</span>
+    foreach ($stmt as $data) {
+        yield $this-&gt;hydrateEbook($data);
+    }
+}
 
-<span style="color: #204a87; font-weight: bold">private</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getEbooksFromEs</span><span style="color: #000000; font-weight: bold">()</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #8f5902; font-style: italic">// and from Elasticsearch (findAll uses ES scan/scroll)</span>
-    <span style="color: #000000">$cursor</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">esClient</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">findAll</span><span style="color: #000000; font-weight: bold">();</span>
+private function getEbooksFromEs()
+{
+    // and from Elasticsearch (findAll uses ES scan/scroll)
+    $cursor = $this-&gt;esClient-&gt;findAll();
 
-    <span style="color: #204a87; font-weight: bold">foreach</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$cursor</span> <span style="color: #204a87; font-weight: bold">as</span> <span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">hydrateEbook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$data</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000; font-weight: bold">}</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+    foreach ($cursor as $data) {
+        yield $this-&gt;hydrateEbook($data);
+    }
+}</code></pre></div>
 <p>You will notice the use of the <code>yield from</code> operator (available since PHP 7.0)
 that allows to delegate the use of generators. That&rsquo;s perfect, for instance, to
 aggregate several data-sources that use generators.</p>
@@ -283,16 +271,14 @@ or iterators can also be used with this delegation operator.</p>
 
 <p>Using this keyword, we could aggregate several data-sources with only a few lines
 of code:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">private</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">getEbooks</span><span style="color: #000000; font-weight: bold">()</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">Ebook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">…</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">from</span> <span style="color: #000000; font-weight: bold">[</span><span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">Ebook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">…</span><span style="color: #000000; font-weight: bold">),</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">Ebook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">…</span><span style="color: #000000; font-weight: bold">)];</span>
-    <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">from</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">ArrayIterator</span><span style="color: #000000; font-weight: bold">([</span><span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">Ebook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">…</span><span style="color: #000000; font-weight: bold">),</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">Ebook</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">…</span><span style="color: #000000; font-weight: bold">)]);</span>
-    <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">from</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">getEbooksFromCSV</span><span style="color: #000000; font-weight: bold">();</span>
-    <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">from</span> <span style="color: #000000">$this</span><span style="color: #ce5c00; font-weight: bold">-&gt;</span><span style="color: #c4a000">getEbooksFromDatabase</span><span style="color: #000000; font-weight: bold">();</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
+{
+    yield new Ebook(…);
+    yield from [new Ebook(…), new Ebook(…)];
+    yield from new ArrayIterator([new Ebook(…), new Ebook(…)]);
+    yield from $this-&gt;getEbooksFromCSV();
+    yield from $this-&gt;getEbooksFromDatabase();
+}</code></pre></div>
 <h2 id="complex-on-demand-hydration-for-database-rows">Complex, on-demand hydration for database rows</h2>
 
 <p>Another use-case I found for generators was the implementation of an on-demand
@@ -307,44 +293,42 @@ without being too slow or eating a lot of memory.</p>
 
 <p>The idea is quite naive: join the order and the matching lines, and group order
 and order lines together in a loop.</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><code class="language-php" data-lang="php"><span></span><span style="color: #204a87; font-weight: bold">public</span> <span style="color: #204a87; font-weight: bold">function</span> <span style="color: #000000">loadOrdersWithItems</span><span style="color: #000000; font-weight: bold">()</span>
-<span style="color: #000000; font-weight: bold">{</span>
-    <span style="color: #000000">$oracleQuery</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #4e9a06">&lt;&lt;&lt;SQL</span>
-<span style="color: #4e9a06">SELECT o.*, item.*</span>
-<span style="color: #4e9a06">FROM order_history o</span>
-<span style="color: #4e9a06">INNER JOIN ORDER_ITEM item ON item.order_id = o.id</span>
-<span style="color: #4e9a06">ORDER BY order.id</span>
-<span style="color: #4e9a06">SQL</span><span style="color: #000000; font-weight: bold">;</span>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">public function loadOrdersWithItems()
+{
+    $oracleQuery = <span style="color:#a40000">&lt;&lt;</span><span style="color:#000;font-weight:bold">&lt;</span><span style="color:#204a87;font-weight:bold">SQL</span>
+<span style="color:#c4a000">SELECT</span> <span style="color:#c4a000">o</span><span style="color:#a40000">.*,</span> <span style="color:#c4a000">item</span><span style="color:#a40000">.*</span>
+<span style="color:#c4a000">FROM</span> <span style="color:#c4a000">order_history</span> <span style="color:#c4a000">o</span>
+<span style="color:#c4a000">INNER</span> <span style="color:#c4a000">JOIN</span> <span style="color:#c4a000">ORDER_ITEM</span> <span style="color:#c4a000">item</span> <span style="color:#c4a000">ON</span> <span style="color:#c4a000">item</span><span style="color:#a40000">.</span><span style="color:#c4a000">order_id </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">o.id</span>
+<span style="color:#c4a000">ORDER</span> <span style="color:#c4a000">BY</span> <span style="color:#c4a000">order</span><span style="color:#a40000">.</span><span style="color:#c4a000">id</span>
+<span style="color:#c4a000">SQL</span><span style="color:#a40000">;</span>
 
-    <span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">((</span><span style="color: #000000">$stmt</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #204a87">oci_parse</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$oracleDb</span><span style="color: #000000; font-weight: bold">,</span> <span style="color: #000000">$oracleQuery</span><span style="color: #000000; font-weight: bold">))</span> <span style="color: #ce5c00; font-weight: bold">===</span> <span style="color: #204a87; font-weight: bold">false</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #204a87; font-weight: bold">throw</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">\RuntimeException</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;Prepare fail in &#39;</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000; font-weight: bold">}</span>
-    <span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #204a87">oci_execute</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$stmt</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #ce5c00; font-weight: bold">===</span> <span style="color: #204a87; font-weight: bold">false</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #204a87; font-weight: bold">throw</span> <span style="color: #204a87; font-weight: bold">new</span> <span style="color: #000000">\RuntimeException</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #4e9a06">&#39;Execute fail in &#39;</span><span style="color: #000000; font-weight: bold">);</span>
-    <span style="color: #000000; font-weight: bold">}</span>
+    <span style="color:#c4a000">if</span> <span style="color:#a40000">(($</span><span style="color:#c4a000">stmt </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">oci_parse($oracleDb,</span> <span style="color:#a40000">$</span><span style="color:#c4a000">oracleQuery</span><span style="color:#a40000">))</span> <span style="color:#a40000">===</span> <span style="color:#c4a000">false</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+        <span style="color:#c4a000">throw</span> <span style="color:#c4a000">new</span> <span style="color:#a40000">\</span><span style="color:#c4a000">RuntimeException</span><span style="color:#a40000">(&#39;</span><span style="color:#c4a000">Prepare</span> <span style="color:#c4a000">fail</span> <span style="color:#c4a000">in</span> <span style="color:#a40000">&#39;);</span>
+    <span style="color:#a40000">}</span>
+    <span style="color:#c4a000">if</span> <span style="color:#a40000">(</span><span style="color:#c4a000">oci_execute</span><span style="color:#a40000">($</span><span style="color:#c4a000">stmt</span><span style="color:#a40000">)</span> <span style="color:#a40000">===</span> <span style="color:#c4a000">false</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+        <span style="color:#c4a000">throw</span> <span style="color:#c4a000">new</span> <span style="color:#a40000">\</span><span style="color:#c4a000">RuntimeException</span><span style="color:#a40000">(&#39;</span><span style="color:#c4a000">Execute</span> <span style="color:#c4a000">fail</span> <span style="color:#c4a000">in</span> <span style="color:#a40000">&#39;);</span>
+    <span style="color:#a40000">}</span>
 
-    <span style="color: #000000">$currentOrderId</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">null</span><span style="color: #000000; font-weight: bold">;</span>
-    <span style="color: #000000">$currentOrder</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #204a87; font-weight: bold">null</span><span style="color: #000000; font-weight: bold">;</span>
-    <span style="color: #204a87; font-weight: bold">while</span> <span style="color: #000000; font-weight: bold">((</span><span style="color: #000000">$row</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #204a87">oci_fetch_assoc</span><span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$stmt</span><span style="color: #000000; font-weight: bold">))</span> <span style="color: #ce5c00; font-weight: bold">!==</span> <span style="color: #204a87; font-weight: bold">false</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-        <span style="color: #8f5902; font-style: italic">// did we move to the next order?</span>
-        <span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$row</span><span style="color: #000000; font-weight: bold">[</span><span style="color: #4e9a06">&#39;ID&#39;</span><span style="color: #000000; font-weight: bold">]</span> <span style="color: #ce5c00; font-weight: bold">!==</span> <span style="color: #000000">$currentOrderId</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-            <span style="color: #204a87; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">(</span><span style="color: #000000">$currentOrderId</span> <span style="color: #ce5c00; font-weight: bold">!==</span> <span style="color: #204a87; font-weight: bold">null</span><span style="color: #000000; font-weight: bold">)</span> <span style="color: #000000; font-weight: bold">{</span>
-                <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">$currentOrder</span><span style="color: #000000; font-weight: bold">;</span>
-            <span style="color: #000000; font-weight: bold">}</span>
+    <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrderId </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">null;</span>
+    <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">null;</span>
+    <span style="color:#c4a000">while</span> <span style="color:#a40000">(($</span><span style="color:#c4a000">row </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">oci_fetch_assoc($stmt))</span> <span style="color:#a40000">!==</span> <span style="color:#c4a000">false</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+        <span style="color:#a40000">//</span> <span style="color:#c4a000">did</span> <span style="color:#c4a000">we</span> <span style="color:#c4a000">move</span> <span style="color:#c4a000">to</span> <span style="color:#c4a000">the</span> <span style="color:#c4a000">next</span> <span style="color:#c4a000">order</span><span style="color:#a40000">?</span>
+        <span style="color:#c4a000">if</span> <span style="color:#a40000">($</span><span style="color:#c4a000">row</span><span style="color:#a40000">[&#39;</span><span style="color:#c4a000">ID</span><span style="color:#a40000">&#39;]</span> <span style="color:#a40000">!==</span> <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrderId</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+            <span style="color:#c4a000">if</span> <span style="color:#a40000">($</span><span style="color:#c4a000">currentOrderId</span> <span style="color:#a40000">!==</span> <span style="color:#c4a000">null</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
+                <span style="color:#c4a000">yield</span> <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">;</span>
+            <span style="color:#a40000">}</span>
 
-            <span style="color: #000000">$currentOrderId</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$row</span><span style="color: #000000; font-weight: bold">[</span><span style="color: #4e9a06">&#39;ID&#39;</span><span style="color: #000000; font-weight: bold">];</span>
+            <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrderId </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">$row[&#39;ID&#39;];</span>
 
-            <span style="color: #000000">$currentOrder</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$row</span><span style="color: #000000; font-weight: bold">;</span>
-            <span style="color: #000000">$currentOrder</span><span style="color: #000000; font-weight: bold">[</span><span style="color: #4e9a06">&#39;lines&#39;</span><span style="color: #000000; font-weight: bold">]</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000; font-weight: bold">[];</span>
-        <span style="color: #000000; font-weight: bold">}</span>
+            <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">$row;</span>
+            <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">[&#39;</span><span style="color:#c4a000">lines</span><span style="color:#a40000">&#39;]</span> <span style="color:#a40000">=</span> <span style="color:#a40000">[];</span>
+        <span style="color:#a40000">}</span>
 
-        <span style="color: #000000">$currentOrder</span><span style="color: #000000; font-weight: bold">[</span><span style="color: #4e9a06">&#39;lines&#39;</span><span style="color: #000000; font-weight: bold">][]</span> <span style="color: #ce5c00; font-weight: bold">=</span> <span style="color: #000000">$row</span><span style="color: #000000; font-weight: bold">;</span>
-    <span style="color: #000000; font-weight: bold">}</span>
+        <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">[&#39;</span><span style="color:#c4a000">lines</span><span style="color:#a40000">&#39;][]</span> <span style="color:#a40000">=</span> <span style="color:#a40000">$</span><span style="color:#c4a000">row</span><span style="color:#a40000">;</span>
+    <span style="color:#a40000">}</span>
 
-    <span style="color: #204a87; font-weight: bold">yield</span> <span style="color: #000000">$currentOrder</span><span style="color: #000000; font-weight: bold">;</span>
-<span style="color: #000000; font-weight: bold">}</span>
-</code></pre></div>
-
+    <span style="color:#c4a000">yield</span> <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">;</span>
+<span style="color:#a40000">}</span></code></pre></div>
 <p>Using a generator, I managed to implement a method that could fetch orders from
 the database and join the corresponding order lines. All of this while consuming
 a stable amount of memory.
