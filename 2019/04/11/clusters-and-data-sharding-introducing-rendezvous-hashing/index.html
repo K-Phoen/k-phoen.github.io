@@ -21,7 +21,7 @@ I still didn&rsquo;t touch the main feature of my store: actually distributing d
 Now is the time to address that." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/" />
-<meta property="article:published_time" content="2019-04-11T00:27:24+02:00" />
+<meta property="article:published_time" content="2019-04-11T00:00:00+00:00" />
 
 
     <meta name="twitter:card" content="summary"/>
@@ -204,7 +204,7 @@ as input and returns the associated weight ;</li>
 </span><span style="color:#8f5902;font-style:italic"></span>
 <span style="color:#204a87;font-weight:bold">func</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">n</span> <span style="color:#000">Node</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000">weight</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span> <span style="color:#204a87;font-weight:bold">string</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000;font-weight:bold">{</span>
 	<span style="color:#8f5902;font-style:italic">// usually, you would find a way to merge the two hashed instead
-</span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// of concatenating the server&#39;s adress, the key and hashing the
+</span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// of concatenating the server&#39;s address, the key and hashing the
 </span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// result. The original paper suggests:
 </span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// a = 1103515245
 </span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// b = 12345

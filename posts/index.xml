@@ -6,17 +6,17 @@
     <description>Recent content in Posts on Kévin Gomez</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 24 Nov 2019 20:12:05 +0100</lastBuildDate>
+    <lastBuildDate>Thu, 11 Apr 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Clusters and data sharding: introducing rendezvous hashing</title>
-      <link>/2019/11/24/clusters-and-data-sharding-introducing-rendezvous-hashing/</link>
-      <pubDate>Sun, 24 Nov 2019 20:12:05 +0100</pubDate>
+      <link>/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</link>
+      <pubDate>Thu, 11 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>/2019/11/24/clusters-and-data-sharding-introducing-rendezvous-hashing/</guid>
+      <guid>/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</guid>
       <description>&lt;p&gt;In a &lt;a href=&#34;/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/&#34;&gt;previous article&lt;/a&gt;,
 I started playing with distributed systems by implementing a distributed key-value
 store.&lt;/p&gt;
