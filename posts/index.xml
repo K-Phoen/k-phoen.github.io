@@ -6,10 +6,23 @@
     <description>Recent content in Posts on Kévin Gomez</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 11 Apr 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 24 Nov 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>This blog has continuous integration</title>
+      <link>/2019/11/24/this-blog-has-continuous-integration/</link>
+      <pubDate>Sun, 24 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/11/24/this-blog-has-continuous-integration/</guid>
+      <description>&lt;p&gt;It&amp;rsquo;s probably not a surprise for most of the people reading this blog but I am
+a software engineer. And as such I spend most of my time writing code, checked
+in a VCS, reviewed by peers and analyzed by tools before being deployed.&lt;/p&gt;
+
+&lt;p&gt;Isn&amp;rsquo;t it only natural that the content of this blog followed the same rules?&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Clusters and data sharding: introducing rendezvous hashing</title>
