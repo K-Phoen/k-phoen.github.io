@@ -93,7 +93,7 @@
 
 <p>While I&rsquo;ve already used <a href="https://github.com/padraic/humbug">Humbug</a> a few time,
 a <a href="http://blog.eleven-labs.com/en/mutation-testing-check-quality-unit-tests/">recent article</a>
-made my realise that I didn&rsquo;t really know how it worked.</p>
+made my realize that I didn&rsquo;t really know how it worked.</p>
 
 <p>That&rsquo;s when I got the idea to dig into Humbug to learn how it works, and publish
 my findings here.</p>
@@ -136,7 +136,7 @@ code.</p>
 <h3 id="first-step-composer-json">First step: <code>composer.json</code></h3>
 
 <p>I&rsquo;ll use the <code>composer.json</code> file as entry point to this analysis. The goal here
-is to see if there is a dependency that could be use to analyse and manipulate
+is to see if there is a dependency that could be use to analyze and manipulate
 source code. I&rsquo;m thinking about a library like
 <a href="https://github.com/nikic/PHP-Parser">nikic/PHP-Parser</a> for instance.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#000;font-weight:bold">{</span>
@@ -176,8 +176,7 @@ manipulation is in Humbug&rsquo;s repository.</p>
 
 <p>When I open the sources, the <a href="https://github.com/padraic/humbug/tree/06b1c059e432dab8c22c36bc8b6e1ffc7e587c07/src/Mutator"><code>Mutator</code></a>
 directory immediately catches my eye. So let&rsquo;s see what&rsquo;s inside.</p>
-
-<pre><code>src/Mutator
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">src/Mutator
 ├── Arithmetic
 ├── Boolean
 ├── ConditionalBoundary
@@ -186,9 +185,7 @@ directory immediately catches my eye. So let&rsquo;s see what&rsquo;s inside.</p
 ├── Increment
 ├── MutatorAbstract.php
 ├── Number
-└── ReturnValue
-</code></pre>
-
+└── ReturnValue</code></pre></div>
 <p>First thought: it reminds me of the mutations listed in the README. Let&rsquo;s open a
 file to check it. I&rsquo;ll begin with <a href="https://github.com/padraic/humbug/blob/06b1c059e432dab8c22c36bc8b6e1ffc7e587c07/src/Mutator/Arithmetic/Addition.php"><code>src/Mutator/Arithmetic/Addition.php</code></a>.</p>
 

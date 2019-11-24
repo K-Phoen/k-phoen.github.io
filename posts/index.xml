@@ -6,17 +6,17 @@
     <description>Recent content in Posts on Kévin Gomez</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 11 Apr 2019 00:27:24 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 24 Nov 2019 20:12:05 +0100</lastBuildDate>
     
 	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Clusters and data sharding: introducing rendezvous hashing</title>
-      <link>/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</link>
-      <pubDate>Thu, 11 Apr 2019 00:27:24 +0200</pubDate>
+      <link>/2019/11/24/clusters-and-data-sharding-introducing-rendezvous-hashing/</link>
+      <pubDate>Sun, 24 Nov 2019 20:12:05 +0100</pubDate>
       
-      <guid>/2019/04/11/clusters-and-data-sharding-introducing-rendezvous-hashing/</guid>
+      <guid>/2019/11/24/clusters-and-data-sharding-introducing-rendezvous-hashing/</guid>
       <description>&lt;p&gt;In a &lt;a href=&#34;/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/&#34;&gt;previous article&lt;/a&gt;,
 I started playing with distributed systems by implementing a distributed key-value
 store.&lt;/p&gt;
@@ -80,7 +80,7 @@ first place?&lt;/p&gt;</description>
       <pubDate>Sun, 23 Oct 2016 00:00:00 +0000</pubDate>
       
       <guid>/2016/10/23/digging-into-humbug/</guid>
-      <description>While I&amp;rsquo;ve already used Humbug a few time, a recent article made my realise that I didn&amp;rsquo;t really know how it worked.
+      <description>While I&amp;rsquo;ve already used Humbug a few time, a recent article made my realize that I didn&amp;rsquo;t really know how it worked.
 That&amp;rsquo;s when I got the idea to dig into Humbug to learn how it works, and publish my findings here.
 Before we start, let&amp;rsquo;s quickly give some context on Humbug.
 What&amp;rsquo;s Humbug? « Humbug is a Mutation Testing framework for PHP »

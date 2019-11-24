@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Clusters and data sharding: introducing rendezvous hashing &mdash; Kévin Gomez</title>
+
+    <meta name="description" content="In a previous article, I started playing with distributed systems by implementing a distributed key-value store.
+I used SWIM to create a cluster, know its members and monitor their health. But I still didn&amp;rsquo;t touch the main feature of my store: actually distributing data. Now is the time to address that.
+">
+
+    <meta property="og:title" content="Clusters and data sharding: introducing rendezvous hashing" />
+<meta property="og:description" content="In a previous article,
+I started playing with distributed systems by implementing a distributed key-value
+store.
+
+I used SWIM to create a cluster, know its members and monitor their health. But
+I still didn&rsquo;t touch the main feature of my store: actually distributing data.
+Now is the time to address that." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/2019/11/24/clusters-and-data-sharding-introducing-rendezvous-hashing/" />
+<meta property="article:published_time" content="2019-11-24T20:12:05+01:00" />
+
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Clusters and data sharding: introducing rendezvous hashing"/>
+<meta name="twitter:description" content="In a previous article,
+I started playing with distributed systems by implementing a distributed key-value
+store.
+
+I used SWIM to create a cluster, know its members and monitor their health. But
+I still didn&rsquo;t touch the main feature of my store: actually distributing data.
+Now is the time to address that."/>
+<meta name="twitter:site" content="@KPhoen"/>
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.3cb1c5546ad2231369059c2e3e7672679cd1a99af4be7ed0c73f15ba83148464.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2019/11/24/clusters-and-data-sharding-introducing-rendezvous-hashing/">Clusters and data sharding: introducing rendezvous hashing</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2019-11-24T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2019-11-24T00:00:00+01:00" />
+                24 November 2019
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~8 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+
+    <section class="post-body" itemprop="articleBody">
+        <p>In a <a href="/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/">previous article</a>,
+I started playing with distributed systems by implementing a distributed key-value
+store.</p>
+
+<p>I used SWIM to create a cluster, know its members and monitor their health. But
+I still didn&rsquo;t touch the main feature of my store: actually distributing data.
+Now is the time to address that.</p>
+
+<p>Before talking about a possible solution, let&rsquo;s lay out a few properties that we
+want it to have:</p>
+
+<ul>
+<li><strong>load balancing</strong>: each of the <code>n</code> nodes is equally likely to receive the key <code>K</code> ;</li>
+<li><strong>low overhead</strong>: the overhead introduced by routing objects to the right node
+should be minimal, as to not decrease the overall performance of the system ;</li>
+<li><strong>minimal disruption</strong>: whenever a node fails or is added to the cluster, the
+number of keys to relocate to another node should be as small as possible ;</li>
+<li><strong>distributed agreement</strong>: for a given key, all the nodes should choose the
+same node as the recipient.</li>
+</ul>
+
+<h2 id="hashtable-like-approach">Hashtable-like approach</h2>
+
+<p>When I started thinking about how I could distribute data across the cluster,
+my first thought was to take the principles used by &ldquo;standard&rdquo; hashtables and
+see what would happen in a distributed environment.</p>
+
+<p>The main idea behind hashtables is to turn a string (the key) into a number,
+which will then be used to determine the location where the data will be stored.</p>
+
+<p>The transformation of the key into a number is done by a hash function. These
+functions have all kinds of interesting properties, which make them useful for
+all sorts of uses. In this case, we are interested in one property in particular:
+<a href="https://en.wikipedia.org/wiki/Hash_function#Uniformity">uniformity</a>.</p>
+
+<p>Bucket selection inside a hashtable could look like this (where <code>N</code>
+is the number of buckets):</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000">bucket</span> <span style="color:#ce5c00;font-weight:bold">:=</span> <span style="color:#000">bucketsList</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">hash</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">%</span> <span style="color:#000">N</span><span style="color:#000;font-weight:bold">]</span></code></pre></div>
+<p>Similarly, if we have <code>N</code> servers, we could use the same algorithm to
+determine which one will be responsible for the given key:</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000">server</span> <span style="color:#ce5c00;font-weight:bold">:=</span> <span style="color:#000">serversList</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">hash</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">%</span> <span style="color:#000">N</span><span style="color:#000;font-weight:bold">]</span></code></pre></div>
+<p>It&rsquo;s simple, but it works!</p>
+
+<h2 id="evaluating-the-hashtable-like-approach">Evaluating the &ldquo;hashtable-like&rdquo; approach</h2>
+
+<p>Now that we have an algorithm, let&rsquo;s see how it fares in light of the goals we
+defined earlier.</p>
+
+<ul>
+<li><strong>load balancing</strong>: this property directly depends on the hashing function
+that is used and if it uniformly distributes keys or not. Depending on the
+nature of your data, <a href="https://en.wikipedia.org/wiki/Hash_function#Hash_function_algorithms">different types of functions</a>
+can be used so we can safely assume that we can find a hash function that will
+do the job ;</li>
+<li><strong>low overhead</strong>: computing a single hash is fast (as long as you don&rsquo;t use a
+cryptographic hash function — which can be slow on purpose) and does not
+require any network call, so the overhead is negligible ;</li>
+<li><strong>distributed agreement</strong>: for this algorithm to work, all the servers in the
+cluster must use the same hash function. No further coordination is needed as
+all the work can be done locally ;</li>
+<li><strong>minimal disruption</strong>: whenever a node fails or is added to the cluster,
+almost all every key already stored has to be moved. This is a serious issue.</li>
+</ul>
+
+<p>To go further on the last point, when a node is added or removed to the cluster,
+one of the main input of our algorithm changes. For a key to stay where it is,
+the following has to be true:
+<code>bucketList[hash(key) % N] == bucketList[hash(key) % (N + 1)]</code> (in case of a node
+being added).</p>
+
+<p>If the chosen hash function does a perfect job at distributing data, each node
+would end up with <code>1/N</code> of the data.</p>
+
+<p>If a new server is added/removed, we want to preserve this ratio. Furthermore,
+keys that have to be moved should be taken from the &ldquo;old&rdquo; servers and <strong>only move
+from an old server to a new one</strong>, never between old servers. Transferring data
+between servers being expensive, the less data we transfer, the better.</p>
+
+<p>And that&rsquo;s the main issue with this algorithm: a lot of data would have to be
+moved around each time the cluster&rsquo; state changes.</p>
+
+<p><strong>Note</strong>: another issue that could be raised is the need for each node to
+maintain a list of all other nodes in the cluster. It&rsquo;s not an issue for me as I
+rely on SWIM to maintain and monitor my cluster. Through this protocol, each
+node has an up-to-date (eventually) list of the members of the cluster.</p>
+
+<h2 id="rendezvous-hashing">Rendezvous hashing</h2>
+
+<p>After googling for a while, I stumbled upon a paper called « <a href="http://www.eecs.umich.edu/techreports/cse/96/CSE-TR-316-96.pdf">A Named-Based
+Mapping Scheme for Rendezvous</a> »
+which introduced and described rendezvous hashing (also known as <em>Highest Random
+Weight (HRW) Mapping</em>).</p>
+
+<p>The algorithm itself is pretty straightforward:</p>
+
+<ol>
+<li>a <code>weight</code> function is defined. It takes a key and a server address
+as input and returns the associated weight ;</li>
+<li>for each server, the key-server weight is computed ;</li>
+<li>the server with the highest weight is chosen to handle the request.</li>
+</ol>
+
+<p>Here is what the server selection could look like, implemented in Go:</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#8f5902;font-style:italic">// assuming that this exists: func hash(key string) int
+</span><span style="color:#8f5902;font-style:italic"></span>
+<span style="color:#204a87;font-weight:bold">func</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">n</span> <span style="color:#000">Node</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000">weight</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span> <span style="color:#204a87;font-weight:bold">string</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000;font-weight:bold">{</span>
+	<span style="color:#8f5902;font-style:italic">// usually, you would find a way to merge the two hashed instead
+</span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// of concatenating the server&#39;s address, the key and hashing the
+</span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// result. The original paper suggests:
+</span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// a = 1103515245
+</span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// b = 12345
+</span><span style="color:#8f5902;font-style:italic"></span>	<span style="color:#8f5902;font-style:italic">// (a * ((a * server_address + b) ^ hash(key)) + b) % 2^31
+</span><span style="color:#8f5902;font-style:italic"></span>
+	<span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">hash</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fmt</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Sprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;%s:%s&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">n</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Address</span><span style="color:#000;font-weight:bold">(),</span> <span style="color:#000">key</span><span style="color:#000;font-weight:bold">))</span>
+<span style="color:#000;font-weight:bold">}</span>
+
+<span style="color:#204a87;font-weight:bold">func</span> <span style="color:#000">ResponsibleNode</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">nodes</span> <span style="color:#000;font-weight:bold">[]</span><span style="color:#000">Node</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">key</span> <span style="color:#204a87;font-weight:bold">string</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000">Node</span> <span style="color:#000;font-weight:bold">{</span>
+	<span style="color:#204a87;font-weight:bold">var</span> <span style="color:#000">node</span> <span style="color:#000">Node</span>
+	<span style="color:#000">maxWeight</span> <span style="color:#ce5c00;font-weight:bold">:=</span> <span style="color:#0000cf;font-weight:bold">0</span>
+
+	<span style="color:#204a87;font-weight:bold">for</span> <span style="color:#000">_</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">candidate</span> <span style="color:#ce5c00;font-weight:bold">:=</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000">nodes</span> <span style="color:#000;font-weight:bold">{</span>
+		<span style="color:#000">weight</span> <span style="color:#ce5c00;font-weight:bold">:=</span> <span style="color:#000">candidate</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">weight</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">)</span>
+
+		<span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">weight</span> <span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#000">maxWeight</span> <span style="color:#000;font-weight:bold">{</span>
+			<span style="color:#000">maxWeight</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000">weight</span>
+			<span style="color:#000">node</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000">candidate</span>
+		<span style="color:#000;font-weight:bold">}</span>
+	<span style="color:#000;font-weight:bold">}</span>
+
+	<span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">node</span>
+<span style="color:#000;font-weight:bold">}</span></code></pre></div>
+<p><strong>Note</strong>: <a href="https://en.wikipedia.org/wiki/MurmurHash"><em>MurmurHash</em></a> is a
+non-cryptographic, general-purpose hash function that is often used for
+rendezvous hashing. There is also a <a href="https://softwareengineering.stackexchange.com/questions/49550/which-hashing-algorithm-is-best-for-uniqueness-and-speed/145633#145633">pretty cool answer on StackOverflow</a>
+where someone did an interesting comparison of several hashing algorithms.</p>
+
+<h2 id="evaluating-rendezvous-hashing">Evaluating rendezvous hashing</h2>
+
+<p>This algorithm is pretty similar to the &ldquo;hashtable-style&rdquo; one in the sense where
+it relies on hash functions to map objects to servers.</p>
+
+<p>The main difference lies in how you map a key to a server. Instead of hashing
+the key and using a <code>mod</code> to select the server, the hash number is
+considered as a weight. This makes the whole process almost immune to cluster
+changes.</p>
+
+<p>If we take a look at the properties we want for our system:</p>
+
+<ul>
+<li><strong>load balancing</strong>: as long as we choose a correct hash function, this
+property still holds ;</li>
+<li><strong>low overhead</strong>: we now have to compute <code>N</code> hashes instead of one,
+which makes the process <code>O(n)</code> instead of constant time. But we
+could also argue that it&rsquo;s &ldquo;fast enough&rdquo; (©) compared to network calls ;</li>
+<li><strong>distributed agreement</strong>: once again, all nodes rely on the same algorithm
+and hash function and no external knowledge or communication is needed, which
+make distributed agreement easy, with local-only operations ;</li>
+<li><strong>minimal disruption</strong>: because the way data is distributed across the cluster
+isn&rsquo;t tied to the cluster&rsquo; size anymore, this algorithm exhibits nice
+properties. When a node is added, only <code>1/N</code> keys must be
+relocated. Similarly, if a node goes down (for maintenance, for instance), its
+keys can be moved to another node and when it comes back, the original mapping
+will be restored without needing additional coordination.</li>
+</ul>
+
+<p>To sum up: we have a simple, coordination-free algorithm to map a key to a
+server. And that with nice properties regarding load balancing and low disruption
+in case of failures.</p>
+
+<p>Quite impressive for an algorithm that simple, isn&rsquo;t it?</p>
+
+<h3 id="going-further-with-rendezvous-hashing">Going further with rendezvous hashing</h3>
+
+<h4 id="performance">Performance</h4>
+
+<p>For a big enough cluster, the <code>O(n)</code> lookup time necessary to compute
+a key to server mapping can be too much.</p>
+
+<p>To mitigate that, a number of optimizations exist.</p>
+
+<p>The simplest way would be to find a trick to speed up the loop iterating over
+the nodes. Possibly by pre-computing hashes for each server and using some
+bit shifting-based black magic to merge the key&rsquo;s hash and the server&rsquo;s one.</p>
+
+<p>But the algorithm&rsquo;s complexity wouldn&rsquo;t change.</p>
+
+<p>That being said, there is a variant of the rendezvous algorithm — <a href="https://en.wikipedia.org/wiki/Rendezvous_hashing#Skeleton-based_variant_for_very_large_n">the
+skeleton-based one</a> —
+that relies on a virtual hierarchical structure to achieve an <code>O(log n)</code> complexity.
+The idea is to consider the cluster as a tree, with the nodes as leaves and
+introducing virtual nodes to structure the tree in a hierarchical way.
+This tree can then be used to compute hashes just for a subset of the servers in
+the cluster instead of all of them.</p>
+
+<h4 id="replication">Replication</h4>
+
+<p>For some services like databases or cache servers, replication is a must-have
+feature. Luckily, it&rsquo;s straightforward to implement with rendezvous hashing.</p>
+
+<p>The algorithm already sorts nodes by weight, from the most susceptible to
+receive the object to the least. When we don&rsquo;t want the data to be replicated,
+we select only the first node. If we want the data to live in two nodes, we can
+select the first two nodes of the list. And so on.
+If the &ldquo;main&rdquo; node goes down, the algorithm will automatically be able to fetch
+the data from the replica, with no need for additional coordination across
+nodes.</p>
+
+<h2 id="other-algorithms">Other algorithms</h2>
+
+<p>Of course, rendezvous hashing isn&rsquo;t the only technique to distribute keys across
+servers.</p>
+
+<p>I won&rsquo;t detail them here, I just leave a few of them here, for the curious
+readers:</p>
+
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Consistent_hashing">consistent hashing</a>: don&rsquo;t
+forget to read the &ldquo;External links&rdquo; section ;</li>
+<li><a href="https://arxiv.org/abs/1406.2294">jump hash</a>: this one looks like dark magic.
+It&rsquo;s a hash function that consistently chooses a number between [0, numServers),
+using the given key (it&rsquo;s basically a srand(), using the key as seed) ;</li>
+<li>and I&rsquo;m sure that there are a lot of other methods that I don&rsquo;t know about…
+feel free to tell me about them!</li>
+</ul>
+    </section>
+
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>

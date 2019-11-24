@@ -111,11 +111,14 @@ type of service relies upon for their failure detection and memberships.</p>
 protocols to detect node failures. When a failure is detected, it is usually
 communicated to the cluster using some kind of broadcast or multicast subsystem.</p>
 
-<p>We could summarize the process like this:
- * every node sends an &ldquo;heartbeat signal&rdquo; every <code>T</code> interval of time to all
-    other nodes ;
- * if no heartbeat from a node <code>N</code> is received after <code>T*limit</code>,
-    the non-responsive node is considered dead.</p>
+<p>We could summarize the process like this:</p>
+
+<ul>
+<li>every node sends an &ldquo;heartbeat signal&rdquo; every <code>T</code> interval of time to all
+other nodes ;</li>
+<li>if no heartbeat from a node <code>N</code> is received after <code>T*limit</code>,
+the non-responsive node is considered dead.</li>
+</ul>
 
 <figure>
     <img src="/img/heartbeat.svg" />
@@ -260,7 +263,7 @@ allowing it to gradually receive information about all the nodes of the cluster.
 <ul>
 <li>it splits the failure detection and the dissemination components ;</li>
 <li>each node of the cluster periodically check the health of a random node of
- its memberlist (either directly or indirectly) ;</li>
+its memberlist (either directly or indirectly) ;</li>
 <li><code>join()</code> and <code>failed()</code> events are multicast.</li>
 </ul>
 
@@ -448,10 +451,10 @@ For instance:</p>
 
 <ul>
 <li>receiving the message <code>{ Alive C, incarnation = 1 }</code> would override
- the message <code>{ Suspect C, incarnation = 0 }</code> as the incarnation
- number of the suspected <em>C</em> node is less than the alive <em>C</em> node.</li>
+the message <code>{ Suspect C, incarnation = 0 }</code> as the incarnation
+number of the suspected <em>C</em> node is less than the alive <em>C</em> node.</li>
 <li>on the other hand, the message <code>{ Alive C, incarnation = 1 }</code>
- would not be overridden by <code>{ Suspect C, incarnation = 0 }</code></li>
+would not be overridden by <code>{ Suspect C, incarnation = 0 }</code></li>
 </ul>
 
 <p>By comparing <em>incarnation numbers</em>, we can safely drop outdated messages and
@@ -479,17 +482,17 @@ detection time of a node failure.</p>
 <li><em>SWIM</em> is a membership protocol designed to answer the question « <em>Which are
 the alive nodes in a cluster?</em> » in a scalable way</li>
 <li>the protocol is divided in two components: failure detection and information
- dissemination</li>
+dissemination</li>
 <li>the failure detector works by directly or indirectly probing nodes, at fixed
- intervals</li>
+intervals</li>
 <li>the suspicion sub-protocol improves the failure detector&rsquo;s accuracy by giving
- time to nodes for recovery</li>
+time to nodes for recovery</li>
 <li>information about the status of the cluster is disseminated using a
- infection-style method: events are included in the failure detection
- component and propagated as an infection or gossip would in real life, from
- peer to peer</li>
+infection-style method: events are included in the failure detection
+component and propagated as an infection or gossip would in real life, from
+peer to peer</li>
 <li>selected nodes to probe using a randomized round-robin makes the failure
- detection deterministic</li>
+detection deterministic</li>
 </ul>
 
 <h2 id="going-further">Going further</h2>
@@ -502,7 +505,7 @@ subjects we didn&rsquo;t explore:</p>
 <li>how does <em>SWIM</em> deal with nodes voluntarily leaving the cluster?</li>
 <li>what about nodes re-joining?</li>
 <li>we totally ignored security. Shouldn&rsquo;t the communications between nodes at
- least be encrypted?</li>
+least be encrypted?</li>
 <li>etc.</li>
 </ul>
 
