@@ -4,7 +4,7 @@
     <link>https:/</link>
     <description>Recent content on Kévin Gomez</description>
     <language>en-us</language>
-    <lastBuildDate>Wed, 25 Nov 2020 20:09:19 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 25 Nov 2020 20:09:49 +0000</lastBuildDate>
     
         <atom:link href="https:/index.xml" rel="self" type="application/rss+xml" />
     
@@ -12,7 +12,7 @@
     <item>
       <title>About me</title>
       <link>https:/about-me/</link>
-      <pubDate>Wed, 25 Nov 2020 20:09:19 +0000</pubDate>
+      <pubDate>Wed, 25 Nov 2020 20:09:49 +0000</pubDate>
       
       <guid>https:/about-me/</guid>
       <description>About me  My name is Kévin and I am a software engineer specialized in backend applications. I started web development in 2008 and acquired a strong knowledge and expertise in this field over time.  I want this page to be a &#34;not-so-formal&#34; description of who I am, my main skills and why I think I am a great software engineer and why you should hire me. For a more formal introduction, you can download my résumé.</description>
@@ -21,7 +21,7 @@
     <item>
       <title>Bookshelf</title>
       <link>https:/bookshelf/</link>
-      <pubDate>Wed, 25 Nov 2020 20:09:19 +0000</pubDate>
+      <pubDate>Wed, 25 Nov 2020 20:09:49 +0000</pubDate>
       
       <guid>https:/bookshelf/</guid>
       <description></description>
@@ -30,7 +30,7 @@
     <item>
       <title>Talks</title>
       <link>https:/talks/</link>
-      <pubDate>Wed, 25 Nov 2020 20:09:19 +0000</pubDate>
+      <pubDate>Wed, 25 Nov 2020 20:09:49 +0000</pubDate>
       
       <guid>https:/talks/</guid>
       <description></description>
