@@ -4,24 +4,15 @@
     <link>https:/</link>
     <description>Recent content on Kévin Gomez</description>
     <language>en-us</language>
-    <lastBuildDate>Sun, 24 Nov 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 25 Nov 2020 03:22:07 +0100</lastBuildDate>
     
         <atom:link href="https:/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Posts</title>
-      <link>https:/posts/</link>
-      <pubDate>Sun, 24 Nov 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https:/posts/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>About me</title>
       <link>https:/about-me/</link>
-      <pubDate>Thu, 28 Feb 2019 02:16:16 +0100</pubDate>
+      <pubDate>Wed, 25 Nov 2020 03:22:07 +0100</pubDate>
       
       <guid>https:/about-me/</guid>
       <description>About me  My name is Kévin and I am a software engineer specialized in backend applications. I started web development in 2008 and acquired a strong knowledge and expertise in this field over time.  I want this page to be a &#34;not-so-formal&#34; description of who I am, my main skills and why I think I am a great software engineer and why you should hire me. For a more formal introduction, you can download my résumé.</description>
@@ -30,7 +21,7 @@
     <item>
       <title>Bookshelf</title>
       <link>https:/bookshelf/</link>
-      <pubDate>Thu, 28 Feb 2019 02:16:16 +0100</pubDate>
+      <pubDate>Wed, 25 Nov 2020 03:22:07 +0100</pubDate>
       
       <guid>https:/bookshelf/</guid>
       <description></description>
@@ -39,9 +30,18 @@
     <item>
       <title>Talks</title>
       <link>https:/talks/</link>
-      <pubDate>Thu, 28 Feb 2019 02:16:16 +0100</pubDate>
+      <pubDate>Wed, 25 Nov 2020 03:22:07 +0100</pubDate>
       
       <guid>https:/talks/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Posts</title>
+      <link>https:/posts/</link>
+      <pubDate>Sun, 24 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https:/posts/</guid>
       <description></description>
     </item>
     
