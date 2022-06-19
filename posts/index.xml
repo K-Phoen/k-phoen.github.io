@@ -6,10 +6,22 @@
     <description>Recent content in Posts on Kévin Gomez</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 15 Nov 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 19 Jun 2022 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Better slack notifications for Grafana</title>
+      <link>/2022/06/19/better-slack-notifications-for-grafana/</link>
+      <pubDate>Sun, 19 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>/2022/06/19/better-slack-notifications-for-grafana/</guid>
+      <description>&lt;p&gt;While the introduction of Grafana&amp;rsquo;s unified alerting system is an improvement, everything isn&amp;rsquo;t perfect.
+Slack notifications sent by Grafana whenever an alert is fired or resolved got significantly less readable.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s improve them!&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Two years in Sweden</title>

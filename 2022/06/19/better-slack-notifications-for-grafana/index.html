@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Better slack notifications for Grafana &mdash; Kévin Gomez</title>
+
+    <meta name="description" content="While the introduction of Grafana&amp;rsquo;s unified alerting system is an improvement, everything isn&amp;rsquo;t perfect. Slack notifications sent by Grafana whenever an alert is fired or resolved got significantly less readable.
+Let&amp;rsquo;s improve them!
+">
+
+    <meta property="og:title" content="Better slack notifications for Grafana" />
+<meta property="og:description" content="While the introduction of Grafana&rsquo;s unified alerting system is an improvement, everything isn&rsquo;t perfect.
+Slack notifications sent by Grafana whenever an alert is fired or resolved got significantly less readable.
+
+Let&rsquo;s improve them!" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/2022/06/19/better-slack-notifications-for-grafana/" />
+<meta property="article:published_time" content="2022-06-19T00:00:00+00:00" />
+
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Better slack notifications for Grafana"/>
+<meta name="twitter:description" content="While the introduction of Grafana&rsquo;s unified alerting system is an improvement, everything isn&rsquo;t perfect.
+Slack notifications sent by Grafana whenever an alert is fired or resolved got significantly less readable.
+
+Let&rsquo;s improve them!"/>
+<meta name="twitter:site" content="@KPhoen"/>
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.51ddff0de179b0b8ea9d8d50eae09b222c56e5f5b4608fe7a68b0a2a7d1e383a.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2022/06/19/better-slack-notifications-for-grafana/">Better slack notifications for Grafana</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2022-06-19T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2022-06-19T00:00:00+01:00" />
+                19 June 2022
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~3 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+
+    <section class="post-body" itemprop="articleBody">
+        <p>While the introduction of Grafana&rsquo;s unified alerting system is an improvement, everything isn&rsquo;t perfect.
+Slack notifications sent by Grafana whenever an alert is fired or resolved got significantly less readable.</p>
+
+<p>Let&rsquo;s improve them!</p>
+
+<p>Out of the box, Slack notifications look like this:</p>
+
+<p><img src="/img/slack-grafana-alerts/old_alert.png" alt="single firing alert, default Grafana/Slack template" /></p>
+
+<p>With a single alert, the amount of information thrown at us already feels overwhelming. Even more so with <em>real</em> alerts for which the <code>values</code> field can contain a lot of unreadable data.</p>
+
+<p>Fortunately, Grafana supports defining <a href="https://grafana.com/docs/grafana/next/alerting/contact-points/message-templating/">custom message templates</a> to be used in contact points.</p>
+
+<p>The following template generates notifications like this one:</p>
+
+<p><img src="/img/slack-grafana-alerts/new_alert.png" alt="single firing alert, custom Grafana/Slack template" /></p>
+
+<p>To use it, <a href="https://grafana.com/docs/grafana/next/alerting/contact-points/message-templating/create-message-template/">create a new template</a> with the following content (its name is irrelevant):</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;custom_alert.title&#34;</span> <span style="color:#000;font-weight:bold">}}[{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Status</span> <span style="color:#000;font-weight:bold">|</span> <span style="color:#000">toUpper</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">eq</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Status</span> <span style="color:#4e9a06">&#34;firing&#34;</span> <span style="color:#000;font-weight:bold">}}:</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Alerts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Firing</span> <span style="color:#000;font-weight:bold">|</span> <span style="color:#000">len</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(.</span><span style="color:#000">Alerts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Resolved</span> <span style="color:#000;font-weight:bold">|</span> <span style="color:#000">len</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}},</span> <span style="color:#000">RESOLVED</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Alerts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Resolved</span> <span style="color:#000;font-weight:bold">|</span> <span style="color:#000">len</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}]{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">GroupLabels</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}</span> <span style="color:#000">Grouped</span> <span style="color:#000">by</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">CommonLabels</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">SortedPairs</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#000;font-weight:bold">}}:</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Value</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;__text_alert_name&#34;</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Labels</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">SortedPairs</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">eq</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;alertname&#34;</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Value</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;__text_alert_summary&#34;</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Annotations</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">SortedPairs</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">eq</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;summary&#34;</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Value</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;__text_alert_description&#34;</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Annotations</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">SortedPairs</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">eq</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;description&#34;</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Value</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;__text_alert_runbook_url&#34;</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Annotations</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">SortedPairs</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">eq</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;runbook_url&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">:</span><span style="color:#000">bookmark_tabs</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">&lt;{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Value</span> <span style="color:#000;font-weight:bold">}}|</span><span style="color:#000">Playbook</span><span style="color:#000;font-weight:bold">&gt;{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;__text_alert_firing_item&#34;</span> <span style="color:#000;font-weight:bold">}}:</span><span style="color:#000">bell</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">template</span> <span style="color:#4e9a06">&#34;__text_alert_name&#34;</span> <span style="color:#000;font-weight:bold">.</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">template</span> <span style="color:#4e9a06">&#34;__text_alert_summary&#34;</span> <span style="color:#000;font-weight:bold">.</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">template</span> <span style="color:#4e9a06">&#34;__text_alert_description&#34;</span> <span style="color:#000;font-weight:bold">.</span> <span style="color:#000;font-weight:bold">}}</span>
+
+<span style="color:#000">Labels</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Labels</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">SortedPairs</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">ne</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;alertname&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">ne</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;ref_id&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">ne</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;datasource_uid&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">ne</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;rule_uid&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#000;font-weight:bold">}}</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Value</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+
+<span style="color:#000">Actions</span><span style="color:#000;font-weight:bold">:</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">DashboardURL</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}:</span><span style="color:#000">grafana</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">&lt;{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">DashboardURL</span> <span style="color:#000;font-weight:bold">}}|</span><span style="color:#000">Go</span> <span style="color:#000">to</span> <span style="color:#000">dashboard</span><span style="color:#000;font-weight:bold">&gt;{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">PanelURL</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}:</span><span style="color:#000">chart_with_upwards_trend</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">&lt;{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">PanelURL</span> <span style="color:#000;font-weight:bold">}}|</span><span style="color:#000">Go</span> <span style="color:#000">to</span> <span style="color:#000">panel</span><span style="color:#000;font-weight:bold">&gt;{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">GeneratorURL</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}:</span><span style="color:#000">arrow_right</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">&lt;{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">GeneratorURL</span> <span style="color:#000;font-weight:bold">}}|</span><span style="color:#000">Go</span> <span style="color:#000">to</span> <span style="color:#000">alert</span><span style="color:#000;font-weight:bold">&gt;{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">SilenceURL</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}:</span><span style="color:#000">mute</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">&lt;{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">SilenceURL</span> <span style="color:#000;font-weight:bold">}}|</span><span style="color:#000">Silence</span> <span style="color:#000">alert</span><span style="color:#000;font-weight:bold">&gt;{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">template</span> <span style="color:#4e9a06">&#34;__text_alert_runbook_url&#34;</span> <span style="color:#000;font-weight:bold">.</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;__text_alert_resolved_item&#34;</span> <span style="color:#000;font-weight:bold">}}:</span><span style="color:#000">large_green_circle</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">template</span> <span style="color:#4e9a06">&#34;__text_alert_name&#34;</span> <span style="color:#000;font-weight:bold">.</span> <span style="color:#000;font-weight:bold">}}</span>
+
+<span style="color:#000">Labels</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Labels</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">SortedPairs</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">ne</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;alertname&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">ne</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;ref_id&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">ne</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;datasource_uid&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">ne</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#4e9a06">&#34;rule_uid&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Name</span> <span style="color:#000;font-weight:bold">}}</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Value</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span><span style="color:#ce5c00;font-weight:bold">-</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+
+<span style="color:#000">Actions</span><span style="color:#000;font-weight:bold">:</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">DashboardURL</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}:</span><span style="color:#000">grafana</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">&lt;{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">DashboardURL</span> <span style="color:#000;font-weight:bold">}}|</span><span style="color:#000">Go</span> <span style="color:#000">to</span> <span style="color:#000">dashboard</span><span style="color:#000;font-weight:bold">&gt;{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">PanelURL</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}:</span><span style="color:#000">chart_with_upwards_trend</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">&lt;{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">PanelURL</span> <span style="color:#000;font-weight:bold">}}|</span><span style="color:#000">Go</span> <span style="color:#000">to</span> <span style="color:#000">panel</span><span style="color:#000;font-weight:bold">&gt;{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">GeneratorURL</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}:</span><span style="color:#000">arrow_right</span><span style="color:#000;font-weight:bold">:</span> <span style="color:#000;font-weight:bold">&lt;{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">GeneratorURL</span> <span style="color:#000;font-weight:bold">}}|</span><span style="color:#000">Go</span> <span style="color:#000">to</span> <span style="color:#000">alert</span><span style="color:#000;font-weight:bold">&gt;{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;__text_alert_list_firing&#34;</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000;font-weight:bold">.</span> <span style="color:#000;font-weight:bold">}}</span>
+
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">template</span> <span style="color:#4e9a06">&#34;__text_alert_firing_item&#34;</span> <span style="color:#000;font-weight:bold">.</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;__text_alert_list_resolved&#34;</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#204a87;font-weight:bold">range</span> <span style="color:#000;font-weight:bold">.</span> <span style="color:#000;font-weight:bold">}}</span>
+
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">template</span> <span style="color:#4e9a06">&#34;__text_alert_resolved_item&#34;</span> <span style="color:#000;font-weight:bold">.</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">define</span> <span style="color:#4e9a06">&#34;custom_alert.message&#34;</span> <span style="color:#000;font-weight:bold">}}</span>
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Alerts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Firing</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Alerts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Firing</span> <span style="color:#000;font-weight:bold">|</span> <span style="color:#000">len</span> <span style="color:#000;font-weight:bold">}}</span> <span style="color:#000">Firing</span><span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">template</span> <span style="color:#4e9a06">&#34;__text_alert_list_firing&#34;</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Alerts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Firing</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span>
+
+<span style="color:#000;font-weight:bold">{{</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">gt</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">len</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Alerts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Resolved</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Alerts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Resolved</span> <span style="color:#000;font-weight:bold">|</span> <span style="color:#000">len</span> <span style="color:#000;font-weight:bold">}}</span> <span style="color:#000">Resolved</span><span style="color:#000;font-weight:bold">{{</span> <span style="color:#000">template</span> <span style="color:#4e9a06">&#34;__text_alert_list_resolved&#34;</span> <span style="color:#000;font-weight:bold">.</span><span style="color:#000">Alerts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">Resolved</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}{{</span> <span style="color:#000">end</span> <span style="color:#000;font-weight:bold">}}</span></code></pre></div>
+<p>Then configure your contact points to use it:</p>
+
+<ul>
+<li>set the &ldquo;<em>Title</em>&rdquo; setting to <code>{{ template &quot;custom_alert.title&quot; . }}</code></li>
+<li>set the &ldquo;<em>Text body</em>&rdquo; setting to <code>{{ template &quot;custom_alert.message&quot; . }}</code></li>
+</ul>
+
+<p><img src="/img/slack-grafana-alerts/contact_point_config.png" alt="contact point configuration" /></p>
+
+<p>Both options live under the &ldquo;<em>Optional Slack settings</em>&rdquo; section.</p>
+
+<p>That&rsquo;s it! You can now enjoy better Slack alerts from your Grafana :)</p>
+    </section>
+
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+</body>
+</html>
