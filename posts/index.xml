@@ -6,10 +6,23 @@
     <description>Recent content in Posts on Kévin Gomez</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 19 Jun 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 05 Dec 2022 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Announcing… a Backstage announcements plugin</title>
+      <link>/2022/12/05/announcing-backstage-announcements-plugin/</link>
+      <pubDate>Mon, 05 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>/2022/12/05/announcing-backstage-announcements-plugin/</guid>
+      <description>&lt;p&gt;Technical announcements addressed to engineers are usually made in various places: meetings, Slack channels, Confluence pages, e-mails, …&lt;/p&gt;
+
+&lt;p&gt;This plethora of communication channels makes it relatively easy to miss out on relevant information when it&amp;rsquo;s announced, and almost impossible to re-discover it after the fact.&lt;/p&gt;
+
+&lt;p&gt;What if the single pane of glass provided by an engineering portal such as &lt;a href=&#34;https://backstage.io/&#34;&gt;Backstage&lt;/a&gt; could be used instead?&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Better slack notifications for Grafana</title>
