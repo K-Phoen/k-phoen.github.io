@@ -13,7 +13,7 @@
 <meta property="og:description" content="Despite being available since PHP 5.5.0, generators are still largely underused. Let&#39;s see what how awesome they are through *real-world* cases.
 " />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/2016/01/20/use-cases-for-php-generators/" />
+<meta property="og:url" content="/2016/01/20/use-cases-for-php-generators/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2016-01-20T00:00:00+00:00" />
 
 
@@ -28,7 +28,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/blog.min.51ddff0de179b0b8ea9d8d50eae09b222c56e5f5b4608fe7a68b0a2a7d1e383a.css">
+    <link rel="stylesheet" href="/css/blog.min.ce0d2d85b6847840515d024b986cdd791b58342541d856834b726c471f201776.css">
 
     </head>
 <body>
@@ -85,271 +85,238 @@
     
 
     <section class="post-body" itemprop="articleBody">
-        
-
-<p>Despite being available since PHP 5.5.0, generators are still largely underused.
+        <p>Despite being available since PHP 5.5.0, generators are still largely underused.
 In fact, it appears than most of the developers I know understand how generators
 work but don&rsquo;t seem to see when they could be useful in <em>real-world</em> cases.</p>
-
 <blockquote>
 <p>Yeah, generators definitely look great but you know… except for computing the
 Fibonacci sequence, I don&rsquo;t see how it could be useful to me.</p>
 </blockquote>
-
 <p>And they&rsquo;re not wrong, even the examples in PHP&rsquo;s documentation about generators
 are pretty simplistic. They only show how to <a href="http://php.net/manual/en/language.generators.overview.php">efficiently implement <code>range</code></a>
 or <a href="http://php.net/manual/en/language.generators.comparison.php">iterate over the lines of a file</a>.</p>
-
 <p>But even from these simple examples we can understand the core aspects of
 generators: they are <em>just</em> simplified <code>Iterator</code>s.</p>
-
 <blockquote>
 <p>A generator allows you to write code that uses <code>foreach</code> to iterate over a set
 of data without needing to build an array in memory</p>
 </blockquote>
-
 <p>With that in mind, I&rsquo;ll try to explain why generators are awesome using some
 use-cases taken from applications I work on in my company.</p>
-
 <h2 id="some-context">Some context</h2>
-
 <p>I currently work for <a href="https://twitter.com/TEA_tech">TEA</a>. Basically, we develop
 an e-book reading ecosystem.
 It goes all the way from getting the e-book files from the publishers to present
 them in an e-commerce website and allowing the final customer to read them online
 (using a web-reader written by <a href="https://twitter.com/johanpoirier">@johanpoirier</a>)
 or on an e-reader.</p>
-
 <p>In order to be able to sell these e-books and display relevant information to
 our customers, we need to have a lot of metadata for our products (title,
 format, price, publisher, author(s), …).</p>
-
 <p>For most of the code samples that will be shown below, I&rsquo;ll refer to these
 metadata under the name of <em>e-book</em>.</p>
-
 <p>So here we go!</p>
-
 <h2 id="iterating-through-large-data-sets">Iterating through large data-sets</h2>
-
 <p>For this first use-case, let&rsquo;s assume that I have a large collection of e-books
 and I want to filter those which can be read in a web-reader.</p>
-
 <p>Traditionally, I would write something like this:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
-{
-    $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
-    $filteredEbooks = [];
-
-    foreach ($ebooks as $ebook) {
-        if ($this-&gt;rulerz-&gt;satisfies($ebook, $rule)) {
-            $filteredEbooks[] = $ebook;
-        }
-    }
-
-    return $filteredEbooks;
-}</code></pre></div>
-<p>The problem here is easy to see: the more free e-books I have, the more
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#c678dd">private</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">getEbooksEligibleToWebReader</span>(<span style="color:#e06c75">$ebooks</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span>    <span style="color:#e06c75">$rule</span> <span style="color:#56b6c2">=</span> <span style="color:#98c379">&#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span>    <span style="color:#e06c75">$filteredEbooks</span> <span style="color:#56b6c2">=</span> [];
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span>    <span style="color:#c678dd">foreach</span> (<span style="color:#e06c75">$ebooks</span> <span style="color:#c678dd">as</span> <span style="color:#e06c75">$ebook</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span>        <span style="color:#c678dd">if</span> (<span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">rulerz</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">satisfies</span>(<span style="color:#e06c75">$ebook</span>, <span style="color:#e06c75">$rule</span>)) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span>            <span style="color:#e06c75">$filteredEbooks</span>[] <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$ebook</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">12</span><span>    <span style="color:#c678dd">return</span> <span style="color:#e06c75">$filteredEbooks</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">13</span><span>}
+</span></span></code></pre></div><p>The problem here is easy to see: the more free e-books I have, the more
 <code>$filteredEbooks</code> will consume memory.</p>
-
 <p>A solution could be to create an iterator that would iterate through the
 <code>$ebooks</code> and return the ones that are eligible. But we would have to create a
 new class just for that and iterators are a bit tedious to write… Lucky us,
 since PHP 5.5.0 we can use generators!</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
-{
-    $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
-
-    foreach ($ebooks as $ebook) {
-        if ($this-&gt;rulerz-&gt;satisfies($ebook, $rule)) {
-            yield $ebook;
-        }
-    }
-}</code></pre></div>
-<p>Yep, refactoring the <code>getEbooksEligibleToWebReader</code> method to use generators is
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#c678dd">private</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">getEbooksEligibleToWebReader</span>(<span style="color:#e06c75">$ebooks</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span>    <span style="color:#e06c75">$rule</span> <span style="color:#56b6c2">=</span> <span style="color:#98c379">&#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>    <span style="color:#c678dd">foreach</span> (<span style="color:#e06c75">$ebooks</span> <span style="color:#c678dd">as</span> <span style="color:#e06c75">$ebook</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span>        <span style="color:#c678dd">if</span> (<span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">rulerz</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">satisfies</span>(<span style="color:#e06c75">$ebook</span>, <span style="color:#e06c75">$rule</span>)) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span>            <span style="color:#c678dd">yield</span> <span style="color:#e06c75">$ebook</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>}
+</span></span></code></pre></div><p>Yep, refactoring the <code>getEbooksEligibleToWebReader</code> method to use generators is
 as simple as replacing the assignation to <code>$filteredEbooks</code> by a <code>yield</code>
 statement.</p>
-
 <p>Assuming that <code>$ebooks</code> isn&rsquo;t an array with all the e-books but an iterator or
 a generator (even better!), the memory consumption will now be constant, no
 matter the number of eligible books and we are sure to find these books only if
 and when we need them.</p>
-
 <p><strong>Bonus</strong>: <a href="https://github.com/K-Phoen/rulerz">RulerZ</a> internally uses generators
 so we could rewrite the method like this and be as efficient in terms of memory.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooksEligibleToWebReader($ebooks)
-{
-    $rule = &#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;;
-
-    return $this-&gt;rulerz-&gt;filter($ebooks, $rule);
-}</code></pre></div>
-<h2 id="aggregating-several-data-sources">Aggregating several data-sources</h2>
-
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">1</span><span><span style="color:#c678dd">private</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">getEbooksEligibleToWebReader</span>(<span style="color:#e06c75">$ebooks</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">2</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">3</span><span>    <span style="color:#e06c75">$rule</span> <span style="color:#56b6c2">=</span> <span style="color:#98c379">&#39;format = &#34;EPUB&#34; AND protection != &#34;Adobe DRM&#34;&#39;</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">4</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">5</span><span>    <span style="color:#c678dd">return</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">rulerz</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">filter</span>(<span style="color:#e06c75">$ebooks</span>, <span style="color:#e06c75">$rule</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">6</span><span>}
+</span></span></code></pre></div><h2 id="aggregating-several-data-sources">Aggregating several data-sources</h2>
 <p>Now, let&rsquo;s consider the <code>$ebooks</code> retrieval part. I didn&rsquo;t tell you, but these
 e-books come in fact from different data-sources: a relational database and
 Elasticsearch.</p>
-
 <p>We can then write a simple method to aggregate these two sources:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
-{
-    $ebooks = [];
-
-    // fetch from the DB
-    $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
-    $stmt-&gt;execute();
-    $stmt-&gt;setFetchMode(\PDO::FETCH_ASSOC);
-
-    foreach ($stmt as $data) {
-        $ebooks[] = $this-&gt;hydrateEbook($data);
-    }
-
-    // and from Elasticsearch (findAll uses ES scan/scroll)
-    $cursor = $this-&gt;esClient-&gt;findAll();
-
-    foreach ($cursor as $data) {
-        $ebooks[] = $this-&gt;hydrateEbook($data);
-    }
-
-    return $ebooks;
-}</code></pre></div>
-<p>But once again, the amount of memory used by this method depends too much on the
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#c678dd">private</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">getEbooks</span>()
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span>    <span style="color:#e06c75">$ebooks</span> <span style="color:#56b6c2">=</span> [];
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>    <span style="color:#7f848e">// fetch from the DB
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span><span style="color:#7f848e"></span>    <span style="color:#e06c75">$stmt</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">db</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">prepare</span>(<span style="color:#98c379">&#34;SELECT * FROM ebook_catalog&#34;</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span>    <span style="color:#e06c75">$stmt</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">execute</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span>    <span style="color:#e06c75">$stmt</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">setFetchMode</span>(<span style="color:#e06c75">\PDO</span><span style="color:#56b6c2">::</span><span style="color:#e06c75">FETCH_ASSOC</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>    <span style="color:#c678dd">foreach</span> (<span style="color:#e06c75">$stmt</span> <span style="color:#c678dd">as</span> <span style="color:#e06c75">$data</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span>        <span style="color:#e06c75">$ebooks</span>[] <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">hydrateEbook</span>(<span style="color:#e06c75">$data</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">12</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">13</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">14</span><span>    <span style="color:#7f848e">// and from Elasticsearch (findAll uses ES scan/scroll)
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">15</span><span><span style="color:#7f848e"></span>    <span style="color:#e06c75">$cursor</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">esClient</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">findAll</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">16</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">17</span><span>    <span style="color:#c678dd">foreach</span> (<span style="color:#e06c75">$cursor</span> <span style="color:#c678dd">as</span> <span style="color:#e06c75">$data</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">18</span><span>        <span style="color:#e06c75">$ebooks</span>[] <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">hydrateEbook</span>(<span style="color:#e06c75">$data</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">19</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">20</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">21</span><span>    <span style="color:#c678dd">return</span> <span style="color:#e06c75">$ebooks</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">22</span><span>}
+</span></span></code></pre></div><p>But once again, the amount of memory used by this method depends too much on the
 number of e-books we have in the database and in Elasticsearch.</p>
-
 <p>We could start by using generators to return the results:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
-{
-    // fetch from the DB
-    $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
-    $stmt-&gt;execute();
-    $stmt-&gt;setFetchMode(\PDO::FETCH_ASSOC);
-
-    foreach ($stmt as $data) {
-        yield $this-&gt;hydrateEbook($data);
-    }
-
-    // and from Elasticsearch (findAll uses ES scan/scroll)
-    $cursor = $this-&gt;esClient-&gt;findAll();
-
-    foreach ($cursor as $data) {
-        yield $this-&gt;hydrateEbook($data);
-    }
-}</code></pre></div>
-<p>That&rsquo;s better, but we still have a problem: our <code>getBooks</code> method does too much
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#c678dd">private</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">getEbooks</span>()
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span>    <span style="color:#7f848e">// fetch from the DB
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span><span style="color:#7f848e"></span>    <span style="color:#e06c75">$stmt</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">db</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">prepare</span>(<span style="color:#98c379">&#34;SELECT * FROM ebook_catalog&#34;</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>    <span style="color:#e06c75">$stmt</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">execute</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span>    <span style="color:#e06c75">$stmt</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">setFetchMode</span>(<span style="color:#e06c75">\PDO</span><span style="color:#56b6c2">::</span><span style="color:#e06c75">FETCH_ASSOC</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span>    <span style="color:#c678dd">foreach</span> (<span style="color:#e06c75">$stmt</span> <span style="color:#c678dd">as</span> <span style="color:#e06c75">$data</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>        <span style="color:#c678dd">yield</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">hydrateEbook</span>(<span style="color:#e06c75">$data</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">12</span><span>    <span style="color:#7f848e">// and from Elasticsearch (findAll uses ES scan/scroll)
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">13</span><span><span style="color:#7f848e"></span>    <span style="color:#e06c75">$cursor</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">esClient</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">findAll</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">14</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">15</span><span>    <span style="color:#c678dd">foreach</span> (<span style="color:#e06c75">$cursor</span> <span style="color:#c678dd">as</span> <span style="color:#e06c75">$data</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">16</span><span>        <span style="color:#c678dd">yield</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">hydrateEbook</span>(<span style="color:#e06c75">$data</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">17</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">18</span><span>}
+</span></span></code></pre></div><p>That&rsquo;s better, but we still have a problem: our <code>getBooks</code> method does too much
 work! We should split the two responsibilities (reading in the database and
 calling Elasticsearch) in two separate methods:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
-{
-    yield from $this-&gt;getEbooksFromDatabase();
-    yield from $this-&gt;getEbooksFromEs();
-}
-
-private function getEbooksFromDatabase()
-{
-    $stmt = $this-&gt;db-&gt;prepare(&#34;SELECT * FROM ebook_catalog&#34;);
-    $stmt-&gt;execute();
-    $stmt-&gt;setFetchMode(\PDO::FETCH_ASSOC);
-
-    foreach ($stmt as $data) {
-        yield $this-&gt;hydrateEbook($data);
-    }
-}
-
-private function getEbooksFromEs()
-{
-    // and from Elasticsearch (findAll uses ES scan/scroll)
-    $cursor = $this-&gt;esClient-&gt;findAll();
-
-    foreach ($cursor as $data) {
-        yield $this-&gt;hydrateEbook($data);
-    }
-}</code></pre></div>
-<p>You will notice the use of the <code>yield from</code> operator (available since PHP 7.0)
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#c678dd">private</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">getEbooks</span>()
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span>    <span style="color:#c678dd">yield</span> <span style="color:#e06c75">from</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">getEbooksFromDatabase</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span>    <span style="color:#c678dd">yield</span> <span style="color:#e06c75">from</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">getEbooksFromEs</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span><span style="color:#c678dd">private</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">getEbooksFromDatabase</span>()
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>    <span style="color:#e06c75">$stmt</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">db</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">prepare</span>(<span style="color:#98c379">&#34;SELECT * FROM ebook_catalog&#34;</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>    <span style="color:#e06c75">$stmt</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">execute</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span>    <span style="color:#e06c75">$stmt</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">setFetchMode</span>(<span style="color:#e06c75">\PDO</span><span style="color:#56b6c2">::</span><span style="color:#e06c75">FETCH_ASSOC</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">12</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">13</span><span>    <span style="color:#c678dd">foreach</span> (<span style="color:#e06c75">$stmt</span> <span style="color:#c678dd">as</span> <span style="color:#e06c75">$data</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">14</span><span>        <span style="color:#c678dd">yield</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">hydrateEbook</span>(<span style="color:#e06c75">$data</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">15</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">16</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">17</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">18</span><span><span style="color:#c678dd">private</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">getEbooksFromEs</span>()
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">19</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">20</span><span>    <span style="color:#7f848e">// and from Elasticsearch (findAll uses ES scan/scroll)
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">21</span><span><span style="color:#7f848e"></span>    <span style="color:#e06c75">$cursor</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">esClient</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">findAll</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">22</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">23</span><span>    <span style="color:#c678dd">foreach</span> (<span style="color:#e06c75">$cursor</span> <span style="color:#c678dd">as</span> <span style="color:#e06c75">$data</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">24</span><span>        <span style="color:#c678dd">yield</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">hydrateEbook</span>(<span style="color:#e06c75">$data</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">25</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">26</span><span>}
+</span></span></code></pre></div><p>You will notice the use of the <code>yield from</code> operator (available since PHP 7.0)
 that allows to delegate the use of generators. That&rsquo;s perfect, for instance, to
 aggregate several data-sources that use generators.</p>
-
 <p>In fact, the <code>yield from</code> keyword works with any <code>Traversable</code> object, so arrays
 or iterators can also be used with this delegation operator.</p>
-
 <p>Using this keyword, we could aggregate several data-sources with only a few lines
 of code:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">private function getEbooks()
-{
-    yield new Ebook(…);
-    yield from [new Ebook(…), new Ebook(…)];
-    yield from new ArrayIterator([new Ebook(…), new Ebook(…)]);
-    yield from $this-&gt;getEbooksFromCSV();
-    yield from $this-&gt;getEbooksFromDatabase();
-}</code></pre></div>
-<h2 id="complex-on-demand-hydration-for-database-rows">Complex, on-demand hydration for database rows</h2>
-
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">1</span><span><span style="color:#c678dd">private</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">getEbooks</span>()
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">2</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">3</span><span>    <span style="color:#c678dd">yield</span> <span style="color:#c678dd">new</span> <span style="color:#e06c75">Ebook</span>(<span style="color:#e06c75">…</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">4</span><span>    <span style="color:#c678dd">yield</span> <span style="color:#e06c75">from</span> [<span style="color:#c678dd">new</span> <span style="color:#e06c75">Ebook</span>(<span style="color:#e06c75">…</span>), <span style="color:#c678dd">new</span> <span style="color:#e06c75">Ebook</span>(<span style="color:#e06c75">…</span>)];
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">5</span><span>    <span style="color:#c678dd">yield</span> <span style="color:#e06c75">from</span> <span style="color:#c678dd">new</span> <span style="color:#e06c75">ArrayIterator</span>([<span style="color:#c678dd">new</span> <span style="color:#e06c75">Ebook</span>(<span style="color:#e06c75">…</span>), <span style="color:#c678dd">new</span> <span style="color:#e06c75">Ebook</span>(<span style="color:#e06c75">…</span>)]);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">6</span><span>    <span style="color:#c678dd">yield</span> <span style="color:#e06c75">from</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">getEbooksFromCSV</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">7</span><span>    <span style="color:#c678dd">yield</span> <span style="color:#e06c75">from</span> <span style="color:#e06c75">$this</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">getEbooksFromDatabase</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">8</span><span>}
+</span></span></code></pre></div><h2 id="complex-on-demand-hydration-for-database-rows">Complex, on-demand hydration for database rows</h2>
 <p>Another use-case I found for generators was the implementation of an on-demand
 hydration that could handle relationships.</p>
-
 <p>I had to import hundreds of thousands of orders from a legacy database into our
 system, each order having several order lines.</p>
-
 <p>Having both the order and the order lines was a pre-requisite for what we needed
 to do, so I had to write a method that would be able to return hydrated orders
 without being too slow or eating a lot of memory.</p>
-
 <p>The idea is quite naive: join the order and the matching lines, and group order
 and order lines together in a loop.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">public function loadOrdersWithItems()
-{
-    $oracleQuery = <span style="color:#a40000">&lt;&lt;</span><span style="color:#000;font-weight:bold">&lt;</span><span style="color:#204a87;font-weight:bold">SQL</span>
-<span style="color:#c4a000">SELECT</span> <span style="color:#c4a000">o</span><span style="color:#a40000">.*,</span> <span style="color:#c4a000">item</span><span style="color:#a40000">.*</span>
-<span style="color:#c4a000">FROM</span> <span style="color:#c4a000">order_history</span> <span style="color:#c4a000">o</span>
-<span style="color:#c4a000">INNER</span> <span style="color:#c4a000">JOIN</span> <span style="color:#c4a000">ORDER_ITEM</span> <span style="color:#c4a000">item</span> <span style="color:#c4a000">ON</span> <span style="color:#c4a000">item</span><span style="color:#a40000">.</span><span style="color:#c4a000">order_id </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">o.id</span>
-<span style="color:#c4a000">ORDER</span> <span style="color:#c4a000">BY</span> <span style="color:#c4a000">order</span><span style="color:#a40000">.</span><span style="color:#c4a000">id</span>
-<span style="color:#c4a000">SQL</span><span style="color:#a40000">;</span>
-
-    <span style="color:#c4a000">if</span> <span style="color:#a40000">(($</span><span style="color:#c4a000">stmt </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">oci_parse($oracleDb,</span> <span style="color:#a40000">$</span><span style="color:#c4a000">oracleQuery</span><span style="color:#a40000">))</span> <span style="color:#a40000">===</span> <span style="color:#c4a000">false</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
-        <span style="color:#c4a000">throw</span> <span style="color:#c4a000">new</span> <span style="color:#a40000">\</span><span style="color:#c4a000">RuntimeException</span><span style="color:#a40000">(&#39;</span><span style="color:#c4a000">Prepare</span> <span style="color:#c4a000">fail</span> <span style="color:#c4a000">in</span> <span style="color:#a40000">&#39;);</span>
-    <span style="color:#a40000">}</span>
-    <span style="color:#c4a000">if</span> <span style="color:#a40000">(</span><span style="color:#c4a000">oci_execute</span><span style="color:#a40000">($</span><span style="color:#c4a000">stmt</span><span style="color:#a40000">)</span> <span style="color:#a40000">===</span> <span style="color:#c4a000">false</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
-        <span style="color:#c4a000">throw</span> <span style="color:#c4a000">new</span> <span style="color:#a40000">\</span><span style="color:#c4a000">RuntimeException</span><span style="color:#a40000">(&#39;</span><span style="color:#c4a000">Execute</span> <span style="color:#c4a000">fail</span> <span style="color:#c4a000">in</span> <span style="color:#a40000">&#39;);</span>
-    <span style="color:#a40000">}</span>
-
-    <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrderId </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">null;</span>
-    <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">null;</span>
-    <span style="color:#c4a000">while</span> <span style="color:#a40000">(($</span><span style="color:#c4a000">row </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">oci_fetch_assoc($stmt))</span> <span style="color:#a40000">!==</span> <span style="color:#c4a000">false</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
-        <span style="color:#a40000">//</span> <span style="color:#c4a000">did</span> <span style="color:#c4a000">we</span> <span style="color:#c4a000">move</span> <span style="color:#c4a000">to</span> <span style="color:#c4a000">the</span> <span style="color:#c4a000">next</span> <span style="color:#c4a000">order</span><span style="color:#a40000">?</span>
-        <span style="color:#c4a000">if</span> <span style="color:#a40000">($</span><span style="color:#c4a000">row</span><span style="color:#a40000">[&#39;</span><span style="color:#c4a000">ID</span><span style="color:#a40000">&#39;]</span> <span style="color:#a40000">!==</span> <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrderId</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
-            <span style="color:#c4a000">if</span> <span style="color:#a40000">($</span><span style="color:#c4a000">currentOrderId</span> <span style="color:#a40000">!==</span> <span style="color:#c4a000">null</span><span style="color:#a40000">)</span> <span style="color:#a40000">{</span>
-                <span style="color:#c4a000">yield</span> <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">;</span>
-            <span style="color:#a40000">}</span>
-
-            <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrderId </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">$row[&#39;ID&#39;];</span>
-
-            <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder </span><span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">$row;</span>
-            <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">[&#39;</span><span style="color:#c4a000">lines</span><span style="color:#a40000">&#39;]</span> <span style="color:#a40000">=</span> <span style="color:#a40000">[];</span>
-        <span style="color:#a40000">}</span>
-
-        <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">[&#39;</span><span style="color:#c4a000">lines</span><span style="color:#a40000">&#39;][]</span> <span style="color:#a40000">=</span> <span style="color:#a40000">$</span><span style="color:#c4a000">row</span><span style="color:#a40000">;</span>
-    <span style="color:#a40000">}</span>
-
-    <span style="color:#c4a000">yield</span> <span style="color:#a40000">$</span><span style="color:#c4a000">currentOrder</span><span style="color:#a40000">;</span>
-<span style="color:#a40000">}</span></code></pre></div>
-<p>Using a generator, I managed to implement a method that could fetch orders from
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#c678dd">public</span> <span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">loadOrdersWithItems</span>()
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span>    <span style="color:#e06c75">$oracleQuery</span> <span style="color:#56b6c2">=</span> <span style="color:#98c379">&lt;&lt;&lt;</span><span style="color:#98c379">SQL</span><span style="color:#98c379">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span><span style="color:#98c379">SELECT o.*, item.*
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span><span style="color:#98c379">FROM order_history o
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span><span style="color:#98c379">INNER JOIN ORDER_ITEM item ON item.order_id = o.id
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span><span style="color:#98c379">ORDER BY order.id
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span><span style="color:#98c379"></span><span style="color:#98c379">SQL</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>    <span style="color:#c678dd">if</span> ((<span style="color:#e06c75">$stmt</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">oci_parse</span>(<span style="color:#e06c75">$oracleDb</span>, <span style="color:#e06c75">$oracleQuery</span>)) <span style="color:#56b6c2">===</span> <span style="color:#c678dd">false</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span>        <span style="color:#c678dd">throw</span> <span style="color:#c678dd">new</span> <span style="color:#e06c75">\RuntimeException</span>(<span style="color:#98c379">&#39;Prepare fail in &#39;</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">12</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">13</span><span>    <span style="color:#c678dd">if</span> (<span style="color:#e06c75">oci_execute</span>(<span style="color:#e06c75">$stmt</span>) <span style="color:#56b6c2">===</span> <span style="color:#c678dd">false</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">14</span><span>        <span style="color:#c678dd">throw</span> <span style="color:#c678dd">new</span> <span style="color:#e06c75">\RuntimeException</span>(<span style="color:#98c379">&#39;Execute fail in &#39;</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">15</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">16</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">17</span><span>    <span style="color:#e06c75">$currentOrderId</span> <span style="color:#56b6c2">=</span> <span style="color:#c678dd">null</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">18</span><span>    <span style="color:#e06c75">$currentOrder</span> <span style="color:#56b6c2">=</span> <span style="color:#c678dd">null</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">19</span><span>    <span style="color:#c678dd">while</span> ((<span style="color:#e06c75">$row</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">oci_fetch_assoc</span>(<span style="color:#e06c75">$stmt</span>)) <span style="color:#56b6c2">!==</span> <span style="color:#c678dd">false</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">20</span><span>        <span style="color:#7f848e">// did we move to the next order?
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">21</span><span><span style="color:#7f848e"></span>        <span style="color:#c678dd">if</span> (<span style="color:#e06c75">$row</span>[<span style="color:#98c379">&#39;ID&#39;</span>] <span style="color:#56b6c2">!==</span> <span style="color:#e06c75">$currentOrderId</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">22</span><span>            <span style="color:#c678dd">if</span> (<span style="color:#e06c75">$currentOrderId</span> <span style="color:#56b6c2">!==</span> <span style="color:#c678dd">null</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">23</span><span>                <span style="color:#c678dd">yield</span> <span style="color:#e06c75">$currentOrder</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">24</span><span>            }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">25</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">26</span><span>            <span style="color:#e06c75">$currentOrderId</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$row</span>[<span style="color:#98c379">&#39;ID&#39;</span>];
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">27</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">28</span><span>            <span style="color:#e06c75">$currentOrder</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$row</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">29</span><span>            <span style="color:#e06c75">$currentOrder</span>[<span style="color:#98c379">&#39;lines&#39;</span>] <span style="color:#56b6c2">=</span> [];
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">30</span><span>        }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">31</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">32</span><span>        <span style="color:#e06c75">$currentOrder</span>[<span style="color:#98c379">&#39;lines&#39;</span>][] <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$row</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">33</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">34</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">35</span><span>    <span style="color:#c678dd">yield</span> <span style="color:#e06c75">$currentOrder</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">36</span><span>}
+</span></span></code></pre></div><p>Using a generator, I managed to implement a method that could fetch orders from
 the database and join the corresponding order lines. All of this while consuming
 a stable amount of memory.
 The generator removed the need to keep track of all the orders with their order
 lines: the <em>current order</em> was all I needed to aggregate all the data.</p>
-
 <h2 id="simulating-async-tasks">Simulating async tasks</h2>
-
 <p>Last but not least, generators can also be used to simulate asynchronous tasks.
 While writing this post, I stumbled upon <a href="https://twitter.com/nikita_ppv">@nikita_ppv</a>&rsquo;s
 post about the same subject, and as he is the one who originally implemented
 generators in PHP, I&rsquo;ll just link to <a href="https://nikic.github.io/2012/12/22/Cooperative-multitasking-using-coroutines-in-PHP.html">his post</a>.</p>
-
 <p>He quickly explains what are generators and explains (in depth) how we can take
 advantage of the fact that they can both be interrupted and <em>send/receive data</em>
 to implement coroutines and even cooperative multitasking.</p>
-
 <h2 id="wrapping-up">Wrapping up</h2>
-
 <p>Generators…</p>
-
 <ul>
 <li>… are simplified Iterators ;</li>
 <li>… can send an unlimited amount of data, without saturating the memory ;</li>
@@ -374,5 +341,7 @@ to implement coroutines and even cooperative multitasking.</p>
 </div>
     </div>
 </div>
+
+
 </body>
 </html>

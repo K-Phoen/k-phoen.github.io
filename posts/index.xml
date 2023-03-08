@@ -6,10 +6,17 @@
     <description>Recent content in Posts on Kévin Gomez</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 05 Dec 2022 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
-    
+    <lastBuildDate>Tue, 07 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Three years of Grafana dashboards as code</title>
+      <link>/2023/03/07/three-years-of-grafana-dashboards-as-code/</link>
+      <pubDate>Tue, 07 Mar 2023 00:00:00 +0000</pubDate>
+      
+      <guid>/2023/03/07/three-years-of-grafana-dashboards-as-code/</guid>
+      <description>Voi in 2019 was a stimulating working environment. The micro-mobility industry was in its infancy, evolving at a very fast pace, and so was our product and platform.
+The same couldn&amp;rsquo;t be said about the state of our Grafana dashboards.
+We did have Grafana and Prometheus running, but our microservices were poorly covered in alerting and monitoring. Maybe even worse: the few existing dashboards were often incomplete and looked completely different from one service to the next.</description>
+    </item>
     
     <item>
       <title>Announcing… a Backstage announcements plugin</title>
@@ -18,9 +25,7 @@
       
       <guid>/2022/12/05/announcing-backstage-announcements-plugin/</guid>
       <description>&lt;p&gt;Technical announcements addressed to engineers are usually made in various places: meetings, Slack channels, Confluence pages, e-mails, …&lt;/p&gt;
-
 &lt;p&gt;This plethora of communication channels makes it relatively easy to miss out on relevant information when it&amp;rsquo;s announced, and almost impossible to re-discover it after the fact.&lt;/p&gt;
-
 &lt;p&gt;What if the single pane of glass provided by an engineering portal such as &lt;a href=&#34;https://backstage.io/&#34;&gt;Backstage&lt;/a&gt; could be used instead?&lt;/p&gt;</description>
     </item>
     
@@ -32,7 +37,6 @@
       <guid>/2022/06/19/better-slack-notifications-for-grafana/</guid>
       <description>&lt;p&gt;While the introduction of Grafana&amp;rsquo;s unified alerting system is an improvement, everything isn&amp;rsquo;t perfect.
 Slack notifications sent by Grafana whenever an alert is fired or resolved got significantly less readable.&lt;/p&gt;
-
 &lt;p&gt;Let&amp;rsquo;s improve them!&lt;/p&gt;</description>
     </item>
     
@@ -44,10 +48,8 @@ Slack notifications sent by Grafana whenever an alert is fired or resolved got s
       <guid>/2021/11/15/two-years-in-sweden/</guid>
       <description>&lt;p&gt;A bit more than two years and a half ago I left my home country – France – to live and
 work in Stockholm.&lt;/p&gt;
-
 &lt;p&gt;Judging by the lack of content on this blog during this period, one could
 imagine that a lot has happened since.&lt;/p&gt;
-
 &lt;p&gt;This post is me, taking a step back and trying to look back at what I&amp;rsquo;ve
 accomplished and how much I&amp;rsquo;ve grown as an engineer.&lt;/p&gt;</description>
     </item>
@@ -61,7 +63,6 @@ accomplished and how much I&amp;rsquo;ve grown as an engineer.&lt;/p&gt;</descri
       <description>&lt;p&gt;It&amp;rsquo;s probably not a surprise for most of the people reading this blog but I am
 a software engineer. And as such I spend most of my time writing code, checked
 in a VCS, reviewed by peers and analyzed by tools before being deployed.&lt;/p&gt;
-
 &lt;p&gt;Isn&amp;rsquo;t it only natural that the content of this blog followed the same rules?&lt;/p&gt;</description>
     </item>
     
@@ -74,7 +75,6 @@ in a VCS, reviewed by peers and analyzed by tools before being deployed.&lt;/p&g
       <description>&lt;p&gt;In a &lt;a href=&#34;/2019/01/29/clusters-and-membership-discovering-the-swim-protocol/&#34;&gt;previous article&lt;/a&gt;,
 I started playing with distributed systems by implementing a distributed key-value
 store.&lt;/p&gt;
-
 &lt;p&gt;I used SWIM to create a cluster, know its members and monitor their health. But
 I still didn&amp;rsquo;t touch the main feature of my store: actually distributing data.
 Now is the time to address that.&lt;/p&gt;</description>
@@ -120,10 +120,8 @@ TEA was — and still is — a company where talented people are building a rela
       <guid>/2017/05/08/best-practices-for-exploitable-logs/</guid>
       <description>&lt;p&gt;« &lt;strong&gt;What to log?&lt;/strong&gt; » — That&amp;rsquo;s the question I often ask myself when I launch new
 projects or work on existing applications.&lt;/p&gt;
-
 &lt;p&gt;And by « what », I mean which events should be logged? Using which format? Where
 should they be sent?&lt;/p&gt;
-
 &lt;p&gt;To answer these questions, we need to ask ourselves why do we need logs in the
 first place?&lt;/p&gt;</description>
     </item>
@@ -168,8 +166,8 @@ To be clearer: given a list of URL providers for a sitemap index, I wanted to it
       
       <guid>/2016/01/20/use-cases-for-php-generators/</guid>
       <description>Despite being available since PHP 5.5.0, generators are still largely underused. In fact, it appears than most of the developers I know understand how generators work but don&amp;rsquo;t seem to see when they could be useful in real-world cases.
- Yeah, generators definitely look great but you know… except for computing the Fibonacci sequence, I don&amp;rsquo;t see how it could be useful to me.
- And they&amp;rsquo;re not wrong, even the examples in PHP&amp;rsquo;s documentation about generators are pretty simplistic.</description>
+Yeah, generators definitely look great but you know… except for computing the Fibonacci sequence, I don&amp;rsquo;t see how it could be useful to me.
+And they&amp;rsquo;re not wrong, even the examples in PHP&amp;rsquo;s documentation about generators are pretty simplistic.</description>
     </item>
     
     <item>
@@ -232,7 +230,7 @@ that I&amp;rsquo;ve evolved since!&lt;/p&gt;</description>
       
       <guid>/2014/04/08/symfony-best-practices/</guid>
       <description>Here is a digest of the best practices that are commonly followed for Symfony2 projects. They are given as is, in no particular order and are far from being exhaustive.
-Naming things  find a common naming scheme for your team and stick to it  be explicit be consistent  same for routes and services naming  use service alias: mailer is better than swiftmailer.mailer.default  prefer Vendor/Bundle/CoolBundle over Vendor/CoolBundle for bundles namespace  for an application, you can even skip the vendor part   Config Which configuration format should you use?</description>
+Naming things find a common naming scheme for your team and stick to it be explicit be consistent same for routes and services naming use service alias: mailer is better than swiftmailer.mailer.default prefer Vendor/Bundle/CoolBundle over Vendor/CoolBundle for bundles namespace for an application, you can even skip the vendor part Config Which configuration format should you use?</description>
     </item>
     
     <item>
@@ -243,7 +241,7 @@ Naming things  find a common naming scheme for your team and stick to it  be exp
       <guid>/2013/10/14/split-symfony2-yaml-validation-configuration-file/</guid>
       <description>Important : as j0k pointed out in the comments, Symfony 2.5 changed the way validation files are loaded. Refer to this StackOverflow answer if you are using Symfony &amp;gt;= 2.5.
 Defining validation rules for several entities in the same file can really be a pain. Unfortunately, Symfony2 only looks in the validation.yml file by default. Let&amp;rsquo;s see how we can split the following file:
- The solution lies in the AcmeBlogExtension class, and more specifically in the validator.</description>
+The solution lies in the AcmeBlogExtension class, and more specifically in the validator.</description>
     </item>
     
   </channel>

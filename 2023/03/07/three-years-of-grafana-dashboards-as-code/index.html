@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us" dir="ltr"><head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Kévin Gomez" />
+
+    <title>Three years of Grafana dashboards as code &mdash; Kévin Gomez</title>
+
+    <meta name="description" content="At Voi, we&amp;rsquo;ve been relying on grabana and DARK to generate Grafana dashboards as code for the past three years.
+What kind of dashboards did we build? In hindsight, what value did we actually get out of this approach?
+">
+
+    <meta property="og:title" content="Three years of Grafana dashboards as code" />
+<meta property="og:description" content="At [Voi](https://www.voi.com/), we&#39;ve been relying on [`grabana`](https://github.com/K-Phoen/grabana) and [DARK](https://github.com/K-Phoen/dark) to generate Grafana dashboards as code for the past three years.
+
+What kind of dashboards did we build? In hindsight, what value did we actually get out of this approach?
+" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/2023/03/07/three-years-of-grafana-dashboards-as-code/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-03-07T00:00:00+00:00" />
+
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Three years of Grafana dashboards as code"/>
+<meta name="twitter:description" content="At [Voi](https://www.voi.com/), we&#39;ve been relying on [`grabana`](https://github.com/K-Phoen/grabana) and [DARK](https://github.com/K-Phoen/dark) to generate Grafana dashboards as code for the past three years.
+
+What kind of dashboards did we build? In hindsight, what value did we actually get out of this approach?
+"/>
+<meta name="twitter:site" content="@KPhoen"/>
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" />
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    
+    <link rel="stylesheet" href="/css/blog.min.ce0d2d85b6847840515d024b986cdd791b58342541d856834b726c471f201776.css">
+
+    </head>
+<body>
+<div id="layout" class="pure-g"><div class="sidebar pure-u-1">
+    <div class="header">
+        <h1 class="brand-title">
+            <a href="/">Kévin Gomez</a>
+        </h1>
+        <h2 class="brand-tagline">I can git now.</h2>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/bookshelf/">Bookshelf</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/talks/">Talks</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="pure-button" href="/about-me/">About me</a>
+                </li>
+                
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="pure-u-1">
+        <div class="content">
+<article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    <header>
+        <h1 itemprop="headline">
+            
+            <a href="/2023/03/07/three-years-of-grafana-dashboards-as-code/">Three years of Grafana dashboards as code</a>
+        </h1>
+
+        <span class="post-meta">
+            <meta itemprop="inLanguage" content="en-us" />
+            <time pubdate="pubdate" datetime="2023-03-07T00:00:00+01:00">
+                <meta itemprop="datePublished" content="2023-03-07T00:00:00+01:00" />
+                7 March 2023
+            </time>
+            —
+            <span class="reading-time" title="Estimated reading time">
+                
+                    ~9 minutes
+                
+            </span>
+        </span>
+    </header>
+
+    
+    <section class="shortcuts">
+        <p><span class="label radius">Jump to:</span> <a href="#tl-dr">TL;DR</a></p>
+    </section>
+    
+
+    <section class="post-body" itemprop="articleBody">
+        <p><a href="https://www.voi.com/">Voi</a> in 2019 was a stimulating working environment.
+The micro-mobility industry was in its infancy, evolving at a very fast pace, and so
+was our product and platform.</p>
+<p>The same couldn&rsquo;t be said about the state of our Grafana dashboards.</p>
+<p>We did have Grafana and Prometheus running, but our microservices were poorly covered in
+alerting and monitoring. Maybe even worse: the few existing dashboards were often incomplete
+and looked completely different from one service to the next.</p>
+<p>Overall, we had no confidence in our ability to observe the state of our systems,
+and the heterogeneity of our dashboards was negatively impacting our ability to
+understand them.</p>
+<p>At this point, we were looking for ways to improve the situation on two key points:</p>
+<ul>
+<li><strong>coverage</strong>: every service should have at least a default level of observability</li>
+<li><strong>cognitive load</strong>: dashboards should look and feel consistent. Engineers should be
+comfortable jumping between dashboards without having to re-learn everything.</li>
+</ul>
+<p>But first, a bit of context.</p>
+<h2 id="the-wonders-of-standardization">The wonders of standardization</h2>
+<p>Microservices at Voi have one small but important particularity: they are all
+written in Go and based on <a href="https://github.com/voi-oss/svc"><code>svc</code></a>.</p>
+<p>Not exactly a framework, <a href="https://github.com/voi-oss/svc"><code>svc</code></a> can be seen as a very lightweight life-cycle
+manager. It acts as the entry point of a service and manages <em>workers</em>.</p>
+<p>A worker represents a long-running process, such as an HTTP or a gRPC server.</p>
+<div class="mermaid">flowchart TD
+    subgraph Service
+        svc{<i>svc</i>}
+        svc --> grpc(gRPC worker)
+        svc --> http(HTTP worker)
+        svc --> db(Postgres worker)
+    end
+</div>
+
+<p>Having a collection of such workers allows for a high level of uniformity,
+especially when it comes to the metrics they expose.</p>
+<p>Because of <a href="https://github.com/voi-oss/svc"><code>svc</code></a> and its workers, we can rely on consistent metrics being
+exposed:</p>
+<ul>
+<li>a service with a gRPC API will expose <code>grpc_server_handled_total</code>, <code>grpc_server_handling_seconds</code>, …</li>
+<li>a service with an HTTP API will expose <code>http_request_total</code>, <code>http_request_duration_seconds</code>, …</li>
+<li>and so on for other workers</li>
+</ul>
+<h2 id="dashboards-as-code-with-grabana">Dashboards as code with Grabana</h2>
+<p>Having known metrics consistently emitted by services is a huge advantage.</p>
+<p>Our idea to make the most of it was simple: using these metrics, generate
+a standard Grafana dashboard for every service in our platform.</p>
+<p>This standard or &ldquo;overview&rdquo; dashboard will represent a service&rsquo;s
+health and performance at a glance</p>
+<p>Of course, services are slightly different from each other. Some only have an
+HTTP server, others have only a gRPC one, some have both, …</p>
+<p>We will need to account for these differences when building the dashboards.</p>
+<p>Despite these differences, a common structure can be imagined:</p>
+<ul>
+<li>dashboards will be grouped by service, every service having a folder named
+after it in Grafana</li>
+<li>dashboards will be named &ldquo;<em>[service name] overview</em>&rdquo;</li>
+<li>the dashboard&rsquo;s content will be organized in rows. One row for system metrics
+and graphs, one for HTTP, one for gRPC, … If a row isn&rsquo;t relevant for a service,
+it is dropped</li>
+<li>since these dashboards are generated, they will be read-only</li>
+</ul>
+<p>Let&rsquo;s take as an example a service <code>system-v</code> that has a database and an HTTP
+server. We would like to run the following command:</p>
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">1</span><span>voictl grafana setup-dashboard system-v \
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">2</span><span>    --with-http \
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">3</span><span>    --with-db
+</span></span></code></pre></div><p>And get this result:</p>
+<img src="system-v-overview-dashboard.png" width="100%" />
+<p>Assuming we can implement the <code>voictl grafana setup-dashboard</code> command, generating a dashboard
+for each service in the platform becomes an entirely achievable goal.</p>
+<p>But how do we implement it? Are there any libraries around to generate Grafana dashboards?</p>
+<p>Three years ago, defining Grafana dashboards as code wasn&rsquo;t a hot topic at all. The choice of tools
+was extremely reduced and nothing convinced us:</p>
+<ul>
+<li><a href="https://github.com/grafana/grafonnet-lib">Grafonnet</a>: based on <a href="https://jsonnet.org/">Jsonnet</a>, it
+meant asking Voi engineers to learn a new language, making contributions and adoption more difficult</li>
+<li><a href="https://github.com/weaveworks/grafanalib"><code>weaveworks/grafanalib</code></a>: seemed quite interesting, but no
+one in our engineering community was proficient with Python (beyond short scripts)</li>
+</ul>
+<p><strong>Enters <a href="https://github.com/K-Phoen/grabana"><code>grabana</code></a>!</strong></p>
+<p>As a response to this lack of open-source solutions, I decided to share my own.</p>
+<p><a href="https://github.com/K-Phoen/grabana">Grabana</a> is a Golang library that exposes a developer-friendly API to create Grafana dashboards.
+Its stated goals are:</p>
+<ul>
+<li>providing an understandable abstraction over Grafana&rsquo;s internal representation of a dashboard</li>
+<li>expose a developer-friendly API</li>
+<li>allow IDE assistance and auto-completion</li>
+</ul>
+<p>Thanks to <a href="https://github.com/K-Phoen/grabana"><code>grabana</code></a>, writing truly generic and re-usable Grafana dashboards becomes a breeze:</p>
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#e06c75">builder</span> <span style="color:#56b6c2">:=</span> <span style="color:#e06c75">dashboard</span>.<span style="color:#61afef;font-weight:bold">New</span>(
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span>    <span style="color:#98c379">&#34;System-v overview&#34;</span>,
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span>    <span style="color:#e06c75">dashboard</span>.<span style="color:#61afef;font-weight:bold">AutoRefresh</span>(<span style="color:#98c379">&#34;1m&#34;</span>),
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span>    <span style="color:#e06c75">dashboard</span>.<span style="color:#61afef;font-weight:bold">Tags</span>([]<span style="color:#e5c07b">string</span>{<span style="color:#98c379">&#34;system-v&#34;</span>, <span style="color:#98c379">&#34;generated&#34;</span>}),
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>    <span style="color:#e06c75">dashboard</span>.<span style="color:#61afef;font-weight:bold">VariableAsInterval</span>(
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span>        <span style="color:#98c379">&#34;interval&#34;</span>,
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span>        <span style="color:#e06c75">interval</span>.<span style="color:#61afef;font-weight:bold">Values</span>([]<span style="color:#e5c07b">string</span>{<span style="color:#98c379">&#34;30s&#34;</span>, <span style="color:#98c379">&#34;1m&#34;</span>, <span style="color:#98c379">&#34;5m&#34;</span>, <span style="color:#98c379">&#34;10m&#34;</span>, <span style="color:#98c379">&#34;30m&#34;</span>, <span style="color:#98c379">&#34;1h&#34;</span>, <span style="color:#98c379">&#34;6h&#34;</span>, <span style="color:#98c379">&#34;12h&#34;</span>}),
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span>    ),
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>    <span style="color:#e06c75">dashboard</span>.<span style="color:#61afef;font-weight:bold">Row</span>(
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>        <span style="color:#98c379">&#34;HTTP&#34;</span>,
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span>        <span style="color:#e06c75">row</span>.<span style="color:#61afef;font-weight:bold">WithGraph</span>(
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">12</span><span>            <span style="color:#98c379">&#34;HTTP Rate&#34;</span>,
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">13</span><span>            <span style="color:#e06c75">graph</span>.<span style="color:#61afef;font-weight:bold">WithPrometheusTarget</span>(
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">14</span><span>                <span style="color:#98c379">&#34;sum(rate(http_request_total{app=&#39;system-v&#39;}[$interval])) by (method, path, code)&#34;</span>,
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">15</span><span>                <span style="color:#e06c75">prometheus</span>.<span style="color:#61afef;font-weight:bold">Legend</span>(<span style="color:#98c379">&#34;{{ code }} - {{ method }} {{ path }}&#34;</span>),
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">16</span><span>            ),
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">17</span><span>        ),
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">18</span><span>    ),
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">19</span><span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">20</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">21</span><span><span style="color:#e06c75">ctx</span> <span style="color:#56b6c2">:=</span> <span style="color:#e06c75">context</span>.<span style="color:#61afef;font-weight:bold">Background</span>()
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">22</span><span><span style="color:#e06c75">client</span> <span style="color:#56b6c2">:=</span> <span style="color:#e06c75">grabana</span>.<span style="color:#61afef;font-weight:bold">NewClient</span>(
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">23</span><span>    <span style="color:#56b6c2">&amp;</span><span style="color:#e06c75">http</span>.<span style="color:#e06c75">Client</span>{},
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">24</span><span>    <span style="color:#98c379">&#34;http://grafana.local&#34;</span>,
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">25</span><span>    <span style="color:#e06c75">grabana</span>.<span style="color:#61afef;font-weight:bold">WithAPIToken</span>(<span style="color:#98c379">&#34;such secret, much wow&#34;</span>),
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">26</span><span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">27</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">28</span><span><span style="color:#7f848e">// create the folder holding the dashboard for the service
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">29</span><span><span style="color:#7f848e"></span><span style="color:#e06c75">folder</span>, <span style="color:#e06c75">err</span> <span style="color:#56b6c2">:=</span> <span style="color:#e06c75">client</span>.<span style="color:#61afef;font-weight:bold">FindOrCreateFolder</span>(<span style="color:#e06c75">ctx</span>, <span style="color:#98c379">&#34;System-v&#34;</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">30</span><span><span style="color:#c678dd">if</span> <span style="color:#e06c75">err</span> <span style="color:#56b6c2">!=</span> <span style="color:#e5c07b">nil</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">31</span><span>    <span style="color:#e06c75">fmt</span>.<span style="color:#61afef;font-weight:bold">Printf</span>(<span style="color:#98c379">&#34;Could not find or create folder: %s\n&#34;</span>, <span style="color:#e06c75">err</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">32</span><span>    <span style="color:#e06c75">os</span>.<span style="color:#61afef;font-weight:bold">Exit</span>(<span style="color:#d19a66">1</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">33</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">34</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">35</span><span><span style="color:#c678dd">if</span> <span style="color:#e06c75">_</span>, <span style="color:#e06c75">err</span> <span style="color:#56b6c2">:=</span> <span style="color:#e06c75">client</span>.<span style="color:#61afef;font-weight:bold">UpsertDashboard</span>(<span style="color:#e06c75">ctx</span>, <span style="color:#e06c75">folder</span>, <span style="color:#e06c75">builder</span>); <span style="color:#e06c75">err</span> <span style="color:#56b6c2">!=</span> <span style="color:#e5c07b">nil</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">36</span><span>    <span style="color:#e06c75">fmt</span>.<span style="color:#61afef;font-weight:bold">Printf</span>(<span style="color:#98c379">&#34;Could not create dashboard: %s\n&#34;</span>, <span style="color:#e06c75">err</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">37</span><span>    <span style="color:#e06c75">os</span>.<span style="color:#61afef;font-weight:bold">Exit</span>(<span style="color:#d19a66">1</span>)
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">38</span><span>}
+</span></span></code></pre></div><p><a href="https://github.com/K-Phoen/grabana"><code>grabana</code></a> allowed us to go from a sporadic
+coverage with highly heterogeneous dashboards, to having every service covered
+by a standard, unified dashboard.</p>
+<p>As a bonus, these dashboards also came with pre-defined alerts!</p>
+<p>Almost overnight, our confidence in our monitoring and alerting saw a huge boost.</p>
+<p>However, the best side effect was on the cognitive load associated to working with
+these dashboards. Since they are highly standardized, the time invested in
+understanding an overview dashboard for a service automatically transfers to the
+overview dashboard for any other service!</p>
+<h2 id="custom-dashboards-as-code-with-dark">Custom dashboards as code with DARK</h2>
+<p>Standard dashboards are a good starting point, but there is only so much they
+can show.</p>
+<p>Service-specific dashboards are a must-have to gain any meaningful
+confidence in the state of our platform. Each service should have dashboards
+tailored to tell the story of some particular aspect of that service: how is
+payment processing behaving? What&rsquo;s the state of our vehicle fleet? …</p>
+<p>Teams have been creating this kind of dashboard manually. However, like any
+manual work, this approach comes with a few downsides:</p>
+<ul>
+<li>creating and configuring dashboards in a UI is tedious, repetitive, and error-prone</li>
+<li>there is a huge drift in coverage and configuration depending on the environment</li>
+<li>close to no traceability on what changes are made to a dashboard and why</li>
+<li>no review/discussion is possible whenever a change is made</li>
+<li>the lifecycle of a service is separated from its dashboards. Releasing or
+rolling back a service often results in out-of-date dashboards</li>
+</ul>
+<p>To solve these issues, <a href="https://github.com/K-Phoen/dark"><code>DARK</code></a> was born!</p>
+<p>Based on <a href="https://github.com/K-Phoen/grabana"><code>grabana</code></a>, <a href="https://github.com/K-Phoen/dark"><code>DARK</code></a> is a Kubernetes operator that
+provides a way to provision dashboards, datasources, and Grafana API keys as code.</p>
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#e06c75">apiVersion</span>: k8s.kevingomez.fr/v1
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span><span style="color:#e06c75">kind</span>: GrafanaDashboard
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span><span style="color:#e06c75">metadata</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span>  <span style="color:#e06c75">name</span>: payments-business
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>  <span style="color:#e06c75">namespace</span>: payments
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span>  <span style="color:#e06c75">annotations</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span>    <span style="color:#e06c75">dark/folder</span>: <span style="color:#98c379">&#34;Payments&#34;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span><span style="color:#e06c75">spec</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>  <span style="color:#e06c75">title</span>: Payments Business
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>  <span style="color:#e06c75">shared_crosshair</span>: <span style="color:#e5c07b">true</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span>  <span style="color:#e06c75">tags</span>: [generated, payments]
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">12</span><span>  <span style="color:#e06c75">auto_refresh</span>: 1m
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">13</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">14</span><span>  <span style="color:#e06c75">variables</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">15</span><span>    - <span style="color:#e06c75">interval</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">16</span><span>        <span style="color:#e06c75">name</span>: interval
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">17</span><span>        <span style="color:#e06c75">label</span>: interval
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">18</span><span>        <span style="color:#e06c75">default</span>: 1m
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">19</span><span>        <span style="color:#e06c75">values</span>: [30s, 1m, 5m, 10m, 30m, 1h, 6h, 12h]
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">20</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">21</span><span>  <span style="color:#e06c75">rows</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">22</span><span>    - <span style="color:#e06c75">name</span>: Payment processing
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">23</span><span>      <span style="color:#e06c75">panels</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">24</span><span>        - <span style="color:#e06c75">timeseries</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">25</span><span>            <span style="color:#e06c75">title</span>: Processing rate
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">26</span><span>            <span style="color:#e06c75">targets</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">27</span><span>              - <span style="color:#e06c75">prometheus</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">28</span><span>                  <span style="color:#e06c75">query</span>: <span style="color:#98c379">&#34;sum(rate(payments_processing[$interval])) by (provider, status)&#34;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">29</span><span>                  <span style="color:#e06c75">legend</span>: <span style="color:#98c379">&#34;{{ provider }} - {{ status }}&#34;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">30</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">31</span><span>        - <span style="color:#e06c75">graph</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">32</span><span>            <span style="color:#e06c75">title</span>: Failed payments
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">33</span><span>            <span style="color:#e06c75">targets</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">34</span><span>              - <span style="color:#e06c75">prometheus</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">35</span><span>                  <span style="color:#e06c75">query</span>: <span style="color:#98c379">&#34;sum(rate(payments_processing{status=&#39;failed&#39;}[$interval])) by (provider)&#34;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">36</span><span>                  <span style="color:#e06c75">legend</span>: <span style="color:#98c379">&#34;{{ provider }}&#34;</span>
+</span></span></code></pre></div><p>With <a href="https://github.com/K-Phoen/dark"><code>DARK</code></a>, Grafana dashboards are described
+as Kubernetes manifests. As such, they follow the same process as the service
+they observe:</p>
+<ul>
+<li>versioned in git</li>
+<li>reviewed in pull requests</li>
+<li>released and rolled back with the service they describe</li>
+<li>deployed in all the environments in which the service lives</li>
+</ul>
+<p>And since not everyone is comfortable with writing YAML, a <a href="https://github.com/K-Phoen/dark/blob/master/docs/usage/converting-grafana-json-to-yaml.md">converter</a>
+is provided to ease the transition from existing, raw Grafana dashboards to
+DARK ones.</p>
+<h2 id="developer-experience">Developer experience</h2>
+<p>Seeing the benefits of declaring our custom dashboards as Kubernetes manifests
+made us realize how painful it was to define &ldquo;<em>standard dashboards</em>&rdquo; using our
+<code>voictl</code> tool.</p>
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">1</span><span>voictl grafana setup-dashboard system-v \
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">2</span><span>    --with-http \
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">3</span><span>    --with-db
+</span></span></code></pre></div><p>One such command was required per service and per environment.
+They were written in a simple bash script and executed in a Github Action,
+whenever a change is made to that file.</p>
+<p>This process was fine for some time&hellip; until it wasn&rsquo;t.</p>
+<p>Maintaining the bash script became quite painful as the number of microservices
+increased.</p>
+<p>It was yet another manual step to perform when creating a new service.</p>
+<p>And this script lived in a separate GitHub repository: far away from the
+services or their Kubernetes manifests.</p>
+<p>As a response, we decided to declare these standard dashboards as Kubernetes
+manifests too!</p>
+<p>These manifests are managed by an internal project: Dashung.</p>
+<p>Instead of relying on a CLI tool and a quick&rsquo;n&rsquo;dirty bash script, we now have
+a Kubernetes operator that manages manifests such as this one:</p>
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#e06c75">apiVersion</span>: voi.k8s.voiapp.io/v1
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span><span style="color:#e06c75">kind</span>: DefaultDashboard
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span><span style="color:#e06c75">metadata</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span>  <span style="color:#e06c75">name</span>: system-v
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>  <span style="color:#e06c75">namespace</span>: system-v
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span><span style="color:#e06c75">spec</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span>  <span style="color:#e06c75">owner</span>: developer-experience
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span>  <span style="color:#e06c75">tier</span>: <span style="color:#d19a66">4</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>  <span style="color:#e06c75">http</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span>    <span style="color:#e06c75">enabled</span>: <span style="color:#e5c07b">true</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">12</span><span>    <span style="color:#7f848e"># Threshold rate for the &#34;non-OK&#34; alert.</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">13</span><span>    <span style="color:#e06c75">error_threshold</span>: <span style="color:#98c379">&#34;1&#34;</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">14</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">15</span><span>  <span style="color:#e06c75">db</span>:
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">16</span><span>    <span style="color:#e06c75">name</span>: <span style="color:#98c379">&#34;system-v&#34;</span>
+</span></span></code></pre></div><p>Internally, Dashung uses <a href="https://github.com/K-Phoen/grabana"><code>grabana</code></a> exactly like our CLI used to.</p>
+<p>These dashboard manifests being close to the service itself, we could effortlessly
+find and maintain them.</p>
+<p>As a nice side effect, it allowed our <a href="https://backstage.io/docs/features/software-templates/">service scaffolding</a>
+to generate them automatically whenever new services are created.</p>
+<p>And as an even nicer bonus, we defined additional types of standard dashboards:</p>
+<ul>
+<li><code>BigTableDashboard</code>: to observe a <a href="https://cloud.google.com/bigtable">BigTable</a> cluster</li>
+<li><code>DataflowDashboard</code>: to observe <a href="https://cloud.google.com/dataflow">Dataflow</a> jobs</li>
+<li><code>ObservabilityDashboard</code>: to visualize observability-related metrics (how many
+metrics is my service producing? What&rsquo;s their cardinality? How many logs? …)</li>
+</ul>
+<p>Having services monitored by default and in a standard way was never easier.</p>
+<h2 id="looking-back">Looking back</h2>
+<p>The following quotes are taken from surveys sent out to our engineers:</p>
+<blockquote>
+<p>standard dashboards make my life insanely much easier for some things. Can never have enough of such tools</p>
+</blockquote>
+<p>Or</p>
+<blockquote>
+<p>default dashboards makes it really clear</p>
+</blockquote>
+<p>Our approach to standard dashboards is often mentioned positively whenever we ask
+things like « What parts from your developer experience at Voi make you happy » or
+« How easy is it to detect anomalies, find their root cause and fix them? »</p>
+<p>It took us some time to find or build the tooling that we needed and piece
+everything together in a coherent experience, but it was more than worth it.</p>
+<p>Every service has monitoring and alerting by default. These dashboards being
+described as code, their configuration can openly be discovered, updated or even
+generated during service scaffolding.</p>
+<p>It truly contributed positively to the engineers&rsquo; experience, allowing them to
+focus on solving business problems.</p>
+<p>10/10 would do it again!</p>
+
+    </section>
+
+    
+    <section class="post-tl-dr">
+        <h2 id="tl-dr">TL;DR</h2>
+        <ul>
+<li><a href="https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/best-practices/">consistency, structure and impact on cognitive load</a> in dashboards are key</li>
+<li>defining standard dashboards as code for a virtually free first layer of observability and alerting</li>
+<li><a href="https://github.com/K-Phoen/grabana">grabana</a> provides a developer-friendly way of creating Grafana dashboards in Golang</li>
+<li>service-specific dashboards should be defined as code too</li>
+<li><a href="https://github.com/K-Phoen/dark">DARK</a> provides a way to define and deploy Grafana dashboards via Kubernetes</li>
+<li>default dashboards should be created during service scaffolding</li>
+</ul>
+
+    </section>
+    
+</article>
+<div class="footer">
+    <div class="pure-menu pure-menu-horizontal">
+        <ul>
+            <li class="pure-menu-item"><a href="https://twitter.com/KPhoen/" class="pure-menu-link">Twitter</a></li>
+            <li class="pure-menu-item"><a href="https://github.com/K-Phoen/" class="pure-menu-link">GitHub</a></li>
+            <li class="pure-menu-item"><a href="https://www.linkedin.com/in/kevingomez/" class="pure-menu-link">LinkedIn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+    </div>
+</div>
+
+
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.0.2/+esm';
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'neutral',
+    });
+</script>
+
+</body>
+</html>

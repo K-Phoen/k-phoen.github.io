@@ -12,7 +12,7 @@
     <meta property="og:title" content="Split Symfony2 YAML validation configuration file" />
 <meta property="og:description" content="Symfony snippet showing how to use several validation files." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/2013/10/14/split-symfony2-yaml-validation-configuration-file/" />
+<meta property="og:url" content="/2013/10/14/split-symfony2-yaml-validation-configuration-file/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2013-10-14T00:00:00+00:00" />
 
 
@@ -26,7 +26,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/blog.min.51ddff0de179b0b8ea9d8d50eae09b222c56e5f5b4608fe7a68b0a2a7d1e383a.css">
+    <link rel="stylesheet" href="/css/blog.min.ce0d2d85b6847840515d024b986cdd791b58342541d856834b726c471f201776.css">
 
     </head>
 <body>
@@ -84,22 +84,14 @@
 
     <section class="post-body" itemprop="articleBody">
         <p><strong>Important</strong> : as j0k pointed out in the comments, Symfony 2.5 changed the way validation files are loaded. Refer to <a href="http://stackoverflow.com/questions/24064813/how-to-split-validation-yaml-files-in-symfony-2-5/24210501#24210501">this StackOverflow answer</a> if you are using Symfony &gt;= 2.5.</p>
-
 <p>Defining validation rules for several entities in the same file can really be a pain. Unfortunately, Symfony2 only looks in the <em>validation.yml</em> file by default.
 Let&rsquo;s see how we can split the following file:</p>
-
 <script type="text/javascript" src="https://gist.github.com/6974497.js?file=validation.yml"></script>
-
 <p>The solution lies in the <code>AcmeBlogExtension</code> class, and more specifically in the <code>validator.mapping.loader.yaml_files_loader.mapping_files</code> parameter. As this parameter defines the list of files used to map configuration rules to their entities, we just have to add our owns to the list.</p>
-
 <script type="text/javascript" src="https://gist.github.com/6974497.js?file=AcmeBlogExtension.php"></script>
-
 <p>In the extension, I assume that the validation files are stored in the <em>Resources/config/validation</em> directory. For the record, here are the files:</p>
-
 <script type="text/javascript" src="https://gist.github.com/6974497.js?file=Post.yml"></script>
-
 <script type="text/javascript" src="https://gist.github.com/6974497.js?file=Comment.yml"></script>
-
 <p>If you don&rsquo;t want to list yourself the files, you can use the <code>Finder</code> class to inspect the directory for you.</p>
 
     </section>
@@ -118,5 +110,7 @@ Let&rsquo;s see how we can split the following file:</p>
 </div>
     </div>
 </div>
+
+
 </body>
 </html>

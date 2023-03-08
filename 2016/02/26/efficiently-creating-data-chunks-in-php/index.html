@@ -13,7 +13,7 @@
 <meta property="og:description" content="How to efficiently create chunks from several iterators in PHP?
 " />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/2016/02/26/efficiently-creating-data-chunks-in-php/" />
+<meta property="og:url" content="/2016/02/26/efficiently-creating-data-chunks-in-php/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2016-02-26T00:00:00+00:00" />
 
 
@@ -28,7 +28,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/blog.min.51ddff0de179b0b8ea9d8d50eae09b222c56e5f5b4608fe7a68b0a2a7d1e383a.css">
+    <link rel="stylesheet" href="/css/blog.min.ce0d2d85b6847840515d024b986cdd791b58342541d856834b726c471f201776.css">
 
     </head>
 <body>
@@ -88,48 +88,41 @@
         <p>While I was working on a library to build sitemaps and sitemap indexes, I
 identified the need to aggregate several iterators and then build chunks of a
 precise size from this aggregate.</p>
-
 <p>To be clearer: given a list of URL providers for a sitemap index, I wanted to
 iterate over all the data exposed by these providers in chunks of 50.000 (the
 maximum number of URL allowed in a sitemap).</p>
-
 <p>Each provider being an Iterator, I can <em>chain</em> them using nikic&rsquo;s <a href="https://github.com/nikic/iter"><code>iter</code></a>
 library:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">$firstUrlProvider = …;
-$secondUrlProvider = …;
-
-$aggregatedProvider = iter\chain($firstUrlProvider, $secondUrlProvider);</code></pre></div>
-<p>I now have a way to iterate over all the URLs exposed by my providers, with a
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">1</span><span><span style="color:#e06c75">$firstUrlProvider</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">…</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">2</span><span><span style="color:#e06c75">$secondUrlProvider</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">…</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">3</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">4</span><span><span style="color:#e06c75">$aggregatedProvider</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">iter\chain</span>(<span style="color:#e06c75">$firstUrlProvider</span>, <span style="color:#e06c75">$secondUrlProvider</span>);
+</span></span></code></pre></div><p>I now have a way to iterate over all the URLs exposed by my providers, with a
 single <code>foreach</code> statement.</p>
-
 <p>My next issue comes from the need to build as much sitemap as I need, with a
 maximum number of 50.000 URL in each sitemap and without knowing how much URL I
 have nor storing anything unnecessary in memory.</p>
-
 <p>To put it in other words: I want to be able to generate chunks of 50.000 URL
 from my <code>$aggregatedProvider</code>, without storing the whole chunks in memory.</p>
-
 <p>Looks like it&rsquo;s a job for PHP generators!</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">function chunk(\Iterator $iterable, $size): \Iterator
-{
-    while ($iterable-&gt;valid()) {
-        $closure = function() use ($iterable, $size) {
-            $count = $size;
-            while ($count-- <span style="color:#a40000">&amp;&amp;</span> $iterable-&gt;valid()) {
-                yield $iterable-&gt;current();
-                $iterable-&gt;next();
-            }
-        };
-        yield $closure();
-    }
-}</code></pre></div>
-<p>In the previous function, I delegate the iteration over my provider to a
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#c678dd">function</span> <span style="color:#61afef;font-weight:bold">chunk</span>(<span style="color:#e06c75">\Iterator</span> <span style="color:#e06c75">$iterable</span>, <span style="color:#e06c75">$size</span>)<span style="color:#56b6c2">:</span> <span style="color:#e06c75">\Iterator</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span>{
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span>    <span style="color:#c678dd">while</span> (<span style="color:#e06c75">$iterable</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">valid</span>()) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span>        <span style="color:#e06c75">$closure</span> <span style="color:#56b6c2">=</span> <span style="color:#c678dd">function</span>() <span style="color:#c678dd">use</span> (<span style="color:#e06c75">$iterable</span>, <span style="color:#e06c75">$size</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>            <span style="color:#e06c75">$count</span> <span style="color:#56b6c2">=</span> <span style="color:#e06c75">$size</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span>            <span style="color:#c678dd">while</span> (<span style="color:#e06c75">$count</span><span style="color:#56b6c2">--</span> <span style="color:#56b6c2">&amp;&amp;</span> <span style="color:#e06c75">$iterable</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">valid</span>()) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span>                <span style="color:#c678dd">yield</span> <span style="color:#e06c75">$iterable</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">current</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span>                <span style="color:#e06c75">$iterable</span><span style="color:#56b6c2">-&gt;</span><span style="color:#e06c75">next</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span>            }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span>        };
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span>        <span style="color:#c678dd">yield</span> <span style="color:#e06c75">$closure</span>();
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">12</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">13</span><span>}
+</span></span></code></pre></div><p>In the previous function, I delegate the iteration over my provider to a
 Generator, that uses both the provider itself and the desired size of the chunk
 to efficiently yield my URLs.</p>
-
 <p>When put together, I obtain a nice way to iterate and make chunks from a large
 amount of data.</p>
-
 <p>As I said in <a href="http://blog.kevingomez.fr/2016/01/20/use-cases-for-php-generators/">another blog post</a>,
 Generators are awesome!</p>
 
@@ -149,5 +142,7 @@ Generators are awesome!</p>
 </div>
     </div>
 </div>
+
+
 </body>
 </html>

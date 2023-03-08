@@ -12,8 +12,8 @@
     <meta property="og:title" content="Why is uniqid() slow?" />
 <meta property="og:description" content="While profiling [RulerZ](https://github.com/K-Phoen/rulerz) with [Blackfire.io](https://blackfire.io/), I noticed that a non-negligible amount of time was consumed by PHP&#39;s `uniqid()` function. I found it odd that it consumed so much time and started to investigate why." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/til/2015/07/26/why-is-uniqid-slow/" />
-<meta property="article:published_time" content="2015-07-26T00:00:00+00:00" />
+<meta property="og:url" content="/til/2015/07/26/why-is-uniqid-slow/" /><meta property="article:section" content="til" />
+
 
 
     <meta name="twitter:card" content="summary"/>
@@ -26,7 +26,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/blog.min.51ddff0de179b0b8ea9d8d50eae09b222c56e5f5b4608fe7a68b0a2a7d1e383a.css">
+    <link rel="stylesheet" href="/css/blog.min.ce0d2d85b6847840515d024b986cdd791b58342541d856834b726c471f201776.css">
 
     </head>
 <body>
@@ -90,39 +90,32 @@
         <p>While profiling <a href="https://github.com/K-Phoen/rulerz">RulerZ</a> with
 <a href="https://blackfire.io/">Blackfire.io</a>, I noticed that a non-negligible amount of
 time was consumed by PHP&rsquo;s <code>uniqid()</code> function.</p>
-
 <p>For those who don&rsquo;t know, this function provides an easy way to generate unique
 identifiers <strong>based on the current date</strong> and an optional prefix.</p>
-
 <p>Wait, the &ldquo;<em>current date</em>&rdquo; part can actually be interesting for our performance
 issue. What happens if we write something like this:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">foreach ($foo as $bar) {
-    $awesomeCollection[] = new CoolObject(uniqid(), $bar);
-}</code></pre></div>
-<p>A simple loop like this should run pretty fast, so if <code>uniqid()</code> simply relies
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">1</span><span><span style="color:#c678dd">foreach</span> (<span style="color:#e06c75">$foo</span> <span style="color:#c678dd">as</span> <span style="color:#e06c75">$bar</span>) {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">2</span><span>    <span style="color:#e06c75">$awesomeCollection</span>[] <span style="color:#56b6c2">=</span> <span style="color:#c678dd">new</span> <span style="color:#e06c75">CoolObject</span>(<span style="color:#e06c75">uniqid</span>(), <span style="color:#e06c75">$bar</span>);
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">3</span><span>}
+</span></span></code></pre></div><p>A simple loop like this should run pretty fast, so if <code>uniqid()</code> simply relies
 on the current date we should have collisions&hellip; but it is not the case. Why?</p>
-
 <p>The answer to this question lies in <a href="https://github.com/php/php-src/blob/cd37e7c90d1745fe433ac66e8e0ec53eda388577/ext/standard/uniqid.c#L68">the implementation of
 <code>uniqid()</code></a>:
 in order to avoid time-induced collisions on the same host, <code>uniqid()</code> literally
 waits before getting the current date. That&rsquo;s why there is a <code>usleep(1)</code> call
 in the function&rsquo;s implementation.</p>
-
 <p>But wait, there&rsquo;s more. As the <em>man</em> page for <code>usleep</code> says, &ldquo;<cite>The usleep()
 function <strong>suspends execution</strong> of the calling thread for (<strong>at least</strong>) usec
 microseconds.  The sleep may be lengthened slightly by any system activity or by
 the time spent processing the call or by the granularity of system timers.</cite>&rdquo;.</p>
-
 <p>Yup, if you&rsquo;re not lucky <code>usleep(n)</code> calls can suspend the execution for more
 than <em>n</em> microseconds.</p>
-
 <p>Now, you may have noticed that the <code>usleep()</code> call is conditioned by the
 <code>more_entropy</code> variable, which happens to be a parameter exposed in the user-land
 <code>uniqid</code>.
 By setting <code>more_entropy</code> to <code>true</code>, we choose to provide an additional source
 of entropy by appending data using <a href="https://github.com/php/php-src/blob/master/ext/standard/lcg.c#L44-L74"><code>php_combined_lcg()</code></a> (a pseudo-random number
 generator), thus preventing time-induced collisions without having to sleep.</p>
-
 <p>So if you use <code>uniqid()</code>, make sure that the <code>$more_entropy</code> parameter is set
 to <code>true</code>.</p>
 
@@ -147,5 +140,7 @@ to <code>true</code>.</p>
 </div>
     </div>
 </div>
+
+
 </body>
 </html>

@@ -13,8 +13,8 @@
 <meta property="og:description" content="The `::class` keyword look like it can be used to assert that the generated FQCN will point to a valid class. Guess what: it cant.
 " />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/til/2016/01/15/php-class-keyword/" />
-<meta property="article:published_time" content="2016-01-15T00:00:00+00:00" />
+<meta property="og:url" content="/til/2016/01/15/php-class-keyword/" /><meta property="article:section" content="til" />
+
 
 
     <meta name="twitter:card" content="summary"/>
@@ -28,7 +28,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
     
-    <link rel="stylesheet" href="/css/blog.min.51ddff0de179b0b8ea9d8d50eae09b222c56e5f5b4608fe7a68b0a2a7d1e383a.css">
+    <link rel="stylesheet" href="/css/blog.min.ce0d2d85b6847840515d024b986cdd791b58342541d856834b726c471f201776.css">
 
     </head>
 <body>
@@ -91,40 +91,37 @@
     <section class="post-body" itemprop="articleBody">
         <p>According to PHP documentation about the <code>::class</code> keyword, it can be used for
 class name resolution:</p>
-
 <blockquote>
 <p>You can get a string containing the fully qualified name of the ClassName
 class by using ClassName::class.</p>
 </blockquote>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">namespace NS {
-    class ClassName {
-    }
-
-    echo ClassName::class;
-}
-
-// outputs: &#34;NS\ClassName&#34;</code></pre></div>
-<p>It&rsquo;s handy when you need to pass FQCN around.
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">1</span><span><span style="color:#c678dd">namespace</span> <span style="color:#e06c75">NS</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">2</span><span>    <span style="color:#c678dd">class</span> <span style="color:#e5c07b">ClassName</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">3</span><span>    }
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">4</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">5</span><span>    <span style="color:#c678dd">echo</span> <span style="color:#e06c75">ClassName</span><span style="color:#56b6c2">::</span><span style="color:#e06c75">class</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">6</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">7</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">8</span><span><span style="color:#7f848e">// outputs: &#34;NS\ClassName&#34;
+</span></span></span></code></pre></div><p>It&rsquo;s handy when you need to pass FQCN around.
 Some people even started using it to make sure that their code was referencing
 existing classes.</p>
-
 <p>Except that it&rsquo;s written nowhere in the documentation that this keyword will
 ensure that the generated FQCN maps to an existing class!</p>
-
 <p>In fact, you can use this keyword on classes that are neither defined nor
 autoloadable.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php">use Foo\Bar;
-
-namespace NS {
-    echo ClassThatDoesNotExist::class . PHP_EOL;
-}
-
-echo Bar::class;
-
-// outputs:
-// &#34;NS\ClassThatDoesNotExist&#34;
-// &#34;Foo\Bar&#34;</code></pre></div>
-<p>Yup, <code>\NS\ClassThatDoesNotExist</code> won&rsquo;t be autoloaded. It&rsquo;s FQCN will just be
+<div class="highlight"><pre tabindex="0" style="color:#abb2bf;background-color:#282c34;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 1</span><span><span style="color:#c678dd">use</span> <span style="color:#e06c75">Foo\Bar</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 2</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 3</span><span><span style="color:#c678dd">namespace</span> <span style="color:#e06c75">NS</span> {
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 4</span><span>    <span style="color:#c678dd">echo</span> <span style="color:#e06c75">ClassThatDoesNotExist</span><span style="color:#56b6c2">::</span><span style="color:#e06c75">class</span> <span style="color:#56b6c2">.</span> <span style="color:#e06c75">PHP_EOL</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 5</span><span>}
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 6</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 7</span><span><span style="color:#c678dd">echo</span> <span style="color:#e06c75">Bar</span><span style="color:#56b6c2">::</span><span style="color:#e06c75">class</span>;
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 8</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f"> 9</span><span><span style="color:#7f848e">// outputs:
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">10</span><span><span style="color:#7f848e">// &#34;NS\ClassThatDoesNotExist&#34;
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#55595f">11</span><span><span style="color:#7f848e">// &#34;Foo\Bar&#34;
+</span></span></span></code></pre></div><p>Yup, <code>\NS\ClassThatDoesNotExist</code> won&rsquo;t be autoloaded. It&rsquo;s FQCN will just be
 generated using the current namespace or <code>use</code> statements.</p>
 
     </section>
@@ -148,5 +145,7 @@ generated using the current namespace or <code>use</code> statements.</p>
 </div>
     </div>
 </div>
+
+
 </body>
 </html>
